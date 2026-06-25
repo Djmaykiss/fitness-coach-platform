@@ -2,10 +2,10 @@ import type { Transformation } from "@/types";
 
 export const transformations: Transformation[] = [
   {
-    title: "Recomposicion",
+    title: "Recomposición",
     before: "Antes",
-    after: "Despues",
-    detail: "-8 kg y cintura mas definida en 12 semanas.",
+    after: "Después",
+    detail: "-8 kg y cintura más definida en 12 semanas.",
   },
   {
     title: "Fuerza",

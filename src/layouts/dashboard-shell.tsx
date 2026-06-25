@@ -6,7 +6,7 @@ import { MiniFooter } from "@/components/ui";
 export function DashboardShell({
   title,
   subtitle,
-  eyebrow = "Area privada",
+  eyebrow = "Área privada",
   children,
 }: {
   title: string;

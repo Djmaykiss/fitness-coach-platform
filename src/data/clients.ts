@@ -8,5 +8,5 @@ export const clients: Client[] = [
   { id: "c-demo", name: "Cliente Demo", status: "Activo", userId: "user-cliente" },
   { id: "c-a", name: "Cliente A", status: "Activo" },
   { id: "c-b", name: "Cliente B", status: "Activo" },
-  { id: "c-c", name: "Cliente C", status: "Revision" },
+  { id: "c-c", name: "Cliente C", status: "Revisión" },
 ];

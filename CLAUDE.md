@@ -67,6 +67,8 @@ contenido es estatico y no requiere persistencia).
 - No implementar todavia: Supabase, pagos, IA, WhatsApp/Instagram/Facebook Messenger, CRM avanzado, nutricion avanzada, videos avanzados ni automatizaciones. Se agregan en etapas futuras.
 - Footer obligatorio con credito: "Desarrollado por Michael Perez" y enlaces a portafolio (https://djmaykiss.github.io/Minuevocurriculum/), sitio web (https://markingwebs.com/) y GitHub (https://github.com/Djmaykiss). Se muestra en todas las paginas: footer completo en la landing y `MiniFooter` (compacto) en login, registro y dashboards.
 - La sesion mock se cierra con el boton "Salir" del header de los dashboards (`src/components/logout-button.tsx`).
+- El saludo de ambos dashboards usa el nombre real del usuario autenticado (`Bienvenido, ${user.firstName}` desde `useAuth`); nunca se hardcodea el nombre en el componente.
+- Copys del login: titulo "Bienvenido a tu nueva version.", subtitulo orientado al cliente, formulario "Accede a tu espacio" y boton "Continuar".
 - WhatsApp aun no esta conectado: el dashboard del cliente muestra un boton "Contacto pendiente" deshabilitado con la nota "El numero del coach se agregara despues". No usar numeros falsos ni `wa.me` vacio.
 - Sin enlaces vacios: no usar `href="#"`, `href=""` ni `wa.me` sin numero. Para rutas internas usar siempre `<Link>` de `next/link`.
 - Tema visual: negro, gris oscuro, verde neon, cards premium con glassmorphism ligero, bordes redondeados y transiciones suaves.

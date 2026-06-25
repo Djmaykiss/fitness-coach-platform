@@ -13,7 +13,7 @@ export const SCHEDULED_CALLS = "18";
 
 /** Progreso del cliente demo (`c-demo`). */
 export const defaultClientProgress: ClientProgress = {
-  programa: "Transformacion 12 semanas",
+  programa: "Transformación 12 semanas",
   semanaActual: 4,
   semanasTotales: 12,
   progresoPct: 33,
@@ -40,7 +40,7 @@ export const starterClientProgress: ClientProgress = {
   objetivo: "-",
   adherencia: "0%",
   tasks: [
-    "Completa tu evaluacion inicial",
+    "Completa tu evaluación inicial",
     "Agenda tu primera llamada con el coach",
   ],
 };
@@ -49,7 +49,7 @@ export const starterClientProgress: ClientProgress = {
 export const seedProgress: Record<string, ClientProgress> = {
   "c-demo": defaultClientProgress,
   "c-a": {
-    programa: "Transformacion",
+    programa: "Transformación",
     semanaActual: 8,
     semanasTotales: 12,
     progresoPct: 68,
@@ -79,6 +79,6 @@ export const seedProgress: Record<string, ClientProgress> = {
     pesoActual: "80 kg",
     objetivo: "80 kg",
     adherencia: "95%",
-    tasks: ["Mantener movilidad diaria", "Revisar tecnica en video"],
+    tasks: ["Mantener movilidad diaria", "Revisar técnica en video"],
   },
 };

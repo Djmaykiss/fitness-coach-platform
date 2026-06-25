@@ -35,7 +35,7 @@ export async function HeroSection() {
           </h1>
           <p className="mt-6 max-w-2xl text-lg leading-8 text-zinc-300 sm:text-xl">
             Entrenamiento personalizado, seguimiento semanal y un plan claro para
-            que avances con direccion y sin improvisar.
+            que avances con dirección y sin improvisar.
           </p>
           <div className="mt-9 flex flex-col gap-3 sm:flex-row">
             <ButtonLink href="#agenda">Agendar llamada</ButtonLink>
@@ -58,16 +58,16 @@ export function AboutSection() {
     <section id="sobre-mi" className="mx-auto grid max-w-7xl gap-10 px-5 py-24 sm:px-8 lg:grid-cols-[0.9fr_1.1fr]">
       <div>
         <p className="text-sm font-black uppercase tracking-[0.24em] text-[#65ff4f]">
-          Sobre mi
+          Sobre mí
         </p>
         <h2 className="mt-4 text-4xl font-black tracking-tight sm:text-6xl">
-          Coaching basado en estructura, datos y ejecucion.
+          Coaching basado en estructura, datos y ejecución.
         </h2>
       </div>
       <div className="space-y-5 text-lg leading-8 text-zinc-400">
         <p>
-          Combino planificacion, fuerza, habitos y seguimiento semanal para que
-          cada entrenamiento tenga un proposito claro.
+          Combino planificación, fuerza, hábitos y seguimiento semanal para que
+          cada entrenamiento tenga un propósito claro.
         </p>
         <p>
           Trabajamos con objetivos medibles y ajustes constantes, para que el
@@ -124,9 +124,9 @@ export async function TransformationsSection() {
   return (
     <section id="transformaciones" className="mx-auto max-w-7xl px-5 py-24 sm:px-8">
       <SectionHeader
-        eyebrow="Antes y despues"
+        eyebrow="Antes y después"
         title="Resultados que puedes lograr"
-        description="Ejemplos de progreso en fuerza, composicion corporal y consistencia con un plan estructurado."
+        description="Ejemplos de progreso en fuerza, composición corporal y consistencia con un plan estructurado."
       />
       <div className="grid gap-5 md:grid-cols-3">
         {transformations.map((item) => (
@@ -157,7 +157,7 @@ export async function TestimonialsSection() {
         <SectionHeader
           eyebrow="Testimonios"
           title="Historias de progreso"
-          description="Personas reales que entrenaron con direccion y lograron sostener sus resultados."
+          description="Personas reales que entrenaron con dirección y lograron sostener sus resultados."
         />
         <div className="grid gap-5 md:grid-cols-3">
           {testimonials.map((item) => (
@@ -186,7 +186,7 @@ export async function BenefitsSection() {
       <SectionHeader
         eyebrow="Beneficios"
         title="Un sistema simple para sostener el progreso"
-        description="Claridad, accion y seguimiento para que sepas siempre que hacer y como vas avanzando."
+        description="Claridad, acción y seguimiento para que sepas siempre qué hacer y cómo vas avanzando."
       />
       <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
         {benefits.map((benefit) => {
@@ -217,7 +217,7 @@ export function BookingSection() {
           Valida tu objetivo y elige el plan correcto.
         </h2>
         <p className="mt-5 text-lg leading-8 text-zinc-400">
-          Cuentanos tu objetivo y te proponemos el plan que mejor se ajusta a tu
+          Cuéntanos tu objetivo y te proponemos el plan que mejor se ajusta a tu
           nivel y disponibilidad.
         </p>
         <div className="mt-8 flex justify-center">
@@ -235,7 +235,7 @@ export function FinalCtaSection() {
         <div>
           <p className="text-sm font-black uppercase tracking-[0.22em]">Empieza hoy</p>
           <h2 className="mt-2 text-3xl font-black uppercase sm:text-5xl">
-            Construye tu mejor version con un plan medible.
+            Construye tu mejor versión con un plan medible.
           </h2>
         </div>
         <a

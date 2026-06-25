@@ -31,7 +31,7 @@ export function AuthForm({ mode }: AuthFormProps) {
     event.preventDefault();
 
     if (!isLogin && password !== confirmPassword) {
-      setMessage("Las contrasenas no coinciden.");
+      setMessage("Las contraseñas no coinciden.");
       return;
     }
 
@@ -51,7 +51,7 @@ export function AuthForm({ mode }: AuthFormProps) {
 
     setMessage(
       isLogin
-        ? "Sesion iniciada. Redirigiendo..."
+        ? "Sesión iniciada. Redirigiendo..."
         : "Cuenta creada. Redirigiendo a tu dashboard...",
     );
     redirectByRole(result.user);
@@ -64,7 +64,7 @@ export function AuthForm({ mode }: AuthFormProps) {
           <LockKeyhole size={24} />
         </div>
         <h1 className="text-3xl font-black tracking-tight">
-          {isLogin ? "Iniciar sesion" : "Crear cuenta"}
+          {isLogin ? "Accede a tu espacio" : "Crear cuenta"}
         </h1>
         <p className="mt-3 text-sm leading-6 text-zinc-400">
           {isLogin
@@ -89,20 +89,20 @@ export function AuthForm({ mode }: AuthFormProps) {
       />
 
       <TextField
-        label="Contrasena"
+        label="Contraseña"
         type="password"
         value={password}
         onChange={setPassword}
-        placeholder="Minimo 6 caracteres"
+        placeholder="Mínimo 6 caracteres"
       />
 
       {!isLogin ? (
         <TextField
-          label="Confirmar contrasena"
+          label="Confirmar contraseña"
           type="password"
           value={confirmPassword}
           onChange={setConfirmPassword}
-          placeholder="Repite tu contrasena"
+          placeholder="Repite tu contraseña"
         />
       ) : null}
 
@@ -114,7 +114,7 @@ export function AuthForm({ mode }: AuthFormProps) {
         {isSubmitting
           ? "Procesando..."
           : isLogin
-            ? "Iniciar sesion"
+            ? "Continuar"
             : "Registrarme"}
         <ArrowRight size={18} />
       </button>
@@ -134,12 +134,12 @@ export function AuthForm({ mode }: AuthFormProps) {
       ) : null}
 
       <p className="mt-6 text-center text-sm text-zinc-500">
-        {isLogin ? "No tienes cuenta?" : "Ya tienes cuenta?"}{" "}
+        {isLogin ? "¿No tienes cuenta?" : "¿Ya tienes cuenta?"}{" "}
         <Link
           href={isLogin ? "/register" : "/login"}
           className="font-bold text-[#65ff4f]"
         >
-          {isLogin ? "Registrate" : "Entrar"}
+          {isLogin ? "Regístrate" : "Entrar"}
         </Link>
       </p>
     </form>

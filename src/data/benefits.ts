@@ -10,7 +10,7 @@ export const benefits: Benefit[] = [
   {
     icon: Target,
     title: "Plan personalizado",
-    description: "Entrenamiento segun objetivo, nivel, disponibilidad y progreso.",
+    description: "Entrenamiento según objetivo, nivel, disponibilidad y progreso.",
   },
   {
     icon: ChartNoAxesCombined,
@@ -20,11 +20,11 @@ export const benefits: Benefit[] = [
   {
     icon: CalendarDays,
     title: "Llamadas programadas",
-    description: "Agenda preparada para check-ins, consultorias y mentorias.",
+    description: "Agenda preparada para check-ins, consultorías y mentorías.",
   },
   {
     icon: CheckCircle2,
     title: "Sistema simple",
-    description: "Menos ruido, mas ejecucion y decisiones semanales claras.",
+    description: "Menos ruido, más ejecución y decisiones semanales claras.",
   },
 ];

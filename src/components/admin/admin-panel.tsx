@@ -12,7 +12,7 @@ import type {
   ProgramRow,
 } from "@/types";
 
-const CLIENT_STATUSES = ["Activo", "Nuevo", "Revision", "Inactivo"];
+const CLIENT_STATUSES = ["Activo", "Nuevo", "Revisión", "Inactivo"];
 const PROGRAM_STATUSES = ["Activo", "Inactivo"];
 
 type Editor =
@@ -152,7 +152,7 @@ export function AdminPanel() {
           }
         />
         <ReadonlyTable
-          columns={["Nombre", "Clientes", "Duracion", "Estado"]}
+          columns={["Nombre", "Clientes", "Duración", "Estado"]}
           rows={programs.map((p) => [p.name, p.clients, p.duration, p.status])}
         />
       </section>
@@ -161,7 +161,7 @@ export function AdminPanel() {
       <section className="premium-card mt-6 overflow-hidden rounded-2xl">
         <SectionHeader title="Leads" />
         <ReadonlyTable
-          columns={["Nombre", "Fuente", "Interes", "Estado"]}
+          columns={["Nombre", "Fuente", "Interés", "Estado"]}
           rows={leads.map((l) => [l.name, l.source, l.interest, l.status])}
         />
       </section>
@@ -330,7 +330,7 @@ function ProgramForm({
       <div className="grid gap-4 sm:grid-cols-3">
         <TextField label="Nombre" value={name} onChange={setName} required />
         <TextField
-          label="Duracion"
+          label="Duración"
           value={duration}
           onChange={setDuration}
           placeholder="Ej: 8 semanas"
@@ -363,7 +363,7 @@ function AssignProgramForm({
     return (
       <div className="space-y-4">
         <p className="text-sm text-zinc-400">
-          Aun no hay programas. Crea uno primero para poder asignarlo.
+          Aún no hay programas. Crea uno primero para poder asignarlo.
         </p>
         <button type="button" onClick={onCancel} className={secondaryBtn}>
           Cerrar

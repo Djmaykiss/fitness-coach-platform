@@ -21,7 +21,7 @@ export const authService = {
   async login({ email, password }: Credentials): Promise<AuthResult> {
     const user = await userRepository.findByCredentials({ email, password });
     if (!user) {
-      return { ok: false, error: "Correo o contrasena incorrectos." };
+      return { ok: false, error: "Correo o contraseña incorrectos." };
     }
     return { ok: true, user: toAuthUser(user) };
   },

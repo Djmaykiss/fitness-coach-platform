@@ -34,8 +34,8 @@ export default function ClientDashboardPage() {
   return (
     <RequireAuth role="client">
       <DashboardShell
-        title="Bienvenido, Cliente"
-        subtitle="Tu programa, tu progreso, tu proxima llamada y tus tareas de la semana en un solo lugar."
+        title={`Bienvenido, ${user?.firstName ?? ""}`}
+        subtitle="Tu programa, tu progreso, tu próxima llamada y tus tareas de la semana en un solo lugar."
       >
         {progress ? (
           <ProgressView progress={progress} />
@@ -73,8 +73,8 @@ function ProgressView({ progress }: { progress: ClientProgress }) {
           <h2 className="mt-4 text-3xl font-black">{progress.programa}</h2>
           <p className="mt-3 text-zinc-400">
             {hasProgram
-              ? `Semana ${progress.semanaActual} de ${progress.semanasTotales}. Manten la consistencia y registra tus avances.`
-              : "Aun no tienes un programa asignado. Tu coach lo configurara pronto."}
+              ? `Semana ${progress.semanaActual} de ${progress.semanasTotales}. Mantén la consistencia y registra tus avances.`
+              : "Aún no tienes un programa asignado. Tu coach lo configurará pronto."}
           </p>
           <div className="mt-6">
             <div className="mb-2 flex justify-between text-sm text-zinc-400">
@@ -97,7 +97,7 @@ function ProgressView({ progress }: { progress: ClientProgress }) {
 
         <section className="premium-card rounded-2xl p-6">
           <p className="text-sm font-black uppercase tracking-[0.22em] text-[#65ff4f]">
-            Proxima llamada
+            Próxima llamada
           </p>
           <h2 className="mt-4 text-3xl font-black">Jueves, 7:00 PM</h2>
           <p className="mt-3 text-zinc-400">
@@ -112,13 +112,13 @@ function ProgressView({ progress }: { progress: ClientProgress }) {
             Contacto pendiente
           </button>
           <p className="mt-2 text-center text-xs text-zinc-600">
-            El numero del coach se agregara despues.
+            El número del coach se agregará después.
           </p>
         </section>
       </div>
 
       <section className="premium-card mt-6 rounded-2xl p-6">
-        <h2 className="text-2xl font-black">Proximas tareas</h2>
+        <h2 className="text-2xl font-black">Próximas tareas</h2>
         <div className="mt-5 grid gap-3 md:grid-cols-2">
           {progress.tasks.map((task) => (
             <div

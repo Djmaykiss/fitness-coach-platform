@@ -12,14 +12,14 @@ export default function LoginPage() {
         <div className="grid items-center gap-10 lg:grid-cols-[1fr_440px]">
           <div>
             <p className="text-sm font-black uppercase tracking-[0.24em] text-[#65ff4f]">
-              Area privada
+              Área privada
             </p>
             <h1 className="mt-4 text-5xl font-black uppercase leading-none sm:text-7xl">
-              Acceso limpio para clientes.
+              Bienvenido a tu nueva versión.
             </h1>
             <p className="mt-6 max-w-xl text-lg leading-8 text-zinc-400">
-              Acceso local simulado con redireccion al dashboard segun el rol
-              (cliente o administrador).
+              Inicia sesión para continuar con tu entrenamiento, seguir tu
+              progreso y alcanzar tus objetivos.
             </p>
           </div>
           <AuthForm mode="login" />

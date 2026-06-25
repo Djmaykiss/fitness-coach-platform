@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Coach Fitness | Fitness Coaching",
   description:
-    "Coaching fitness con planificacion, seguimiento semanal y un plan claro para sostener tu progreso.",
+    "Coaching fitness con planificación, seguimiento semanal y un plan claro para sostener tu progreso.",
 };
 
 export default function RootLayout({

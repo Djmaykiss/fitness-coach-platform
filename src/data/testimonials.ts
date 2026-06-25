@@ -6,7 +6,7 @@ export const testimonials: Testimonial[] = [
     role: "Profesional ocupado",
     result: "-8 kg",
     quote:
-      "El proceso fue claro desde el primer dia. Entrene con direccion y pude sostenerlo.",
+      "El proceso fue claro desde el primer día. Entrené con dirección y pude sostenerlo.",
   },
   {
     name: "Cliente B",
@@ -17,7 +17,7 @@ export const testimonials: Testimonial[] = [
   },
   {
     name: "Cliente C",
-    role: "Cambio de habitos",
+    role: "Cambio de hábitos",
     result: "90% adherencia",
     quote:
       "Los check-ins me ayudaron a mantener foco incluso cuando mi agenda estaba llena.",

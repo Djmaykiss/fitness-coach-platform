@@ -121,7 +121,7 @@ export function Footer() {
             Coach <span className="text-[#65ff4f]">Fitness</span>
           </p>
           <p className="mt-2 max-w-md leading-6">
-            Coaching fitness con planificacion, seguimiento y acompanamiento
+            Coaching fitness con planificación, seguimiento y acompañamiento
             semanal para sostener tu progreso.
           </p>
         </div>
