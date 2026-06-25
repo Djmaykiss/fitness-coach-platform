@@ -80,3 +80,10 @@ contenido es estatico y no requiere persistencia).
 - Despues de cada modificacion, abrir o recargar la pagina para verificarla. Revisar siempre en desktop y en movil (responsive).
 - Ejecutar `npm run lint` y `npm run build` antes de entregar cambios finales.
 - Mantener componentes separados, responsivos y preparados para crecer.
+
+## Publicacion GitHub
+- Fecha de publicacion: 2026-06-25.
+- Repositorio: `fitness-coach-platform`.
+- URL: https://github.com/Djmaykiss/fitness-coach-platform
+- Rama principal: `main`.
+- Commit inicial publicado: `b92d020` (`feat: initial fitness coach platform`).
