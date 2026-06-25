@@ -6,25 +6,35 @@ import {
   CheckCircle2,
   Dumbbell,
   MessageCircle,
+  PauseCircle,
+  ShieldAlert,
+  ShieldCheck,
   Target,
   Trophy,
 } from "lucide-react";
 import { DashboardShell } from "@/layouts/dashboard-shell";
 import { RequireAuth } from "@/components/require-auth";
+import { AccessBadge } from "@/components/access-badge";
 import { StatCard } from "@/components/ui";
 import { useAuth } from "@/context/auth-context";
 import { clientDashboardService } from "@/services/dashboard.service";
+import type { ClientAccess } from "@/services/dashboard.service";
+import { formatDate } from "@/lib/format";
 import type { ClientProgress } from "@/types";
 
 export default function ClientDashboardPage() {
   const { user } = useAuth();
   const [progress, setProgress] = useState<ClientProgress | null>(null);
+  const [access, setAccess] = useState<ClientAccess | null>(null);
 
   useEffect(() => {
     if (!user) return;
     let active = true;
     clientDashboardService.getProgressForUser(user.id).then((data) => {
       if (active) setProgress(data);
+    });
+    clientDashboardService.getAccessForUser(user.id).then((data) => {
+      if (active) setAccess(data);
     });
     return () => {
       active = false;
@@ -37,6 +47,7 @@ export default function ClientDashboardPage() {
         title={`Bienvenido, ${user?.firstName ?? ""}`}
         subtitle="Tu programa, tu progreso, tu próxima llamada y tus tareas de la semana en un solo lugar."
       >
+        {access ? <AccessNotice access={access} /> : null}
         {progress ? (
           <ProgressView progress={progress} />
         ) : (
@@ -44,6 +55,56 @@ export default function ClientDashboardPage() {
         )}
       </DashboardShell>
     </RequireAuth>
+  );
+}
+
+function AccessNotice({ access }: { access: ClientAccess }) {
+  const { accessStatus, accessExpiresAt } = access;
+
+  const config = {
+    Activo: {
+      icon: ShieldCheck,
+      tone: "border-[#65ff4f]/30 bg-[#65ff4f]/[0.06]",
+      iconTone: "text-[#65ff4f]",
+      title: "Tu acceso está activo",
+      message: `Tienes acceso a tu plan hasta el ${formatDate(accessExpiresAt)}.`,
+    },
+    Vencido: {
+      icon: ShieldAlert,
+      tone: "border-red-500/30 bg-red-500/[0.06]",
+      iconTone: "text-red-400",
+      title: "Tu acceso venció",
+      message: `Tu acceso terminó el ${formatDate(
+        accessExpiresAt,
+      )}. Renueva con tu coach para seguir entrenando.`,
+    },
+    Pausado: {
+      icon: PauseCircle,
+      tone: "border-amber-400/30 bg-amber-400/[0.06]",
+      iconTone: "text-amber-300",
+      title: "Tu acceso está en pausa",
+      message:
+        "Tu acceso está pausado temporalmente. Contacta a tu coach para reactivarlo.",
+    },
+  }[accessStatus];
+
+  const Icon = config.icon;
+
+  return (
+    <section
+      className={`mb-6 flex items-start gap-4 rounded-2xl border p-5 ${config.tone}`}
+    >
+      <div className={`mt-0.5 shrink-0 ${config.iconTone}`}>
+        <Icon size={24} />
+      </div>
+      <div>
+        <div className="flex flex-wrap items-center gap-3">
+          <h2 className="text-lg font-black">{config.title}</h2>
+          <AccessBadge status={accessStatus} />
+        </div>
+        <p className="mt-1 text-sm leading-6 text-zinc-400">{config.message}</p>
+      </div>
+    </section>
   );
 }
 

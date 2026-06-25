@@ -6,6 +6,7 @@ import {
 } from "@/repositories";
 import { SCHEDULED_CALLS, starterClientProgress } from "@/data/dashboard";
 import type {
+  AccessStatus,
   AdminClientRow,
   ClientProgress,
   CreateClientInput,
@@ -14,12 +15,29 @@ import type {
   ProgramRow,
 } from "@/types";
 
-/** Progreso del cliente autenticado (resuelto por su usuario enlazado). */
+const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
+
+export type ClientAccess = {
+  accessStatus: AccessStatus;
+  accessExpiresAt: string | null;
+};
+
+/** Datos del cliente autenticado (resueltos por su usuario enlazado). */
 export const clientDashboardService = {
   async getProgressForUser(userId: string): Promise<ClientProgress> {
     const client = await clientRepository.findByUserId(userId);
     if (!client) return starterClientProgress;
     return progressRepository.getForClient(client.id);
+  },
+
+  /** Estado de acceso del alumno autenticado (para el aviso del dashboard). */
+  async getAccessForUser(userId: string): Promise<ClientAccess | null> {
+    const client = await clientRepository.findByUserId(userId);
+    if (!client) return null;
+    return {
+      accessStatus: client.accessStatus ?? "Vencido",
+      accessExpiresAt: client.accessExpiresAt ?? null,
+    };
   },
 };
 
@@ -40,6 +58,8 @@ export const adminDashboardService = {
           status: client.status,
           programa: progress.programa,
           progresoPct: progress.progresoPct,
+          accessStatus: client.accessStatus ?? "Vencido",
+          accessExpiresAt: client.accessExpiresAt ?? null,
         };
       }),
     );
@@ -96,5 +116,29 @@ export const adminDashboardService = {
   async updateProgress(clientId: string, patch: Partial<ClientProgress>) {
     const current = await progressRepository.getForClient(clientId);
     return progressRepository.saveForClient(clientId, { ...current, ...patch });
+  },
+
+  /* ---------- Control de acceso mensual ---------- */
+
+  /** Renueva el acceso 30 dias y registra el metodo de pago usado. */
+  renewAccess(clientId: string, paymentMethod: string) {
+    const now = new Date();
+    const expires = new Date(now.getTime() + THIRTY_DAYS_MS);
+    return clientRepository.updateClient(clientId, {
+      accessStatus: "Activo",
+      accessExpiresAt: expires.toISOString(),
+      lastPaymentDate: now.toISOString(),
+      paymentMethod,
+    });
+  },
+
+  /** Marca el acceso del alumno como vencido. */
+  markExpired(clientId: string) {
+    return clientRepository.updateClient(clientId, { accessStatus: "Vencido" });
+  },
+
+  /** Pausa el acceso del alumno. */
+  pauseAccess(clientId: string) {
+    return clientRepository.updateClient(clientId, { accessStatus: "Pausado" });
   },
 };

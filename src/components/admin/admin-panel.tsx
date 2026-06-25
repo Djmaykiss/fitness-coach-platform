@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Pencil, Plus, SlidersHorizontal, Target } from "lucide-react";
+import { KeyRound, Pencil, Plus, SlidersHorizontal, Target } from "lucide-react";
 import { StatCard } from "@/components/ui";
+import { AccessBadge } from "@/components/access-badge";
 import { adminDashboardService } from "@/services/dashboard.service";
+import { formatDate } from "@/lib/format";
 import type {
   AdminClientRow,
   ClientProgress,
@@ -14,12 +16,20 @@ import type {
 
 const CLIENT_STATUSES = ["Activo", "Nuevo", "Revisión", "Inactivo"];
 const PROGRAM_STATUSES = ["Activo", "Inactivo"];
+const PAYMENT_METHODS = [
+  "PayPal",
+  "Zelle",
+  "Western Union",
+  "Efectivo",
+  "Transferencia",
+];
 
 type Editor =
   | { kind: "createClient" }
   | { kind: "editClient"; client: AdminClientRow }
   | { kind: "assign"; client: AdminClientRow }
   | { kind: "progress"; client: AdminClientRow }
+  | { kind: "access"; client: AdminClientRow }
   | { kind: "createProgram" }
   | null;
 
@@ -94,8 +104,10 @@ export function AdminPanel() {
           }
         />
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[720px] border-collapse text-left text-sm">
-            <TableHead columns={["Nombre", "Programa", "Estado", "Progreso", ""]} />
+          <table className="w-full min-w-[880px] border-collapse text-left text-sm">
+            <TableHead
+              columns={["Nombre", "Programa", "Acceso", "Vence", "Estado", "Progreso", ""]}
+            />
             <tbody>
               {clients.map((client) => (
                 <tr key={client.id} className="border-t border-white/10">
@@ -104,6 +116,12 @@ export function AdminPanel() {
                   </td>
                   <td className="px-6 py-4 text-zinc-300">{client.programa}</td>
                   <td className="px-6 py-4">
+                    <AccessBadge status={client.accessStatus} />
+                  </td>
+                  <td className="px-6 py-4 text-zinc-400">
+                    {formatDate(client.accessExpiresAt)}
+                  </td>
+                  <td className="px-6 py-4">
                     <Badge>{client.status}</Badge>
                   </td>
                   <td className="px-6 py-4 text-zinc-300">
@@ -111,6 +129,12 @@ export function AdminPanel() {
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex flex-wrap justify-end gap-2">
+                      <RowButton
+                        onClick={() => setEditor({ kind: "access", client })}
+                        icon={<KeyRound size={14} />}
+                      >
+                        Acceso
+                      </RowButton>
                       <RowButton
                         onClick={() => setEditor({ kind: "editClient", client })}
                         icon={<Pencil size={14} />}
@@ -247,6 +271,14 @@ function EditorCard({
     );
   }
 
+  if (editor.kind === "access") {
+    return (
+      <FormShell title={`Acceso: ${editor.client.name}`} onClose={onClose}>
+        <AccessForm client={editor.client} onClose={onClose} onDone={onDone} />
+      </FormShell>
+    );
+  }
+
   return (
     <FormShell title={`Progreso: ${editor.client.name}`} onClose={onClose}>
       <ProgressForm
@@ -258,6 +290,87 @@ function EditorCard({
         }}
       />
     </FormShell>
+  );
+}
+
+function AccessForm({
+  client,
+  onClose,
+  onDone,
+}: {
+  client: AdminClientRow;
+  onClose: () => void;
+  onDone: () => void | Promise<void>;
+}) {
+  const [method, setMethod] = useState(PAYMENT_METHODS[0]);
+  const [saving, setSaving] = useState(false);
+
+  async function run(action: () => Promise<unknown>) {
+    setSaving(true);
+    await action();
+    await onDone();
+  }
+
+  return (
+    <div className="space-y-5">
+      <div className="grid gap-3 sm:grid-cols-2">
+        <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
+          <p className="text-xs font-bold uppercase tracking-wide text-zinc-500">
+            Estado actual
+          </p>
+          <div className="mt-2">
+            <AccessBadge status={client.accessStatus} />
+          </div>
+        </div>
+        <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
+          <p className="text-xs font-bold uppercase tracking-wide text-zinc-500">
+            Vence el
+          </p>
+          <p className="mt-2 text-lg font-black text-white">
+            {formatDate(client.accessExpiresAt)}
+          </p>
+        </div>
+      </div>
+
+      <SelectField
+        label="Método de pago"
+        value={method}
+        onChange={setMethod}
+        options={PAYMENT_METHODS}
+      />
+
+      <div className="flex flex-wrap gap-3">
+        <button
+          type="button"
+          disabled={saving}
+          onClick={() =>
+            run(() => adminDashboardService.renewAccess(client.id, method))
+          }
+          className={primaryBtn}
+        >
+          {saving ? "Guardando..." : "Renovar 30 días"}
+        </button>
+        <button
+          type="button"
+          disabled={saving}
+          onClick={() => run(() => adminDashboardService.pauseAccess(client.id))}
+          className={secondaryBtn}
+        >
+          Pausar
+        </button>
+        <button
+          type="button"
+          disabled={saving}
+          onClick={() => run(() => adminDashboardService.markExpired(client.id))}
+          className={dangerBtn}
+        >
+          Marcar vencido
+        </button>
+        <button type="button" onClick={onClose} className={secondaryBtn}>
+          Cancelar
+        </button>
+      </div>
+    </div>
   );
 }
 
@@ -500,6 +613,8 @@ const primaryBtn =
   "inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-[#65ff4f] px-5 text-sm font-black uppercase tracking-wide text-black transition hover:bg-[#85ff73] disabled:cursor-not-allowed disabled:opacity-60";
 const secondaryBtn =
   "inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-white/15 px-5 text-sm font-bold text-zinc-300 transition hover:border-[#65ff4f]/50 hover:text-[#65ff4f]";
+const dangerBtn =
+  "inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-red-500/40 px-5 text-sm font-bold text-red-400 transition hover:border-red-500/70 hover:text-red-300 disabled:cursor-not-allowed disabled:opacity-60";
 const inputClass =
   "mt-2 h-11 w-full rounded-lg border border-white/10 bg-black/35 px-3 text-white outline-none transition placeholder:text-zinc-600 focus:border-[#65ff4f]";
 

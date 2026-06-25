@@ -85,12 +85,20 @@ export type DashboardStat = {
   icon?: IconComponent;
 };
 
+/** Estado de acceso mensual del alumno (control manual del coach). */
+export type AccessStatus = "Activo" | "Vencido" | "Pausado";
+
 /** Cliente/alumno persistido. `userId` lo enlaza con un usuario que inicia sesion. */
 export type Client = {
   id: string;
   name: string;
   status: string;
   userId?: string;
+  /** Control de acceso mensual (gestionado manualmente desde /admin). */
+  accessStatus: AccessStatus;
+  accessExpiresAt: string | null;
+  lastPaymentDate: string | null;
+  paymentMethod: string | null;
 };
 
 export type CreateClientInput = {
@@ -106,6 +114,8 @@ export type AdminClientRow = {
   status: string;
   programa: string;
   progresoPct: number;
+  accessStatus: AccessStatus;
+  accessExpiresAt: string | null;
 };
 
 export type LeadRow = {

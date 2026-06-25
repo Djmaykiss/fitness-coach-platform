@@ -34,16 +34,18 @@ export class LocalClientRepository implements ClientRepository {
       name: input.name.trim(),
       status: input.status,
       userId: input.userId,
+      // Un alumno nuevo arranca sin acceso hasta que el coach lo renueva.
+      accessStatus: "Vencido",
+      accessExpiresAt: null,
+      lastPaymentDate: null,
+      paymentMethod: null,
     };
     clients.push(client);
     this.write(clients);
     return resolveMock(client);
   }
 
-  updateClient(
-    id: string,
-    patch: Partial<Pick<Client, "name" | "status" | "userId">>,
-  ) {
+  updateClient(id: string, patch: Partial<Omit<Client, "id">>) {
     const clients = this.read();
     const index = clients.findIndex((client) => client.id === id);
     if (index === -1) return resolveMock<Client | null>(null);

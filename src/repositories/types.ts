@@ -53,7 +53,7 @@ export interface ClientRepository {
   createClient(input: CreateClientInput): Promise<Client>;
   updateClient(
     id: string,
-    patch: Partial<Pick<Client, "name" | "status" | "userId">>,
+    patch: Partial<Omit<Client, "id">>,
   ): Promise<Client | null>;
 }
 
