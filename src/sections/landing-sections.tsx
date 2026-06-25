@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowRight, CheckCircle2, ShieldCheck } from "lucide-react";
 import { landingService } from "@/services/landing.service";
 import { ButtonLink, Footer, SectionHeader } from "@/components/ui";
+import { TransformationImage } from "@/components/transformation-image";
 
 export async function HeroSection() {
   const navLinks = await landingService.getNavLinks();
@@ -136,12 +137,17 @@ export async function TransformationsSection() {
         {transformations.map((item) => (
           <article key={item.name} className="premium-card rounded-2xl p-5">
             <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-1 xl:grid-cols-2">
-              <div className="transformation-tile rounded-xl p-4">
-                <p className="text-sm font-bold uppercase text-zinc-300">{item.before}</p>
-              </div>
-              <div className="transformation-tile transformation-tile-after rounded-xl p-4">
-                <p className="text-sm font-bold uppercase text-black">{item.after}</p>
-              </div>
+              <TransformationImage
+                src={item.beforeImage}
+                alt={`${item.name} - ${item.before}`}
+                label={item.before}
+              />
+              <TransformationImage
+                src={item.afterImage}
+                alt={`${item.name} - ${item.after}`}
+                label={item.after}
+                after
+              />
             </div>
             <h3 className="mt-5 text-2xl font-black">{item.name}</h3>
             <p className="mt-1 text-sm font-semibold text-zinc-500">

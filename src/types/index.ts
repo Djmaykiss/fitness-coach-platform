@@ -53,6 +53,9 @@ export type Transformation = {
   result: string;
   before: string;
   after: string;
+  /** Rutas en /public. Si la imagen no existe aun, se muestra un placeholder. */
+  beforeImage: string;
+  afterImage: string;
   details: string[];
 };
 
