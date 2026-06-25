@@ -43,15 +43,17 @@ export type Program = {
   title: string;
   duration: string;
   level: string;
-  description: string;
+  idealFor: string;
   points: string[];
 };
 
 export type Transformation = {
-  title: string;
+  name: string;
+  objective: string;
+  result: string;
   before: string;
   after: string;
-  detail: string;
+  details: string[];
 };
 
 export type Testimonial = {

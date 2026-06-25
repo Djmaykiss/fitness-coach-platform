@@ -57,6 +57,7 @@ contenido es estatico y no requiere persistencia).
 
 ## Decisiones tecnicas
 - No usar nombre real ni logo real por ahora. Mantener textos genericos como "Coach Fitness" y "Fitness Coaching".
+- Los textos demo de resultados (Antes y Despues), programas y testimonios estan humanizados para parecer casos reales de coaching (nombres anonimos tipo "Carlos R.", objetivos, detalles y citas naturales). No representan identidades reales y no se usan fotos reales. Viven en `src/data` (`transformations.ts`, `programs.ts`, `testimonials.ts`), nunca hardcodeados en componentes.
 - Persistencia local real con `localStorage` (sin backend ni Supabase). Se persisten: usuarios registrados, clientes/alumnos, leads, programas del panel y progreso basico del cliente. Las claves viven en `STORAGE_KEYS` (`src/lib/local-store.ts`).
 - Registrar un alumno crea su usuario y tambien un cliente enlazado por `userId`; por eso aparece de inmediato en el panel admin y ve su propio progreso. Los totales del admin (clientes, leads, programas) se derivan contando las colecciones, asi se actualizan solos.
 - Modelo de datos: el cliente/alumno (`Client`) tiene `id` y `userId` opcional. El progreso (`ClientProgress`) se indexa por id de cliente; el dashboard del alumno resuelve su cliente por `userId` y lee ese progreso. La tabla del admin une cliente + progreso (programa y % derivados).

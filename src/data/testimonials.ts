@@ -2,24 +2,24 @@ import type { Testimonial } from "@/types";
 
 export const testimonials: Testimonial[] = [
   {
-    name: "Cliente A",
+    name: "Carlos R.",
     role: "Profesional ocupado",
     result: "-8 kg",
     quote:
-      "El proceso fue claro desde el primer día. Entrené con dirección y pude sostenerlo.",
+      "Lo que más me ayudó fue tener una estructura clara. Antes entrenaba sin saber si avanzaba, ahora sé exactamente qué hacer cada semana.",
   },
   {
-    name: "Cliente B",
+    name: "Mariana L.",
     role: "Entrenamiento de fuerza",
     result: "+35% fuerza",
     quote:
-      "Por fin tuve una estructura real para progresar sin improvisar cada semana.",
+      "Me gustó que el plan no fue extremo. Pude seguir entrenando, comer normal y aún así ver cambios reales.",
   },
   {
-    name: "Cliente C",
+    name: "Andrés M.",
     role: "Cambio de hábitos",
-    result: "90% adherencia",
+    result: "16 semanas",
     quote:
-      "Los check-ins me ayudaron a mantener foco incluso cuando mi agenda estaba llena.",
+      "Yo siempre empezaba y abandonaba. Esta vez el seguimiento semanal me ayudó a mantenerme constante.",
   },
 ];

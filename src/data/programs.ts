@@ -3,28 +3,40 @@ import type { Program, ProgramRow } from "@/types";
 /** Programas mostrados en la landing. */
 export const programs: Program[] = [
   {
-    title: "Fuerza Base",
+    title: "Base Fitness",
     duration: "8 semanas",
     level: "Principiante - Intermedio",
-    description:
-      "Rutina progresiva para construir técnica, fuerza y consistencia sin complicar tu agenda.",
-    points: ["3-4 sesiones por semana", "Seguimiento semanal", "Ajustes por nivel"],
+    idealFor: "personas que quieren empezar con estructura",
+    points: [
+      "Rutina progresiva",
+      "Guía de hábitos",
+      "Seguimiento semanal",
+      "Ajustes por nivel",
+    ],
   },
   {
-    title: "Transformación",
+    title: "Transformación 12 Semanas",
     duration: "12 semanas",
     level: "Intermedio",
-    description:
-      "Sistema integral para recomposición corporal con entrenamiento, nutrición y métricas claras.",
-    points: ["Check-ins quincenales", "Plan de hábitos", "Objetivos medibles"],
+    idealFor: "perder grasa y mejorar composición corporal",
+    points: [
+      "Plan de entrenamiento",
+      "Plan nutricional flexible",
+      "Check-ins semanales",
+      "Métricas de progreso",
+    ],
   },
   {
-    title: "Performance",
+    title: "Coaching Performance",
     duration: "Mensual",
     level: "Avanzado",
-    description:
-      "Bloques de entrenamiento para mejorar rendimiento, resistencia y ejecución técnica.",
-    points: ["Periodización", "Análisis de cargas", "Soporte directo"],
+    idealFor: "personas que buscan rendimiento, fuerza y seguimiento cercano",
+    points: [
+      "Periodización",
+      "Análisis de cargas",
+      "Seguimiento directo",
+      "Ajustes semanales",
+    ],
   },
 ];
 

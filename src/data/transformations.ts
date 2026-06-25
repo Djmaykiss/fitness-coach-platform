@@ -2,21 +2,39 @@ import type { Transformation } from "@/types";
 
 export const transformations: Transformation[] = [
   {
-    title: "Recomposición",
+    name: "Carlos R.",
+    objective: "Recomposición corporal",
+    result: "-8 kg en 12 semanas",
     before: "Antes",
     after: "Después",
-    detail: "-8 kg y cintura más definida en 12 semanas.",
+    details: [
+      "Cintura: -9 cm",
+      "Entrenamiento: 4 días/semana",
+      "Enfoque: fuerza + nutrición flexible",
+    ],
   },
   {
-    title: "Fuerza",
+    name: "Mariana L.",
+    objective: "Tonificación y fuerza",
+    result: "+35% fuerza en 10 semanas",
     before: "Inicio",
     after: "Semana 10",
-    detail: "+35% en levantamientos principales.",
+    details: [
+      "Sentadilla: +20 kg",
+      "Peso corporal estable",
+      "Enfoque: técnica + progresión semanal",
+    ],
   },
   {
-    title: "Consistencia",
-    before: "Sin plan",
-    after: "Con estructura",
-    detail: "16 semanas entrenando sin pausas largas.",
+    name: "Andrés M.",
+    objective: "Consistencia",
+    result: "16 semanas sin abandonar",
+    before: "Semana 1",
+    after: "Semana 16",
+    details: [
+      "3 entrenamientos por semana",
+      "Mejor sueño y energía",
+      "Enfoque: hábitos + seguimiento",
+    ],
   },
 ];

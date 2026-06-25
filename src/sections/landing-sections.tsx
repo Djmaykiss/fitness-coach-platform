@@ -99,10 +99,14 @@ export async function ProgramsSection() {
               <p className="mt-2 text-sm font-semibold text-zinc-500">
                 {program.level}
               </p>
-              <p className="mt-4 min-h-24 text-sm leading-6 text-zinc-400">
-                {program.description}
+              <p className="mt-4 min-h-16 text-sm leading-6 text-zinc-400">
+                <span className="font-bold text-zinc-200">Ideal para:</span>{" "}
+                {program.idealFor}.
               </p>
-              <ul className="mt-6 space-y-3">
+              <p className="mt-5 text-xs font-black uppercase tracking-[0.2em] text-zinc-500">
+                Incluye
+              </p>
+              <ul className="mt-3 space-y-3">
                 {program.points.map((point) => (
                   <li key={point} className="flex items-center gap-3 text-sm">
                     <CheckCircle2 className="text-[#65ff4f]" size={18} />
@@ -130,7 +134,7 @@ export async function TransformationsSection() {
       />
       <div className="grid gap-5 md:grid-cols-3">
         {transformations.map((item) => (
-          <article key={item.title} className="premium-card rounded-2xl p-5">
+          <article key={item.name} className="premium-card rounded-2xl p-5">
             <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-1 xl:grid-cols-2">
               <div className="transformation-tile rounded-xl p-4">
                 <p className="text-sm font-bold uppercase text-zinc-300">{item.before}</p>
@@ -139,8 +143,25 @@ export async function TransformationsSection() {
                 <p className="text-sm font-bold uppercase text-black">{item.after}</p>
               </div>
             </div>
-            <h3 className="mt-5 text-2xl font-black">{item.title}</h3>
-            <p className="mt-2 text-sm leading-6 text-zinc-400">{item.detail}</p>
+            <h3 className="mt-5 text-2xl font-black">{item.name}</h3>
+            <p className="mt-1 text-sm font-semibold text-zinc-500">
+              {item.objective}
+            </p>
+            <p className="mt-3 text-lg font-black text-[#65ff4f]">{item.result}</p>
+            <ul className="mt-4 space-y-2">
+              {item.details.map((detail) => (
+                <li
+                  key={detail}
+                  className="flex items-start gap-2 text-sm leading-6 text-zinc-400"
+                >
+                  <CheckCircle2
+                    className="mt-0.5 shrink-0 text-[#65ff4f]"
+                    size={16}
+                  />
+                  <span>{detail}</span>
+                </li>
+              ))}
+            </ul>
           </article>
         ))}
       </div>
