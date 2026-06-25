@@ -1,5 +1,12 @@
 # Coach Fitness MVP
 
+# Version 0.2 (Estable - main)
+Version estable actual en `main`. Incluye todo lo de v0.1 mas el control de
+acceso mensual manual de alumnos (estado de acceso Activo/Vencido/Pausado,
+renovacion por 30 dias con metodo de pago, pausar y marcar vencido desde
+`/admin`, y aviso de acceso para el alumno en `/dashboard`). Sin backend, sin
+Supabase, sin pagos reales: todo en `localStorage`. Ver `CHANGELOG.md`.
+
 # Version 0.1 (Congelada)
 Primer punto estable del proyecto. Esta version incluye:
 
@@ -17,8 +24,7 @@ Primer punto estable del proyecto. Esta version incluye:
 - Responsive
 - Footer con informacion del desarrollador
 
-No agregar funciones nuevas sobre esta version: es la base oficial para iniciar
-la Fase 2. Ver `CHANGELOG.md`.
+Base oficial congelada para iniciar la Fase 2. Ver `CHANGELOG.md`.
 
 ## Decision de alcance (etapa actual)
 Primera etapa sera local y basica, sin backend ni Supabase. Solo landing, login,
