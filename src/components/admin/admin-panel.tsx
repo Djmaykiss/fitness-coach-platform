@@ -1,16 +1,25 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { KeyRound, Pencil, Plus, SlidersHorizontal, Target } from "lucide-react";
+import {
+  KeyRound,
+  Pencil,
+  Plus,
+  SlidersHorizontal,
+  Target,
+  UserPlus,
+} from "lucide-react";
 import { StatCard } from "@/components/ui";
 import { AccessBadge } from "@/components/access-badge";
 import { adminDashboardService } from "@/services/dashboard.service";
+import { leadService } from "@/services/lead.service";
 import { formatDate } from "@/lib/format";
 import type {
   AdminClientRow,
   ClientProgress,
   DashboardStat,
-  LeadRow,
+  Lead,
+  LeadStatus,
   ProgramRow,
 } from "@/types";
 
@@ -22,6 +31,12 @@ const PAYMENT_METHODS = [
   "Western Union",
   "Efectivo",
   "Transferencia",
+];
+const LEAD_STATUSES: LeadStatus[] = [
+  "Nuevo",
+  "Contactado",
+  "Convertido",
+  "Descartado",
 ];
 
 type Editor =
@@ -36,7 +51,7 @@ type Editor =
 export function AdminPanel() {
   const [stats, setStats] = useState<DashboardStat[]>([]);
   const [clients, setClients] = useState<AdminClientRow[]>([]);
-  const [leads, setLeads] = useState<LeadRow[]>([]);
+  const [leads, setLeads] = useState<Lead[]>([]);
   const [programs, setPrograms] = useState<ProgramRow[]>([]);
   const [loaded, setLoaded] = useState(false);
   const [editor, setEditor] = useState<Editor>(null);
@@ -45,7 +60,7 @@ export function AdminPanel() {
     const [s, c, l, p] = await Promise.all([
       adminDashboardService.getStats(),
       adminDashboardService.getClientRows(),
-      adminDashboardService.getLeads(),
+      leadService.getLeads(),
       adminDashboardService.getPrograms(),
     ]);
     setStats(s);
@@ -63,6 +78,16 @@ export function AdminPanel() {
 
   async function afterMutation() {
     setEditor(null);
+    await load();
+  }
+
+  async function changeLeadStatus(id: string, status: LeadStatus) {
+    await leadService.updateStatus(id, status);
+    await load();
+  }
+
+  async function convertLead(lead: Lead) {
+    await leadService.convertToClient(lead);
     await load();
   }
 
@@ -184,10 +209,59 @@ export function AdminPanel() {
       {/* Leads */}
       <section className="premium-card mt-6 overflow-hidden rounded-2xl">
         <SectionHeader title="Leads" />
-        <ReadonlyTable
-          columns={["Nombre", "Fuente", "Interés", "Estado"]}
-          rows={leads.map((l) => [l.name, l.source, l.interest, l.status])}
-        />
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[900px] border-collapse text-left text-sm">
+            <TableHead
+              columns={["Nombre", "Teléfono", "Objetivo", "Fuente", "Estado", ""]}
+            />
+            <tbody>
+              {leads.map((lead) => (
+                <tr key={lead.id} className="border-t border-white/10">
+                  <td className="px-6 py-4">
+                    <p className="font-semibold text-white">{lead.name}</p>
+                    <p className="text-xs text-zinc-500">{lead.email}</p>
+                  </td>
+                  <td className="px-6 py-4 text-zinc-300">{lead.phone}</td>
+                  <td className="px-6 py-4 text-zinc-300">{lead.objective}</td>
+                  <td className="px-6 py-4 text-zinc-400">{lead.source}</td>
+                  <td className="px-6 py-4">
+                    <select
+                      value={lead.status}
+                      onChange={(event) =>
+                        changeLeadStatus(
+                          lead.id,
+                          event.target.value as LeadStatus,
+                        )
+                      }
+                      className="rounded-lg border border-white/15 bg-black/35 px-3 py-1.5 text-xs font-bold text-zinc-200 outline-none transition focus:border-[#65ff4f]"
+                    >
+                      {LEAD_STATUSES.map((status) => (
+                        <option
+                          key={status}
+                          value={status}
+                          className="bg-[#0a0d0b]"
+                        >
+                          {status}
+                        </option>
+                      ))}
+                    </select>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="flex justify-end">
+                      <RowButton
+                        onClick={() => convertLead(lead)}
+                        icon={<UserPlus size={14} />}
+                        disabled={lead.status === "Convertido"}
+                      >
+                        Convertir
+                      </RowButton>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </section>
     </>
   );
@@ -789,16 +863,19 @@ function RowButton({
   children,
   onClick,
   icon,
+  disabled = false,
 }: {
   children: React.ReactNode;
   onClick: () => void;
   icon: React.ReactNode;
+  disabled?: boolean;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className="inline-flex items-center gap-1.5 rounded-lg border border-white/15 px-3 py-1.5 text-xs font-bold text-zinc-300 transition hover:border-[#65ff4f]/50 hover:text-[#65ff4f]"
+      disabled={disabled}
+      className="inline-flex items-center gap-1.5 rounded-lg border border-white/15 px-3 py-1.5 text-xs font-bold text-zinc-300 transition hover:border-[#65ff4f]/50 hover:text-[#65ff4f] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-white/15 disabled:hover:text-zinc-300"
     >
       {icon}
       {children}

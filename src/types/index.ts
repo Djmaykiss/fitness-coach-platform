@@ -118,11 +118,27 @@ export type AdminClientRow = {
   accessExpiresAt: string | null;
 };
 
-export type LeadRow = {
+export type LeadStatus = "Nuevo" | "Contactado" | "Convertido" | "Descartado";
+
+/** Lead captado (desde el formulario de la landing o sembrado). */
+export type Lead = {
+  id: string;
   name: string;
+  email: string;
+  phone: string;
+  objective: string;
+  message: string;
   source: string;
-  interest: string;
-  status: string;
+  status: LeadStatus;
+  createdAt: string;
+};
+
+export type CreateLeadInput = {
+  name: string;
+  email: string;
+  phone: string;
+  objective: string;
+  message: string;
 };
 
 export type ProgramRow = {

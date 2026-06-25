@@ -43,7 +43,6 @@ export const clientDashboardService = {
 
 /** Datos y operaciones del panel de administracion. */
 export const adminDashboardService = {
-  getLeads: () => leadRepository.getLeads(),
   getPrograms: () => programRepository.getProgramRows(),
 
   /** Clientes con su programa y progreso derivados (para la tabla del admin). */

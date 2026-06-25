@@ -44,7 +44,7 @@ Flujo de datos por capas (la UI nunca toca los datos directamente):
 
 `UI (components / sections / pages) -> services -> repositories -> data (seed) / localStorage`
 
-- `src/app`: rutas principales (`/`, `/login`, `/register`, `/dashboard`, `/admin`).
+- `src/app`: rutas principales (`/`, `/login`, `/register`, `/agendar`, `/dashboard`, `/admin`).
 - `src/components`: componentes reutilizables de UI y composicion.
 - `src/sections`: secciones grandes de la landing page.
 - `src/layouts`: layouts reutilizables para vistas tipo dashboard.
@@ -69,6 +69,7 @@ contenido es estatico y no requiere persistencia).
 - Registrar un alumno crea su usuario y tambien un cliente enlazado por `userId`; por eso aparece de inmediato en el panel admin y ve su propio progreso. Los totales del admin (clientes, leads, programas) se derivan contando las colecciones, asi se actualizan solos.
 - Modelo de datos: el cliente/alumno (`Client`) tiene `id`, `userId` opcional y campos de acceso (`accessStatus`, `accessExpiresAt`, `lastPaymentDate`, `paymentMethod`). El progreso (`ClientProgress`) se indexa por id de cliente; el dashboard del alumno resuelve su cliente por `userId` y lee ese progreso. La tabla del admin une cliente + progreso (programa y % derivados).
 - Gestion desde `/admin` (todo persistido en `localStorage` via servicios -> repositorios): crear cliente, editar cliente (nombre/estado), crear programa, asignar programa a un alumno y editar su progreso basico. Las tablas se recargan tras cada cambio.
+- Gestion de leads (sin WhatsApp ni backend): el boton "Agendar llamada" de la landing lleva a `/agendar`, un formulario (nombre, email, telefono, objetivo, mensaje) que crea un `Lead` en `localStorage` via `leadService` (source `Landing`, estado `Nuevo`). En `/admin` el dueno ve los leads, cambia su estado (`Nuevo` / `Contactado` / `Convertido` / `Descartado`) y puede convertir un lead en alumno (crea el `Client` y marca el lead como `Convertido`). El alumno convertido entra con acceso `Vencido` por defecto.
 - Control de acceso mensual manual (sin pagos reales todavia): cada alumno tiene `accessStatus` (`Activo` | `Vencido` | `Pausado`). Desde `/admin` el coach puede renovar 30 dias (registrando metodo de pago: PayPal, Zelle, Western Union, Efectivo, Transferencia), pausar o marcar vencido; ve estado y fecha de vencimiento por alumno. La tabla del admin muestra el estado de acceso y la fecha. El alumno recien creado/registrado arranca `Vencido` hasta que el coach lo renueva. En `/dashboard` el alumno ve un aviso elegante (`AccessNotice`) con su estado, fecha de vencimiento y mensaje; si esta vencido o pausado se le indica renovar con el coach, pero NO se bloquea la pagina todavia. Operaciones en `dashboardService` (`renewAccess`, `pauseAccess`, `markExpired`, `getAccessForUser`); badge compartido en `src/components/access-badge.tsx`.
 - IDs locales: no deben depender solo de `Date.now()`. Para clientes y usuarios locales se usa `Date.now()` + sufijo aleatorio, para evitar colisiones por doble clic o creaciones rapidas. Al migrar a Supabase, los IDs deberan ser UUID generados por la base de datos / Auth.
 - Autenticacion simulada con Context API (sin JWT ni sesiones reales). La sesion se guarda en `localStorage` (`coach-fitness:auth-user`). Usuarios demo: `admin@coach.com` / `123456` y `cliente@coach.com` / `123456`.

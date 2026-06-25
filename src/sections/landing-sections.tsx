@@ -248,7 +248,7 @@ export function BookingSection() {
           nivel y disponibilidad.
         </p>
         <div className="mt-8 flex justify-center">
-          <ButtonLink href="/register">Agendar llamada</ButtonLink>
+          <ButtonLink href="/agendar">Agendar llamada</ButtonLink>
         </div>
       </div>
     </section>
