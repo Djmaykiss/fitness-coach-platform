@@ -1,11 +1,19 @@
 # Coach Fitness MVP
 
-# Version 0.2 (Estable - main)
-Version estable actual en `main`. Incluye todo lo de v0.1 mas el control de
-acceso mensual manual de alumnos (estado de acceso Activo/Vencido/Pausado,
-renovacion por 30 dias con metodo de pago, pausar y marcar vencido desde
-`/admin`, y aviso de acceso para el alumno en `/dashboard`). Sin backend, sin
-Supabase, sin pagos reales: todo en `localStorage`. Ver `CHANGELOG.md`.
+# Version 0.3 (Estable - main)
+Version estable actual en `main`. Incluye todo lo de v0.2 mas la gestion de
+leads: el boton "Agendar llamada" de la landing lleva a `/agendar` (formulario
+de lead), y en `/admin` el dueno ve los leads, cambia su estado
+(Nuevo/Contactado/Convertido/Descartado) y convierte un lead en alumno. Sin
+backend, sin Supabase, sin pagos reales: todo en `localStorage`. Ver
+`CHANGELOG.md`.
+
+# Version 0.2 (Congelada)
+Incluye todo lo de v0.1 mas el control de acceso mensual manual de alumnos
+(estado de acceso Activo/Vencido/Pausado, renovacion por 30 dias con metodo de
+pago, pausar y marcar vencido desde `/admin`, y aviso de acceso para el alumno
+en `/dashboard`). Sin backend, sin Supabase, sin pagos reales: todo en
+`localStorage`. Ver `CHANGELOG.md`.
 
 # Version 0.1 (Congelada)
 Primer punto estable del proyecto. Esta version incluye:

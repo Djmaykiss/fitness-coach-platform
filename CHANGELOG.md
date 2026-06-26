@@ -2,6 +2,19 @@
 
 Todos los cambios relevantes del proyecto se registran en este archivo.
 
+## v0.3
+
+Version estable actual en `main`.
+
+### Agregado
+- Gestion de leads. El boton "Agendar llamada" de la landing lleva a `/agendar`, un formulario (nombre, email, telefono, objetivo, mensaje) que crea un lead en `localStorage`.
+- En `/admin`, seccion Leads interactiva: ver leads, cambiar estado (`Nuevo` / `Contactado` / `Convertido` / `Descartado`) y convertir un lead en alumno (crea el cliente y marca el lead como `Convertido`).
+- Tipos nuevos: `Lead`, `LeadStatus`, `CreateLeadInput`; servicio `leadService`.
+
+### Sin cambios de base
+- Sin backend, sin Supabase, sin WhatsApp, sin pagos reales: todo en `localStorage`.
+- Arquitectura intacta: UI -> services -> repositories -> localStorage.
+
 ## v0.2
 
 Version estable actual en `main`.
