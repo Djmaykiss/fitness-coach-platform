@@ -1,0 +1,569 @@
+"use client";
+
+import Image from "next/image";
+import { useMemo, useState } from "react";
+import {
+  ArrowLeft,
+  ArrowRight,
+  Dumbbell,
+  Flame,
+  HeartPulse,
+  PersonStanding,
+  Repeat,
+  Sparkles,
+  Target,
+  Trophy,
+} from "lucide-react";
+import type { ComponentType } from "react";
+import type { LucideProps } from "lucide-react";
+import { onboardingService } from "@/services/onboarding.service";
+import {
+  AVAILABILITY_DAYS,
+  BODY_TYPES,
+  LEVELS,
+  NUTRITION_OPTIONS,
+  OBJECTIVES,
+  PLACES,
+  SEXES,
+  SLEEP_OPTIONS,
+} from "@/data/onboarding";
+
+const TOTAL_STEPS = 8;
+
+const OBJECTIVE_ICONS: Record<string, ComponentType<LucideProps>> = {
+  "Perder grasa": Flame,
+  "Ganar músculo": Dumbbell,
+  "Recomposición corporal": Repeat,
+  Tonificar: Sparkles,
+  "Mejorar condición física": HeartPulse,
+  "Rendimiento deportivo": Trophy,
+};
+
+type WizardData = {
+  name: string;
+  age: string;
+  sex: string;
+  weight: string;
+  height: string;
+  waist: string;
+  bodyType: string;
+  objective: string;
+  level: string;
+  place: string;
+  availability: string;
+  sleep: string;
+  nutrition: string;
+};
+
+const INITIAL: WizardData = {
+  name: "",
+  age: "",
+  sex: "",
+  weight: "",
+  height: "",
+  waist: "",
+  bodyType: "",
+  objective: "",
+  level: "",
+  place: "",
+  availability: "",
+  sleep: "",
+  nutrition: "",
+};
+
+export function OnboardingWizard() {
+  const [step, setStep] = useState(1);
+  const [data, setData] = useState<WizardData>(INITIAL);
+  const [submitting, setSubmitting] = useState(false);
+  const [done, setDone] = useState(false);
+
+  const set = <K extends keyof WizardData>(key: K, value: WizardData[K]) =>
+    setData((prev) => ({ ...prev, [key]: value }));
+
+  const recommendation = useMemo(
+    () => onboardingService.recommendPlan(data.objective),
+    [data.objective],
+  );
+
+  const canContinue = ((): boolean => {
+    switch (step) {
+      case 1:
+        return Boolean(data.name.trim() && data.age && data.sex);
+      case 2:
+        return Boolean(data.weight && data.height);
+      case 3:
+        return Boolean(data.bodyType);
+      case 4:
+        return Boolean(data.objective);
+      case 5:
+        return Boolean(data.level && data.place);
+      case 6:
+        return Boolean(data.availability);
+      case 7:
+        return Boolean(data.sleep && data.nutrition);
+      default:
+        return true;
+    }
+  })();
+
+  async function submit() {
+    setSubmitting(true);
+    await onboardingService.submitEvaluation({
+      name: data.name,
+      objective: data.objective,
+      evaluation: {
+        age: data.age,
+        sex: data.sex,
+        weight: data.weight,
+        height: data.height,
+        waist: data.waist,
+        bodyType:
+          BODY_TYPES.find((b) => b.key === data.bodyType)?.label ?? data.bodyType,
+        level: data.level,
+        place: data.place,
+        availability: data.availability,
+        sleep: data.sleep,
+        nutrition: data.nutrition,
+        recommendedPlan: recommendation.plan,
+      },
+    });
+    setSubmitting(false);
+    setDone(true);
+  }
+
+  if (done) {
+    return (
+      <div className="premium-card mx-auto max-w-2xl rounded-3xl p-8 text-center sm:p-10">
+        <div className="mx-auto mb-5 inline-flex rounded-2xl border border-[#65ff4f]/20 bg-[#65ff4f]/10 p-4 text-[#65ff4f]">
+          <Trophy size={32} />
+        </div>
+        <h3 className="text-3xl font-black">¡Listo, {data.name.split(" ")[0]}!</h3>
+        <p className="mx-auto mt-3 max-w-md text-zinc-400">
+          Recibimos tu evaluación. Tu plan recomendado es{" "}
+          <span className="font-bold text-[#65ff4f]">{recommendation.plan}</span>.
+          El coach revisará tu perfil y te contactará para comenzar.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="premium-card mx-auto max-w-3xl rounded-3xl p-6 sm:p-8">
+      {/* Barra de progreso */}
+      <div>
+        <div className="mb-2 flex items-center justify-between text-xs font-bold uppercase tracking-wide text-zinc-500">
+          <span>
+            Paso {step} de {TOTAL_STEPS}
+          </span>
+          <span>{Math.round((step / TOTAL_STEPS) * 100)}%</span>
+        </div>
+        <div className="h-2 overflow-hidden rounded-full bg-white/10">
+          <div
+            className="h-full rounded-full bg-[#65ff4f] transition-all duration-300"
+            style={{ width: `${(step / TOTAL_STEPS) * 100}%` }}
+          />
+        </div>
+      </div>
+
+      <div key={step} className="onboarding-step mt-8">
+        <Step step={step} data={data} set={set} recommendation={recommendation} />
+      </div>
+
+      <div className="mt-8 flex items-center justify-between gap-3">
+        <button
+          type="button"
+          onClick={() => setStep((s) => Math.max(1, s - 1))}
+          className={`inline-flex min-h-12 items-center justify-center gap-2 rounded-lg border border-white/15 px-5 text-sm font-bold text-zinc-300 transition hover:border-[#65ff4f]/50 hover:text-[#65ff4f] ${
+            step === 1 ? "invisible" : ""
+          }`}
+        >
+          <ArrowLeft size={18} />
+          Anterior
+        </button>
+
+        {step < TOTAL_STEPS ? (
+          <button
+            type="button"
+            onClick={() => setStep((s) => Math.min(TOTAL_STEPS, s + 1))}
+            disabled={!canContinue}
+            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg bg-[#65ff4f] px-6 text-sm font-black uppercase tracking-wide text-black transition hover:bg-[#85ff73] disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            Siguiente
+            <ArrowRight size={18} />
+          </button>
+        ) : (
+          <button
+            type="button"
+            onClick={submit}
+            disabled={submitting}
+            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg bg-[#65ff4f] px-6 text-sm font-black uppercase tracking-wide text-black transition hover:bg-[#85ff73] disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {submitting ? "Enviando..." : "Quiero comenzar"}
+            <ArrowRight size={18} />
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ---------- Pasos ---------- */
+
+function Step({
+  step,
+  data,
+  set,
+  recommendation,
+}: {
+  step: number;
+  data: WizardData;
+  set: <K extends keyof WizardData>(key: K, value: WizardData[K]) => void;
+  recommendation: { plan: string; weeks: string };
+}) {
+  if (step === 1) {
+    return (
+      <div>
+        <StepHeader eyebrow="Paso 1" title="Cuéntanos sobre ti" />
+        <div className="grid gap-4 sm:grid-cols-2">
+          <TextField
+            label="Nombre"
+            value={data.name}
+            onChange={(v) => set("name", v)}
+            placeholder="Tu nombre"
+          />
+          <TextField
+            label="Edad"
+            type="number"
+            value={data.age}
+            onChange={(v) => set("age", v)}
+            placeholder="Años"
+          />
+        </div>
+        <p className="mt-5 text-sm font-bold text-zinc-200">Sexo</p>
+        <Pills
+          options={SEXES}
+          value={data.sex}
+          onChange={(v) => set("sex", v)}
+        />
+      </div>
+    );
+  }
+
+  if (step === 2) {
+    return (
+      <div>
+        <StepHeader eyebrow="Paso 2" title="Tu estado actual" />
+        <div className="grid gap-4 sm:grid-cols-2">
+          <TextField
+            label="Peso actual (kg)"
+            type="number"
+            value={data.weight}
+            onChange={(v) => set("weight", v)}
+            placeholder="Ej: 80"
+          />
+          <TextField
+            label="Estatura (cm)"
+            type="number"
+            value={data.height}
+            onChange={(v) => set("height", v)}
+            placeholder="Ej: 175"
+          />
+        </div>
+        <div className="mt-4 max-w-[calc(50%-0.5rem)] max-sm:max-w-full">
+          <TextField
+            label="Cintura (cm) — opcional"
+            type="number"
+            value={data.waist}
+            onChange={(v) => set("waist", v)}
+            placeholder="Ej: 85"
+          />
+        </div>
+      </div>
+    );
+  }
+
+  if (step === 3) {
+    return (
+      <div>
+        <StepHeader
+          eyebrow="Paso 3"
+          title="¿Qué cuerpo se parece más al tuyo?"
+        />
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+          {BODY_TYPES.map((body) => (
+            <SelectCard
+              key={body.key}
+              selected={data.bodyType === body.key}
+              onClick={() => set("bodyType", body.key)}
+              media={<BodyMedia src={body.image} />}
+              label={body.label}
+            />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (step === 4) {
+    return (
+      <div>
+        <StepHeader eyebrow="Paso 4" title="¿Qué quieres lograr?" />
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+          {OBJECTIVES.map((objective) => {
+            const Icon = OBJECTIVE_ICONS[objective] ?? Target;
+            return (
+              <SelectCard
+                key={objective}
+                selected={data.objective === objective}
+                onClick={() => set("objective", objective)}
+                media={
+                  <div className="flex h-20 items-center justify-center text-[#65ff4f]">
+                    <Icon size={36} />
+                  </div>
+                }
+                label={objective}
+              />
+            );
+          })}
+        </div>
+      </div>
+    );
+  }
+
+  if (step === 5) {
+    return (
+      <div>
+        <StepHeader eyebrow="Paso 5" title="Tu experiencia" />
+        <p className="text-sm font-bold text-zinc-200">Nivel</p>
+        <Pills
+          options={LEVELS}
+          value={data.level}
+          onChange={(v) => set("level", v)}
+        />
+        <p className="mt-6 text-sm font-bold text-zinc-200">
+          ¿Dónde entrenas?
+        </p>
+        <Pills
+          options={PLACES}
+          value={data.place}
+          onChange={(v) => set("place", v)}
+        />
+      </div>
+    );
+  }
+
+  if (step === 6) {
+    return (
+      <div>
+        <StepHeader
+          eyebrow="Paso 6"
+          title="¿Cuántos días puedes entrenar?"
+        />
+        <div className="grid grid-cols-3 gap-3 sm:grid-cols-6">
+          {AVAILABILITY_DAYS.map((day) => (
+            <button
+              key={day}
+              type="button"
+              onClick={() => set("availability", day)}
+              className={`flex h-16 items-center justify-center rounded-xl border text-xl font-black transition ${
+                data.availability === day
+                  ? "border-[#65ff4f] bg-[#65ff4f]/10 text-[#65ff4f]"
+                  : "border-white/10 bg-white/[0.03] text-white hover:border-[#65ff4f]/40"
+              }`}
+            >
+              {day}
+            </button>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (step === 7) {
+    return (
+      <div>
+        <StepHeader eyebrow="Paso 7" title="Tus hábitos" />
+        <p className="text-sm font-bold text-zinc-200">Horas de sueño</p>
+        <Pills
+          options={SLEEP_OPTIONS}
+          value={data.sleep}
+          onChange={(v) => set("sleep", v)}
+        />
+        <p className="mt-6 text-sm font-bold text-zinc-200">Alimentación</p>
+        <Pills
+          options={NUTRITION_OPTIONS}
+          value={data.nutrition}
+          onChange={(v) => set("nutrition", v)}
+        />
+      </div>
+    );
+  }
+
+  // Paso 8: resumen
+  return (
+    <div>
+      <StepHeader eyebrow="Paso 8" title="Tu perfil inicial" />
+      <div className="grid gap-3 sm:grid-cols-2">
+        <SummaryRow label="Objetivo" value={data.objective} highlight />
+        <SummaryRow label="Nivel" value={data.level} />
+        <SummaryRow
+          label="Frecuencia recomendada"
+          value={`${data.availability} días`}
+        />
+        <SummaryRow
+          label="Plan recomendado"
+          value={recommendation.plan}
+          highlight
+        />
+        <SummaryRow label="Tiempo estimado" value={recommendation.weeks} />
+        <SummaryRow label="Lugar" value={data.place} />
+      </div>
+    </div>
+  );
+}
+
+/* ---------- Sub-componentes ---------- */
+
+function StepHeader({ eyebrow, title }: { eyebrow: string; title: string }) {
+  return (
+    <div className="mb-6">
+      <p className="text-xs font-black uppercase tracking-[0.24em] text-[#65ff4f]">
+        {eyebrow}
+      </p>
+      <h3 className="mt-2 text-2xl font-black tracking-tight sm:text-3xl">
+        {title}
+      </h3>
+    </div>
+  );
+}
+
+function TextField({
+  label,
+  value,
+  onChange,
+  placeholder,
+  type = "text",
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  placeholder?: string;
+  type?: string;
+}) {
+  return (
+    <label className="block text-sm font-bold text-zinc-200">
+      {label}
+      <input
+        type={type}
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        placeholder={placeholder}
+        className="mt-2 h-12 w-full rounded-lg border border-white/10 bg-black/35 px-4 text-white outline-none transition placeholder:text-zinc-600 focus:border-[#65ff4f]"
+      />
+    </label>
+  );
+}
+
+function Pills({
+  options,
+  value,
+  onChange,
+}: {
+  options: string[];
+  value: string;
+  onChange: (value: string) => void;
+}) {
+  return (
+    <div className="mt-3 flex flex-wrap gap-3">
+      {options.map((option) => (
+        <button
+          key={option}
+          type="button"
+          onClick={() => onChange(option)}
+          className={`min-h-11 rounded-lg border px-5 text-sm font-bold transition ${
+            value === option
+              ? "border-[#65ff4f] bg-[#65ff4f]/10 text-[#65ff4f]"
+              : "border-white/10 bg-white/[0.03] text-zinc-200 hover:border-[#65ff4f]/40"
+          }`}
+        >
+          {option}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function SelectCard({
+  selected,
+  onClick,
+  media,
+  label,
+}: {
+  selected: boolean;
+  onClick: () => void;
+  media: React.ReactNode;
+  label: string;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`flex flex-col items-center gap-2 rounded-2xl border p-3 text-center transition ${
+        selected
+          ? "border-[#65ff4f] bg-[#65ff4f]/10"
+          : "border-white/10 bg-white/[0.03] hover:border-[#65ff4f]/40"
+      }`}
+    >
+      {media}
+      <span
+        className={`text-sm font-bold ${selected ? "text-[#65ff4f]" : "text-zinc-200"}`}
+      >
+        {label}
+      </span>
+    </button>
+  );
+}
+
+/** Imagen del tipo de cuerpo con placeholder elegante (silueta) si aun no existe. */
+function BodyMedia({ src }: { src: string }) {
+  const [ok, setOk] = useState(true);
+  return (
+    <div className="relative flex h-20 w-full items-center justify-center overflow-hidden rounded-xl bg-white/[0.04]">
+      {ok ? (
+        <Image
+          src={src}
+          alt=""
+          fill
+          sizes="160px"
+          className="object-contain"
+          onError={() => setOk(false)}
+        />
+      ) : (
+        <PersonStanding className="text-zinc-500" size={40} />
+      )}
+    </div>
+  );
+}
+
+function SummaryRow({
+  label,
+  value,
+  highlight = false,
+}: {
+  label: string;
+  value: string;
+  highlight?: boolean;
+}) {
+  return (
+    <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
+      <p className="text-xs font-bold uppercase tracking-wide text-zinc-500">
+        {label}
+      </p>
+      <p
+        className={`mt-1 text-lg font-black ${highlight ? "text-[#65ff4f]" : "text-white"}`}
+      >
+        {value || "—"}
+      </p>
+    </div>
+  );
+}

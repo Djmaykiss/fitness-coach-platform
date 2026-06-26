@@ -3,6 +3,7 @@ import type {
   Client,
   ClientProgress,
   CreateClientInput,
+  CreateEvaluationLeadInput,
   CreateLeadInput,
   CreateProgramInput,
   Credentials,
@@ -62,6 +63,7 @@ export interface ClientRepository {
 export interface LeadRepository {
   getLeads(): Promise<Lead[]>;
   createLead(input: CreateLeadInput): Promise<Lead>;
+  createEvaluationLead(input: CreateEvaluationLeadInput): Promise<Lead>;
   updateStatus(id: string, status: LeadStatus): Promise<Lead | null>;
 }
 

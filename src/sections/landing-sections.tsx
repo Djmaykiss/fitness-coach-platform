@@ -3,6 +3,7 @@ import { ArrowRight, CheckCircle2, ShieldCheck } from "lucide-react";
 import { landingService } from "@/services/landing.service";
 import { ButtonLink, Footer, SectionHeader } from "@/components/ui";
 import { TransformationImage } from "@/components/transformation-image";
+import { OnboardingWizard } from "@/components/onboarding-wizard";
 
 export async function HeroSection() {
   const navLinks = await landingService.getNavLinks();
@@ -236,21 +237,19 @@ export async function BenefitsSection() {
 export function BookingSection() {
   return (
     <section id="agenda" className="border-y border-white/10 bg-[#0a0d0b] px-5 py-24 sm:px-8">
-      <div className="mx-auto max-w-3xl text-center">
+      <div className="mx-auto mb-10 max-w-3xl text-center">
         <p className="text-sm font-black uppercase tracking-[0.24em] text-[#65ff4f]">
-          Agenda una llamada
+          Evaluación inicial
         </p>
         <h2 className="mt-4 text-4xl font-black tracking-tight sm:text-6xl">
-          Valida tu objetivo y elige el plan correcto.
+          Empecemos con tu evaluación.
         </h2>
         <p className="mt-5 text-lg leading-8 text-zinc-400">
-          Cuéntanos tu objetivo y te proponemos el plan que mejor se ajusta a tu
-          nivel y disponibilidad.
+          Responde unas preguntas rápidas, como en una consulta con tu coach, y
+          te recomendamos el plan ideal para ti.
         </p>
-        <div className="mt-8 flex justify-center">
-          <ButtonLink href="/agendar">Agendar llamada</ButtonLink>
-        </div>
       </div>
+      <OnboardingWizard />
     </section>
   );
 }

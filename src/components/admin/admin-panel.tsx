@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import {
+  FileText,
   KeyRound,
   Pencil,
   Plus,
@@ -55,6 +56,7 @@ export function AdminPanel() {
   const [programs, setPrograms] = useState<ProgramRow[]>([]);
   const [loaded, setLoaded] = useState(false);
   const [editor, setEditor] = useState<Editor>(null);
+  const [leadDetail, setLeadDetail] = useState<Lead | null>(null);
 
   async function load() {
     const [s, c, l, p] = await Promise.all([
@@ -111,6 +113,15 @@ export function AdminPanel() {
             programs={programs}
             onClose={() => setEditor(null)}
             onDone={afterMutation}
+          />
+        </div>
+      ) : null}
+
+      {leadDetail ? (
+        <div className="mt-6">
+          <LeadDetailCard
+            lead={leadDetail}
+            onClose={() => setLeadDetail(null)}
           />
         </div>
       ) : null}
@@ -247,7 +258,13 @@ export function AdminPanel() {
                     </select>
                   </td>
                   <td className="px-6 py-4">
-                    <div className="flex justify-end">
+                    <div className="flex flex-wrap justify-end gap-2">
+                      <RowButton
+                        onClick={() => setLeadDetail(lead)}
+                        icon={<FileText size={14} />}
+                      >
+                        Ficha
+                      </RowButton>
                       <RowButton
                         onClick={() => convertLead(lead)}
                         icon={<UserPlus size={14} />}
@@ -269,6 +286,85 @@ export function AdminPanel() {
 
 function editorKey(editor: NonNullable<Editor>): string {
   return "client" in editor ? `${editor.kind}-${editor.client.id}` : editor.kind;
+}
+
+/* ---------- Ficha del lead (detalle + evaluacion) ---------- */
+
+function LeadDetailCard({ lead, onClose }: { lead: Lead; onClose: () => void }) {
+  const evaluation = lead.evaluation;
+  return (
+    <FormShell title={`Ficha: ${lead.name}`} onClose={onClose}>
+      <div className="grid gap-3 sm:grid-cols-3">
+        <DetailField label="Email" value={lead.email || "—"} />
+        <DetailField label="Teléfono" value={lead.phone || "—"} />
+        <DetailField label="Objetivo" value={lead.objective} highlight />
+        <DetailField label="Fuente" value={lead.source} />
+        <DetailField label="Estado" value={lead.status} />
+        <DetailField label="Fecha" value={formatDate(lead.createdAt)} />
+      </div>
+      {lead.message ? (
+        <div className="mt-3">
+          <DetailField label="Mensaje" value={lead.message} />
+        </div>
+      ) : null}
+
+      {evaluation ? (
+        <>
+          <p className="mt-6 text-xs font-black uppercase tracking-[0.2em] text-[#65ff4f]">
+            Evaluación inicial
+          </p>
+          <div className="mt-3 grid gap-3 sm:grid-cols-3">
+            <DetailField label="Edad" value={evaluation.age} />
+            <DetailField label="Sexo" value={evaluation.sex} />
+            <DetailField label="Peso (kg)" value={evaluation.weight} />
+            <DetailField label="Altura (cm)" value={evaluation.height} />
+            <DetailField label="Cintura (cm)" value={evaluation.waist || "—"} />
+            <DetailField label="Tipo corporal" value={evaluation.bodyType} />
+            <DetailField label="Nivel" value={evaluation.level} />
+            <DetailField label="Lugar" value={evaluation.place} />
+            <DetailField
+              label="Disponibilidad"
+              value={`${evaluation.availability} días`}
+            />
+            <DetailField label="Sueño" value={evaluation.sleep} />
+            <DetailField label="Alimentación" value={evaluation.nutrition} />
+            <DetailField
+              label="Plan recomendado"
+              value={evaluation.recommendedPlan}
+              highlight
+            />
+          </div>
+        </>
+      ) : (
+        <p className="mt-5 text-sm text-zinc-400">
+          Este lead no incluye evaluación inicial (vino del formulario simple).
+        </p>
+      )}
+    </FormShell>
+  );
+}
+
+function DetailField({
+  label,
+  value,
+  highlight = false,
+}: {
+  label: string;
+  value: string;
+  highlight?: boolean;
+}) {
+  return (
+    <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
+      <p className="text-xs font-bold uppercase tracking-wide text-zinc-500">
+        {label}
+      </p>
+      <p
+        className={`mt-1 text-sm font-bold ${highlight ? "text-[#65ff4f]" : "text-white"}`}
+      >
+        {value}
+      </p>
+    </div>
+  );
 }
 
 /* ---------- Editor (despacha el formulario correcto) ---------- */

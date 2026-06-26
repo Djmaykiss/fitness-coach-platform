@@ -2,6 +2,21 @@
 
 Todos los cambios relevantes del proyecto se registran en este archivo.
 
+## v0.4 (en rama `feature/intelligent-onboarding`, pendiente de merge)
+
+### Agregado
+- Onboarding inteligente: la seccion "Agenda" de la landing se reemplaza por un wizard de evaluacion inicial de 8 pasos (datos personales, estado actual, tipo de cuerpo, objetivo, experiencia, disponibilidad, habitos, resumen con plan recomendado).
+- Barra de progreso, botones Anterior/Siguiente, animaciones suaves y responsive (desktop/tablet/movil).
+- Recomendacion de plan con reglas simples por objetivo (sin IA ni calculos complejos).
+- Al finalizar guarda un `Lead` con la evaluacion completa (`Lead.evaluation`), source `Evaluación`. No crea alumno todavia.
+- En `/admin`, ficha del lead: el coach abre el detalle y ve toda la evaluacion (peso, altura, objetivo, tipo corporal, nivel, disponibilidad, plan recomendado, etc.).
+- Ilustraciones de tipo de cuerpo preparadas (`/public/images/onboarding/`) con placeholder de silueta.
+
+### Sin cambios de base
+- Sin backend, sin Supabase, sin IA, sin pagos: todo en `localStorage`.
+- Arquitectura intacta: UI -> services -> repositories -> localStorage.
+- No se modifico ninguna otra seccion de la landing ni de la app.
+
 ## v0.3
 
 Version estable actual en `main`.

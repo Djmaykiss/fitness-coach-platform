@@ -6,7 +6,12 @@ import {
   readCollection,
   writeCollection,
 } from "@/lib/local-store";
-import type { CreateLeadInput, Lead, LeadStatus } from "@/types";
+import type {
+  CreateEvaluationLeadInput,
+  CreateLeadInput,
+  Lead,
+  LeadStatus,
+} from "@/types";
 
 /** Leads persistidos en localStorage (creados desde la landing, gestionados en /admin). */
 export class LocalLeadRepository implements LeadRepository {
@@ -36,6 +41,25 @@ export class LocalLeadRepository implements LeadRepository {
       createdAt: new Date().toISOString(),
     };
     // Los mas nuevos primero.
+    leads.unshift(lead);
+    this.write(leads);
+    return resolveMock(lead);
+  }
+
+  createEvaluationLead(input: CreateEvaluationLeadInput) {
+    const leads = this.read();
+    const lead: Lead = {
+      id: `lead-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`,
+      name: input.name.trim(),
+      email: "",
+      phone: "",
+      objective: input.objective,
+      message: "",
+      source: "Evaluación",
+      status: "Nuevo",
+      createdAt: new Date().toISOString(),
+      evaluation: input.evaluation,
+    };
     leads.unshift(lead);
     this.write(leads);
     return resolveMock(lead);

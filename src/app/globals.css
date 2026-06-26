@@ -85,3 +85,19 @@ a {
     linear-gradient(180deg, rgba(101, 255, 79, 0.92), rgba(101, 255, 79, 0.56)),
     repeating-linear-gradient(135deg, rgba(0, 0, 0, 0.16) 0 1px, transparent 1px 18px);
 }
+
+/* Animacion suave entre pasos del onboarding (wizard). */
+@keyframes onboarding-step-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.onboarding-step {
+  animation: onboarding-step-in 0.35s ease both;
+}

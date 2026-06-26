@@ -120,7 +120,23 @@ export type AdminClientRow = {
 
 export type LeadStatus = "Nuevo" | "Contactado" | "Convertido" | "Descartado";
 
-/** Lead captado (desde el formulario de la landing o sembrado). */
+/** Evaluacion inicial del alumno (onboarding tipo wizard). Opcional en el lead. */
+export type LeadEvaluation = {
+  age: string;
+  sex: string;
+  weight: string;
+  height: string;
+  waist: string;
+  bodyType: string;
+  level: string;
+  place: string;
+  availability: string;
+  sleep: string;
+  nutrition: string;
+  recommendedPlan: string;
+};
+
+/** Lead captado (formulario simple, onboarding o sembrado). */
 export type Lead = {
   id: string;
   name: string;
@@ -131,6 +147,8 @@ export type Lead = {
   source: string;
   status: LeadStatus;
   createdAt: string;
+  /** Presente si el lead llego por el onboarding inteligente. */
+  evaluation?: LeadEvaluation;
 };
 
 export type CreateLeadInput = {
@@ -139,6 +157,19 @@ export type CreateLeadInput = {
   phone: string;
   objective: string;
   message: string;
+};
+
+/** Entrada para crear un lead desde el onboarding (sin email/telefono). */
+export type CreateEvaluationLeadInput = {
+  name: string;
+  objective: string;
+  evaluation: LeadEvaluation;
+};
+
+/** Recomendacion de plan derivada del objetivo (reglas simples). */
+export type PlanRecommendation = {
+  plan: string;
+  weeks: string;
 };
 
 export type ProgramRow = {
