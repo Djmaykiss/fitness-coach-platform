@@ -6,23 +6,24 @@ import {
   removeKey,
   writeValue,
 } from "@/lib/local-store";
-import type { LeadEvaluation } from "@/types";
+import type { PendingOnboarding } from "@/types";
 
 /**
- * Evaluacion temporal entre el onboarding (landing) y el registro (/register).
- * Se guarda al presionar "Quiero comenzar" y se consume al crear la cuenta.
+ * Onboarding temporal entre la landing y el registro (/register): nombre, email
+ * y evaluacion. Se guarda al presionar "Quiero comenzar" y se consume al crear
+ * la cuenta (o se limpia al entrar a /login).
  */
 export class LocalPendingEvaluationRepository
   implements PendingEvaluationRepository
 {
   get() {
     return resolveMock(
-      readValue<LeadEvaluation>(STORAGE_KEYS.pendingEvaluation),
+      readValue<PendingOnboarding>(STORAGE_KEYS.pendingEvaluation),
     );
   }
 
-  save(evaluation: LeadEvaluation) {
-    writeValue(STORAGE_KEYS.pendingEvaluation, evaluation);
+  save(data: PendingOnboarding) {
+    writeValue(STORAGE_KEYS.pendingEvaluation, data);
     return resolveMock<void>(undefined);
   }
 

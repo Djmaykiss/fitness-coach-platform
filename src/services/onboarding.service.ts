@@ -2,7 +2,7 @@ import { leadRepository, pendingEvaluationRepository } from "@/repositories";
 import { DEFAULT_RECOMMENDATION, PLAN_BY_OBJECTIVE } from "@/data/onboarding";
 import type {
   CreateEvaluationLeadInput,
-  LeadEvaluation,
+  PendingOnboarding,
   PlanRecommendation,
 } from "@/types";
 
@@ -21,8 +21,18 @@ export const onboardingService = {
     return leadRepository.createEvaluationLead(input);
   },
 
-  /** Guarda la evaluacion temporalmente para usarla en el registro. */
-  savePendingEvaluation(evaluation: LeadEvaluation) {
-    return pendingEvaluationRepository.save(evaluation);
+  /** Guarda el onboarding (nombre + email + evaluacion) para usarlo en el registro. */
+  savePending(data: PendingOnboarding) {
+    return pendingEvaluationRepository.save(data);
+  },
+
+  /** Lee el onboarding pendiente (para prellenar /register). */
+  getPending() {
+    return pendingEvaluationRepository.get();
+  },
+
+  /** Limpia el onboarding pendiente (al entrar a /login para no adjuntarlo mal). */
+  clearPending() {
+    return pendingEvaluationRepository.clear();
   },
 };

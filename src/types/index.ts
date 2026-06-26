@@ -172,6 +172,16 @@ export type CreateEvaluationLeadInput = {
   evaluation: LeadEvaluation;
 };
 
+/**
+ * Onboarding pendiente entre la landing y el registro: guarda nombre y email
+ * (para prellenar /register) ademas de la evaluacion (para el perfil del alumno).
+ */
+export type PendingOnboarding = {
+  name: string;
+  email: string;
+  evaluation: LeadEvaluation;
+};
+
 /** Recomendacion de plan derivada del objetivo (reglas simples). */
 export type PlanRecommendation = {
   plan: string;

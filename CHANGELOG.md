@@ -9,7 +9,8 @@ Todos los cambios relevantes del proyecto se registran en este archivo.
 - Barra de progreso, botones Anterior/Siguiente, animaciones suaves y responsive (desktop/tablet/movil).
 - Recomendacion de plan con reglas simples por objetivo (sin IA ni calculos complejos).
 - Al finalizar: guarda un `Lead` con la evaluacion completa (source `Evaluación`), guarda la evaluacion como pendiente y redirige a `/register`.
-- En `/register`: al crear la cuenta, la evaluacion pendiente se guarda en el perfil del alumno (`Client.evaluation`) y se limpia.
+- En `/register`: si hay un onboarding pendiente se prellenan nombre y email y se muestra un aviso ("Tu evaluación inicial está lista..."). Al crear la cuenta, la evaluacion se guarda en el perfil del alumno (`Client.evaluation`) y se limpia.
+- En `/login`: si hay un onboarding pendiente se limpia automaticamente (evita adjuntarlo a una cuenta equivocada).
 - En `/dashboard`: nueva seccion "Mi evaluacion inicial" con todos los datos del alumno.
 - En `/admin`: ficha del lead y ficha del alumno muestran la evaluacion inicial (componente compartido `evaluation-details`).
 - Ilustraciones preparadas en `/public/images/onboarding/body-types/` y `/goals/` con placeholders (silueta/icono).

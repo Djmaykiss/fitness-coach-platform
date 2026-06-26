@@ -39,7 +39,7 @@ export const authService = {
 
     // Si el usuario completo el onboarding antes de registrarse, su evaluacion
     // quedo pendiente: se guarda en el perfil del alumno y se limpia.
-    const pendingEvaluation = await pendingEvaluationRepository.get();
+    const pending = await pendingEvaluationRepository.get();
 
     // El alumno recien registrado aparece de inmediato en el panel admin y
     // queda enlazado a su usuario para que vea su propio progreso.
@@ -47,10 +47,10 @@ export const authService = {
       name: `${user.firstName} ${user.lastName}`.trim(),
       status: "Nuevo",
       userId: user.id,
-      evaluation: pendingEvaluation ?? undefined,
+      evaluation: pending?.evaluation,
     });
 
-    if (pendingEvaluation) {
+    if (pending) {
       await pendingEvaluationRepository.clear();
     }
 

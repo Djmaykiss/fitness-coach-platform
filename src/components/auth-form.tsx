@@ -2,9 +2,10 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { ArrowRight, LockKeyhole } from "lucide-react";
+import { useEffect, useState } from "react";
+import { ArrowRight, ClipboardCheck, LockKeyhole } from "lucide-react";
 import { useAuth } from "@/context/auth-context";
+import { onboardingService } from "@/services/onboarding.service";
 import type { AuthUser } from "@/types";
 
 type AuthFormProps = {
@@ -21,7 +22,29 @@ export function AuthForm({ mode }: AuthFormProps) {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [message, setMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [hasPendingEvaluation, setHasPendingEvaluation] = useState(false);
   const isLogin = mode === "login";
+
+  // Onboarding pendiente: en /register prellena nombre/email y muestra aviso;
+  // en /login se limpia para no adjuntarlo a una cuenta equivocada.
+  useEffect(() => {
+    if (isLogin) {
+      onboardingService.clearPending();
+      return;
+    }
+    let active = true;
+    onboardingService.getPending().then((pending) => {
+      if (!active || !pending) return;
+      const [first, ...rest] = pending.name.trim().split(" ");
+      setFirstName(first ?? "");
+      setLastName(rest.join(" "));
+      setEmail(pending.email);
+      setHasPendingEvaluation(true);
+    });
+    return () => {
+      active = false;
+    };
+  }, [isLogin]);
 
   function redirectByRole(user: AuthUser) {
     router.push(user.role === "admin" ? "/admin" : "/dashboard");
@@ -72,6 +95,16 @@ export function AuthForm({ mode }: AuthFormProps) {
             : "Registro local para crear una cuenta de cliente de prueba."}
         </p>
       </div>
+
+      {!isLogin && hasPendingEvaluation ? (
+        <div className="mb-6 flex items-start gap-3 rounded-xl border border-[#65ff4f]/30 bg-[#65ff4f]/[0.06] p-4">
+          <ClipboardCheck className="mt-0.5 shrink-0 text-[#65ff4f]" size={20} />
+          <p className="text-sm leading-6 text-zinc-200">
+            Tu evaluación inicial está lista. Crea tu cuenta para guardar tu
+            progreso.
+          </p>
+        </div>
+      ) : null}
 
       {!isLogin ? (
         <div className="grid gap-4 sm:grid-cols-2">

@@ -143,7 +143,11 @@ export function OnboardingWizard() {
       phone: data.phone,
       evaluation,
     });
-    await onboardingService.savePendingEvaluation(evaluation);
+    await onboardingService.savePending({
+      name: data.name,
+      email: data.email,
+      evaluation,
+    });
     router.push("/register");
   }
 
