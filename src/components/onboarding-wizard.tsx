@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import {
   ArrowLeft,
@@ -41,6 +42,8 @@ const OBJECTIVE_ICONS: Record<string, ComponentType<LucideProps>> = {
 
 type WizardData = {
   name: string;
+  email: string;
+  phone: string;
   age: string;
   sex: string;
   weight: string;
@@ -57,6 +60,8 @@ type WizardData = {
 
 const INITIAL: WizardData = {
   name: "",
+  email: "",
+  phone: "",
   age: "",
   sex: "",
   weight: "",
@@ -72,10 +77,10 @@ const INITIAL: WizardData = {
 };
 
 export function OnboardingWizard() {
+  const router = useRouter();
   const [step, setStep] = useState(1);
   const [data, setData] = useState<WizardData>(INITIAL);
   const [submitting, setSubmitting] = useState(false);
-  const [done, setDone] = useState(false);
 
   const set = <K extends keyof WizardData>(key: K, value: WizardData[K]) =>
     setData((prev) => ({ ...prev, [key]: value }));
@@ -88,7 +93,13 @@ export function OnboardingWizard() {
   const canContinue = ((): boolean => {
     switch (step) {
       case 1:
-        return Boolean(data.name.trim() && data.age && data.sex);
+        return Boolean(
+          data.name.trim() &&
+            data.email.trim() &&
+            data.phone.trim() &&
+            data.age &&
+            data.sex,
+        );
       case 2:
         return Boolean(data.weight && data.height);
       case 3:
@@ -108,43 +119,32 @@ export function OnboardingWizard() {
 
   async function submit() {
     setSubmitting(true);
+    const evaluation = {
+      objective: data.objective,
+      age: data.age,
+      sex: data.sex,
+      weight: data.weight,
+      height: data.height,
+      waist: data.waist,
+      bodyType:
+        BODY_TYPES.find((b) => b.key === data.bodyType)?.label ?? data.bodyType,
+      level: data.level,
+      place: data.place,
+      availability: data.availability,
+      sleep: data.sleep,
+      nutrition: data.nutrition,
+      recommendedPlan: recommendation.plan,
+    };
+    // Guardar el lead con toda la evaluacion + dejar la evaluacion pendiente
+    // para el registro, y redirigir a /register.
     await onboardingService.submitEvaluation({
       name: data.name,
-      objective: data.objective,
-      evaluation: {
-        age: data.age,
-        sex: data.sex,
-        weight: data.weight,
-        height: data.height,
-        waist: data.waist,
-        bodyType:
-          BODY_TYPES.find((b) => b.key === data.bodyType)?.label ?? data.bodyType,
-        level: data.level,
-        place: data.place,
-        availability: data.availability,
-        sleep: data.sleep,
-        nutrition: data.nutrition,
-        recommendedPlan: recommendation.plan,
-      },
+      email: data.email,
+      phone: data.phone,
+      evaluation,
     });
-    setSubmitting(false);
-    setDone(true);
-  }
-
-  if (done) {
-    return (
-      <div className="premium-card mx-auto max-w-2xl rounded-3xl p-8 text-center sm:p-10">
-        <div className="mx-auto mb-5 inline-flex rounded-2xl border border-[#65ff4f]/20 bg-[#65ff4f]/10 p-4 text-[#65ff4f]">
-          <Trophy size={32} />
-        </div>
-        <h3 className="text-3xl font-black">¡Listo, {data.name.split(" ")[0]}!</h3>
-        <p className="mx-auto mt-3 max-w-md text-zinc-400">
-          Recibimos tu evaluación. Tu plan recomendado es{" "}
-          <span className="font-bold text-[#65ff4f]">{recommendation.plan}</span>.
-          El coach revisará tu perfil y te contactará para comenzar.
-        </p>
-      </div>
-    );
+    await onboardingService.savePendingEvaluation(evaluation);
+    router.push("/register");
   }
 
   return (
@@ -198,7 +198,7 @@ export function OnboardingWizard() {
             disabled={submitting}
             className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg bg-[#65ff4f] px-6 text-sm font-black uppercase tracking-wide text-black transition hover:bg-[#85ff73] disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {submitting ? "Enviando..." : "Quiero comenzar"}
+            {submitting ? "Guardando..." : "Quiero comenzar"}
             <ArrowRight size={18} />
           </button>
         )}
@@ -232,6 +232,20 @@ function Step({
             placeholder="Tu nombre"
           />
           <TextField
+            label="Email"
+            type="email"
+            value={data.email}
+            onChange={(v) => set("email", v)}
+            placeholder="tu@email.com"
+          />
+          <TextField
+            label="Teléfono"
+            type="tel"
+            value={data.phone}
+            onChange={(v) => set("phone", v)}
+            placeholder="+1 555 0000"
+          />
+          <TextField
             label="Edad"
             type="number"
             value={data.age}
@@ -240,11 +254,7 @@ function Step({
           />
         </div>
         <p className="mt-5 text-sm font-bold text-zinc-200">Sexo</p>
-        <Pills
-          options={SEXES}
-          value={data.sex}
-          onChange={(v) => set("sex", v)}
-        />
+        <Pills options={SEXES} value={data.sex} onChange={(v) => set("sex", v)} />
       </div>
     );
   }
@@ -295,7 +305,12 @@ function Step({
               key={body.key}
               selected={data.bodyType === body.key}
               onClick={() => set("bodyType", body.key)}
-              media={<BodyMedia src={body.image} />}
+              media={
+                <CardMedia
+                  src={body.image}
+                  fallback={<PersonStanding className="text-zinc-500" size={40} />}
+                />
+              }
               label={body.label}
             />
           ))}
@@ -310,18 +325,19 @@ function Step({
         <StepHeader eyebrow="Paso 4" title="¿Qué quieres lograr?" />
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
           {OBJECTIVES.map((objective) => {
-            const Icon = OBJECTIVE_ICONS[objective] ?? Target;
+            const Icon = OBJECTIVE_ICONS[objective.label] ?? Target;
             return (
               <SelectCard
-                key={objective}
-                selected={data.objective === objective}
-                onClick={() => set("objective", objective)}
+                key={objective.key}
+                selected={data.objective === objective.label}
+                onClick={() => set("objective", objective.label)}
                 media={
-                  <div className="flex h-20 items-center justify-center text-[#65ff4f]">
-                    <Icon size={36} />
-                  </div>
+                  <CardMedia
+                    src={objective.image}
+                    fallback={<Icon className="text-[#65ff4f]" size={36} />}
+                  />
                 }
-                label={objective}
+                label={objective.label}
               />
             );
           })}
@@ -340,9 +356,7 @@ function Step({
           value={data.level}
           onChange={(v) => set("level", v)}
         />
-        <p className="mt-6 text-sm font-bold text-zinc-200">
-          ¿Dónde entrenas?
-        </p>
+        <p className="mt-6 text-sm font-bold text-zinc-200">¿Dónde entrenas?</p>
         <Pills
           options={PLACES}
           value={data.place}
@@ -355,10 +369,7 @@ function Step({
   if (step === 6) {
     return (
       <div>
-        <StepHeader
-          eyebrow="Paso 6"
-          title="¿Cuántos días puedes entrenar?"
-        />
+        <StepHeader eyebrow="Paso 6" title="¿Cuántos días puedes entrenar?" />
         <div className="grid grid-cols-3 gap-3 sm:grid-cols-6">
           {AVAILABILITY_DAYS.map((day) => (
             <button
@@ -418,6 +429,10 @@ function Step({
         <SummaryRow label="Tiempo estimado" value={recommendation.weeks} />
         <SummaryRow label="Lugar" value={data.place} />
       </div>
+      <p className="mt-5 text-sm leading-6 text-zinc-400">
+        Al continuar guardaremos tu evaluación y crearás tu cuenta para acceder a
+        tu plan.
+      </p>
     </div>
   );
 }
@@ -524,8 +539,17 @@ function SelectCard({
   );
 }
 
-/** Imagen del tipo de cuerpo con placeholder elegante (silueta) si aun no existe. */
-function BodyMedia({ src }: { src: string }) {
+/**
+ * Media de una tarjeta con placeholder elegante si la imagen aun no existe.
+ * Las rutas viven en `src/data/onboarding.ts` (body-types/ y goals/).
+ */
+function CardMedia({
+  src,
+  fallback,
+}: {
+  src: string;
+  fallback: React.ReactNode;
+}) {
   const [ok, setOk] = useState(true);
   return (
     <div className="relative flex h-20 w-full items-center justify-center overflow-hidden rounded-xl bg-white/[0.04]">
@@ -539,7 +563,7 @@ function BodyMedia({ src }: { src: string }) {
           onError={() => setOk(false)}
         />
       ) : (
-        <PersonStanding className="text-zinc-500" size={40} />
+        fallback
       )}
     </div>
   );

@@ -5,11 +5,13 @@ import { LocalClientRepository } from "@/repositories/local/client.repository";
 import { LocalLeadRepository } from "@/repositories/local/lead.repository";
 import { LocalProgramRepository } from "@/repositories/local/program.repository";
 import { LocalProgressRepository } from "@/repositories/local/progress.repository";
+import { LocalPendingEvaluationRepository } from "@/repositories/local/pending-evaluation.repository";
 import { LocalUserRepository } from "@/repositories/local/user.repository";
 import type {
   ClientRepository,
   ContentRepository,
   LeadRepository,
+  PendingEvaluationRepository,
   ProgramRepository,
   ProgressRepository,
   TestimonialRepository,
@@ -38,4 +40,6 @@ export const clientRepository: ClientRepository = new LocalClientRepository();
 export const leadRepository: LeadRepository = new LocalLeadRepository();
 export const progressRepository: ProgressRepository =
   new LocalProgressRepository();
+export const pendingEvaluationRepository: PendingEvaluationRepository =
+  new LocalPendingEvaluationRepository();
 export const userRepository: UserRepository = new LocalUserRepository();

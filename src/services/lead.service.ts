@@ -13,11 +13,12 @@ export const leadService = {
   updateStatus: (id: string, status: LeadStatus) =>
     leadRepository.updateStatus(id, status),
 
-  /** Convierte un lead en alumno: crea el cliente y marca el lead como convertido. */
+  /** Convierte un lead en alumno: crea el cliente (con su evaluacion si la tiene). */
   async convertToClient(lead: Lead) {
     const client = await clientRepository.createClient({
       name: lead.name,
       status: "Nuevo",
+      evaluation: lead.evaluation,
     });
     await leadRepository.updateStatus(lead.id, "Convertido");
     return client;

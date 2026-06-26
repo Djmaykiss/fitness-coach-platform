@@ -99,12 +99,15 @@ export type Client = {
   accessExpiresAt: string | null;
   lastPaymentDate: string | null;
   paymentMethod: string | null;
+  /** Evaluacion inicial guardada en el perfil del alumno (si la completo). */
+  evaluation?: LeadEvaluation;
 };
 
 export type CreateClientInput = {
   name: string;
   status: string;
   userId?: string;
+  evaluation?: LeadEvaluation;
 };
 
 /** Fila de cliente para la tabla del admin (cliente + datos derivados del progreso). */
@@ -116,12 +119,14 @@ export type AdminClientRow = {
   progresoPct: number;
   accessStatus: AccessStatus;
   accessExpiresAt: string | null;
+  evaluation?: LeadEvaluation;
 };
 
 export type LeadStatus = "Nuevo" | "Contactado" | "Convertido" | "Descartado";
 
 /** Evaluacion inicial del alumno (onboarding tipo wizard). Opcional en el lead. */
 export type LeadEvaluation = {
+  objective: string;
   age: string;
   sex: string;
   weight: string;
@@ -159,10 +164,11 @@ export type CreateLeadInput = {
   message: string;
 };
 
-/** Entrada para crear un lead desde el onboarding (sin email/telefono). */
+/** Entrada para crear un lead desde el onboarding. */
 export type CreateEvaluationLeadInput = {
   name: string;
-  objective: string;
+  email: string;
+  phone: string;
   evaluation: LeadEvaluation;
 };
 

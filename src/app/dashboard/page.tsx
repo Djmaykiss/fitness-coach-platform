@@ -15,17 +15,19 @@ import {
 import { DashboardShell } from "@/layouts/dashboard-shell";
 import { RequireAuth } from "@/components/require-auth";
 import { AccessBadge } from "@/components/access-badge";
+import { EvaluationDetails } from "@/components/evaluation-details";
 import { StatCard } from "@/components/ui";
 import { useAuth } from "@/context/auth-context";
 import { clientDashboardService } from "@/services/dashboard.service";
 import type { ClientAccess } from "@/services/dashboard.service";
 import { formatDate } from "@/lib/format";
-import type { ClientProgress } from "@/types";
+import type { ClientProgress, LeadEvaluation } from "@/types";
 
 export default function ClientDashboardPage() {
   const { user } = useAuth();
   const [progress, setProgress] = useState<ClientProgress | null>(null);
   const [access, setAccess] = useState<ClientAccess | null>(null);
+  const [evaluation, setEvaluation] = useState<LeadEvaluation | null>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -35,6 +37,9 @@ export default function ClientDashboardPage() {
     });
     clientDashboardService.getAccessForUser(user.id).then((data) => {
       if (active) setAccess(data);
+    });
+    clientDashboardService.getEvaluationForUser(user.id).then((data) => {
+      if (active) setEvaluation(data);
     });
     return () => {
       active = false;
@@ -53,6 +58,17 @@ export default function ClientDashboardPage() {
         ) : (
           <p className="text-zinc-400">Cargando tu progreso...</p>
         )}
+        {evaluation ? (
+          <section className="premium-card mt-6 rounded-2xl p-6">
+            <h2 className="text-2xl font-black">Mi evaluación inicial</h2>
+            <p className="mt-1 text-sm text-zinc-400">
+              Los datos que registraste al comenzar.
+            </p>
+            <div className="mt-5">
+              <EvaluationDetails evaluation={evaluation} />
+            </div>
+          </section>
+        ) : null}
       </DashboardShell>
     </RequireAuth>
   );

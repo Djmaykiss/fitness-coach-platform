@@ -51,9 +51,9 @@ export class LocalLeadRepository implements LeadRepository {
     const lead: Lead = {
       id: `lead-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`,
       name: input.name.trim(),
-      email: "",
-      phone: "",
-      objective: input.objective,
+      email: input.email.trim(),
+      phone: input.phone.trim(),
+      objective: input.evaluation.objective,
       message: "",
       source: "Evaluación",
       status: "Nuevo",

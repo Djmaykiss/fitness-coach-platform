@@ -8,6 +8,7 @@ import type {
   CreateProgramInput,
   Credentials,
   Lead,
+  LeadEvaluation,
   LeadStatus,
   NavLink,
   Program,
@@ -65,6 +66,13 @@ export interface LeadRepository {
   createLead(input: CreateLeadInput): Promise<Lead>;
   createEvaluationLead(input: CreateEvaluationLeadInput): Promise<Lead>;
   updateStatus(id: string, status: LeadStatus): Promise<Lead | null>;
+}
+
+/** Evaluacion pendiente: se guarda al terminar el onboarding y se consume en el registro. */
+export interface PendingEvaluationRepository {
+  get(): Promise<LeadEvaluation | null>;
+  save(evaluation: LeadEvaluation): Promise<void>;
+  clear(): Promise<void>;
 }
 
 export interface ProgressRepository {

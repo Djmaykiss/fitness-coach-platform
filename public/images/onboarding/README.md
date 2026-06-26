@@ -1,38 +1,40 @@
-# Ilustraciones de tipos de cuerpo (onboarding)
+# Ilustraciones del onboarding inteligente
 
-Imágenes para el Paso 3 del onboarding inteligente ("¿Qué cuerpo se parece más
-al tuyo?"). Mientras un archivo no exista, la tarjeta muestra una silueta
-placeholder sin romper el diseño.
+Imágenes del wizard de evaluación inicial. Mientras un archivo no exista, la
+tarjeta muestra un placeholder elegante (silueta para tipos de cuerpo, icono
+para objetivos) sin romper el diseño. Al subir los `.webp` aparecen solos.
 
-## Archivos esperados (estos nombres exactos)
+Las rutas están referenciadas en `src/data/onboarding.ts` (`BODY_TYPES` y
+`OBJECTIVES`). No hace falta tocar código.
+
+## Tipos de cuerpo — `body-types/`
 
 ```
-muy-delgado.webp
-delgado.webp
-atletico.webp
-promedio.webp
-sobrepeso.webp
-obesidad.webp
+body-types/muy-delgado.webp
+body-types/delgado.webp
+body-types/atletico.webp
+body-types/promedio.webp
+body-types/sobrepeso.webp
+body-types/obesidad.webp
 ```
 
-Las rutas ya están referenciadas en `src/data/onboarding.ts` (`BODY_TYPES`). Al
-subir los `.webp` con estos nombres aparecen solos, sin tocar código.
+## Objetivos — `goals/`
+
+```
+goals/perder-grasa.webp
+goals/ganar-musculo.webp
+goals/recomposicion.webp
+goals/tonificar.webp
+goals/condicion.webp
+goals/rendimiento.webp
+```
 
 ## Especificaciones recomendadas
 
 - Formato `.webp`, fondo neutro/transparente.
 - Ilustraciones (no fotos de personas reales), estilo consistente entre sí.
-- Siluetas/figuras neutras que representen cada complexión.
+- Tipos de cuerpo: siluetas/figuras neutras que representen cada complexión.
+- Objetivos: iconos/ilustraciones simples que representen cada meta.
 
-## Prompts sugeridos para IA
-
-- `muy-delgado.webp`: "Minimal flat illustration of a very thin human body
-  silhouette, front view, neutral background, consistent style."
-- `delgado.webp`: "...slim human body silhouette..."
-- `atletico.webp`: "...athletic/fit human body silhouette..."
-- `promedio.webp`: "...average build human body silhouette..."
-- `sobrepeso.webp`: "...overweight human body silhouette..."
-- `obesidad.webp`: "...obese human body silhouette..."
-
-Mantener el mismo estilo, pose y encuadre en las 6 para que se vean como una
-serie coherente.
+Mantener el mismo estilo, pose y encuadre dentro de cada serie para que se vean
+coherentes.

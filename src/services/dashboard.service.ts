@@ -12,6 +12,7 @@ import type {
   CreateClientInput,
   CreateProgramInput,
   DashboardStat,
+  LeadEvaluation,
   ProgramRow,
 } from "@/types";
 
@@ -39,6 +40,12 @@ export const clientDashboardService = {
       accessExpiresAt: client.accessExpiresAt ?? null,
     };
   },
+
+  /** Evaluacion inicial del alumno autenticado (seccion "Mi evaluacion inicial"). */
+  async getEvaluationForUser(userId: string): Promise<LeadEvaluation | null> {
+    const client = await clientRepository.findByUserId(userId);
+    return client?.evaluation ?? null;
+  },
 };
 
 /** Datos y operaciones del panel de administracion. */
@@ -59,6 +66,7 @@ export const adminDashboardService = {
           progresoPct: progress.progresoPct,
           accessStatus: client.accessStatus ?? "Vencido",
           accessExpiresAt: client.accessExpiresAt ?? null,
+          evaluation: client.evaluation,
         };
       }),
     );

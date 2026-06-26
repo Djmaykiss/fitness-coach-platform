@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { StatCard } from "@/components/ui";
 import { AccessBadge } from "@/components/access-badge";
+import { EvaluationDetails } from "@/components/evaluation-details";
 import { adminDashboardService } from "@/services/dashboard.service";
 import { leadService } from "@/services/lead.service";
 import { formatDate } from "@/lib/format";
@@ -57,6 +58,7 @@ export function AdminPanel() {
   const [loaded, setLoaded] = useState(false);
   const [editor, setEditor] = useState<Editor>(null);
   const [leadDetail, setLeadDetail] = useState<Lead | null>(null);
+  const [clientDetail, setClientDetail] = useState<AdminClientRow | null>(null);
 
   async function load() {
     const [s, c, l, p] = await Promise.all([
@@ -126,6 +128,15 @@ export function AdminPanel() {
         </div>
       ) : null}
 
+      {clientDetail ? (
+        <div className="mt-6">
+          <ClientDetailCard
+            client={clientDetail}
+            onClose={() => setClientDetail(null)}
+          />
+        </div>
+      ) : null}
+
       {/* Clientes */}
       <section className="premium-card mt-6 overflow-hidden rounded-2xl">
         <SectionHeader
@@ -165,6 +176,12 @@ export function AdminPanel() {
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex flex-wrap justify-end gap-2">
+                      <RowButton
+                        onClick={() => setClientDetail(client)}
+                        icon={<FileText size={14} />}
+                      >
+                        Ficha
+                      </RowButton>
                       <RowButton
                         onClick={() => setEditor({ kind: "access", client })}
                         icon={<KeyRound size={14} />}
@@ -313,31 +330,35 @@ function LeadDetailCard({ lead, onClose }: { lead: Lead; onClose: () => void }) 
           <p className="mt-6 text-xs font-black uppercase tracking-[0.2em] text-[#65ff4f]">
             Evaluación inicial
           </p>
-          <div className="mt-3 grid gap-3 sm:grid-cols-3">
-            <DetailField label="Edad" value={evaluation.age} />
-            <DetailField label="Sexo" value={evaluation.sex} />
-            <DetailField label="Peso (kg)" value={evaluation.weight} />
-            <DetailField label="Altura (cm)" value={evaluation.height} />
-            <DetailField label="Cintura (cm)" value={evaluation.waist || "—"} />
-            <DetailField label="Tipo corporal" value={evaluation.bodyType} />
-            <DetailField label="Nivel" value={evaluation.level} />
-            <DetailField label="Lugar" value={evaluation.place} />
-            <DetailField
-              label="Disponibilidad"
-              value={`${evaluation.availability} días`}
-            />
-            <DetailField label="Sueño" value={evaluation.sleep} />
-            <DetailField label="Alimentación" value={evaluation.nutrition} />
-            <DetailField
-              label="Plan recomendado"
-              value={evaluation.recommendedPlan}
-              highlight
-            />
+          <div className="mt-3">
+            <EvaluationDetails evaluation={evaluation} />
           </div>
         </>
       ) : (
         <p className="mt-5 text-sm text-zinc-400">
           Este lead no incluye evaluación inicial (vino del formulario simple).
+        </p>
+      )}
+    </FormShell>
+  );
+}
+
+/* ---------- Ficha del alumno (evaluacion inicial) ---------- */
+
+function ClientDetailCard({
+  client,
+  onClose,
+}: {
+  client: AdminClientRow;
+  onClose: () => void;
+}) {
+  return (
+    <FormShell title={`Ficha: ${client.name}`} onClose={onClose}>
+      {client.evaluation ? (
+        <EvaluationDetails evaluation={client.evaluation} />
+      ) : (
+        <p className="text-sm text-zinc-400">
+          Este alumno no tiene evaluación inicial registrada.
         </p>
       )}
     </FormShell>

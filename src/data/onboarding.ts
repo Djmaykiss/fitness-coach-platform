@@ -10,21 +10,22 @@ export const SEXES = ["Hombre", "Mujer"];
 
 /** Tipos de cuerpo (paso 3). `image` queda preparado para ilustraciones futuras. */
 export const BODY_TYPES: { key: string; label: string; image: string }[] = [
-  { key: "muy-delgado", label: "Muy Delgado", image: "/images/onboarding/muy-delgado.webp" },
-  { key: "delgado", label: "Delgado", image: "/images/onboarding/delgado.webp" },
-  { key: "atletico", label: "Atlético", image: "/images/onboarding/atletico.webp" },
-  { key: "promedio", label: "Promedio", image: "/images/onboarding/promedio.webp" },
-  { key: "sobrepeso", label: "Sobrepeso", image: "/images/onboarding/sobrepeso.webp" },
-  { key: "obesidad", label: "Obesidad", image: "/images/onboarding/obesidad.webp" },
+  { key: "muy-delgado", label: "Muy Delgado", image: "/images/onboarding/body-types/muy-delgado.webp" },
+  { key: "delgado", label: "Delgado", image: "/images/onboarding/body-types/delgado.webp" },
+  { key: "atletico", label: "Atlético", image: "/images/onboarding/body-types/atletico.webp" },
+  { key: "promedio", label: "Promedio", image: "/images/onboarding/body-types/promedio.webp" },
+  { key: "sobrepeso", label: "Sobrepeso", image: "/images/onboarding/body-types/sobrepeso.webp" },
+  { key: "obesidad", label: "Obesidad", image: "/images/onboarding/body-types/obesidad.webp" },
 ];
 
-export const OBJECTIVES = [
-  "Perder grasa",
-  "Ganar músculo",
-  "Recomposición corporal",
-  "Tonificar",
-  "Mejorar condición física",
-  "Rendimiento deportivo",
+/** Objetivos (paso 4). `image` queda preparado para ilustraciones futuras. */
+export const OBJECTIVES: { key: string; label: string; image: string }[] = [
+  { key: "perder-grasa", label: "Perder grasa", image: "/images/onboarding/goals/perder-grasa.webp" },
+  { key: "ganar-musculo", label: "Ganar músculo", image: "/images/onboarding/goals/ganar-musculo.webp" },
+  { key: "recomposicion", label: "Recomposición corporal", image: "/images/onboarding/goals/recomposicion.webp" },
+  { key: "tonificar", label: "Tonificar", image: "/images/onboarding/goals/tonificar.webp" },
+  { key: "condicion", label: "Mejorar condición física", image: "/images/onboarding/goals/condicion.webp" },
+  { key: "rendimiento", label: "Rendimiento deportivo", image: "/images/onboarding/goals/rendimiento.webp" },
 ];
 
 export const LEVELS = ["Principiante", "Intermedio", "Avanzado"];

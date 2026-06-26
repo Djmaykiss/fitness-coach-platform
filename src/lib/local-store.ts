@@ -19,9 +19,39 @@ export const STORAGE_KEYS = {
   leads: "coach-fitness:leads",
   programs: "coach-fitness:programs",
   progress: "coach-fitness:progress",
+  pendingEvaluation: "coach-fitness:pending-evaluation",
 } as const;
 
 const isBrowser = () => typeof window !== "undefined";
+
+/** Lee un valor unico (objeto) o null si no existe. */
+export function readValue<T>(key: string): T | null {
+  if (!isBrowser()) return null;
+  try {
+    const raw = window.localStorage.getItem(key);
+    return raw === null ? null : (JSON.parse(raw) as T);
+  } catch {
+    return null;
+  }
+}
+
+export function writeValue<T>(key: string, value: T): void {
+  if (!isBrowser()) return;
+  try {
+    window.localStorage.setItem(key, JSON.stringify(value));
+  } catch {
+    /* almacenamiento no disponible: se ignora en esta etapa local */
+  }
+}
+
+export function removeKey(key: string): void {
+  if (!isBrowser()) return;
+  try {
+    window.localStorage.removeItem(key);
+  } catch {
+    /* idem */
+  }
+}
 
 /** Lee una coleccion (array). Si no existe, la siembra con `seed`. */
 export function readCollection<T>(key: string, seed: T[]): T[] {

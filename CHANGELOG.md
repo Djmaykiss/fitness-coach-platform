@@ -5,12 +5,14 @@ Todos los cambios relevantes del proyecto se registran en este archivo.
 ## v0.4 (en rama `feature/intelligent-onboarding`, pendiente de merge)
 
 ### Agregado
-- Onboarding inteligente: la seccion "Agenda" de la landing se reemplaza por un wizard de evaluacion inicial de 8 pasos (datos personales, estado actual, tipo de cuerpo, objetivo, experiencia, disponibilidad, habitos, resumen con plan recomendado).
+- Onboarding inteligente: la seccion "Agenda" de la landing se reemplaza por un wizard de evaluacion inicial de 8 pasos (paso 1 con nombre, email, telefono, edad y sexo; luego estado actual, tipo de cuerpo, objetivo, experiencia, disponibilidad, habitos, resumen con plan recomendado).
 - Barra de progreso, botones Anterior/Siguiente, animaciones suaves y responsive (desktop/tablet/movil).
 - Recomendacion de plan con reglas simples por objetivo (sin IA ni calculos complejos).
-- Al finalizar guarda un `Lead` con la evaluacion completa (`Lead.evaluation`), source `Evaluación`. No crea alumno todavia.
-- En `/admin`, ficha del lead: el coach abre el detalle y ve toda la evaluacion (peso, altura, objetivo, tipo corporal, nivel, disponibilidad, plan recomendado, etc.).
-- Ilustraciones de tipo de cuerpo preparadas (`/public/images/onboarding/`) con placeholder de silueta.
+- Al finalizar: guarda un `Lead` con la evaluacion completa (source `Evaluación`), guarda la evaluacion como pendiente y redirige a `/register`.
+- En `/register`: al crear la cuenta, la evaluacion pendiente se guarda en el perfil del alumno (`Client.evaluation`) y se limpia.
+- En `/dashboard`: nueva seccion "Mi evaluacion inicial" con todos los datos del alumno.
+- En `/admin`: ficha del lead y ficha del alumno muestran la evaluacion inicial (componente compartido `evaluation-details`).
+- Ilustraciones preparadas en `/public/images/onboarding/body-types/` y `/goals/` con placeholders (silueta/icono).
 
 ### Sin cambios de base
 - Sin backend, sin Supabase, sin IA, sin pagos: todo en `localStorage`.

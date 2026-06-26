@@ -39,6 +39,7 @@ export class LocalClientRepository implements ClientRepository {
       accessExpiresAt: null,
       lastPaymentDate: null,
       paymentMethod: null,
+      evaluation: input.evaluation,
     };
     clients.push(client);
     this.write(clients);

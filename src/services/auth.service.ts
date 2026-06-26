@@ -1,4 +1,8 @@
-import { clientRepository, userRepository } from "@/repositories";
+import {
+  clientRepository,
+  pendingEvaluationRepository,
+  userRepository,
+} from "@/repositories";
 import type { AuthUser, Credentials, RegisterInput } from "@/types";
 
 export type AuthResult =
@@ -33,13 +37,22 @@ export const authService = {
     }
     const user = await userRepository.create(input);
 
+    // Si el usuario completo el onboarding antes de registrarse, su evaluacion
+    // quedo pendiente: se guarda en el perfil del alumno y se limpia.
+    const pendingEvaluation = await pendingEvaluationRepository.get();
+
     // El alumno recien registrado aparece de inmediato en el panel admin y
     // queda enlazado a su usuario para que vea su propio progreso.
     await clientRepository.createClient({
       name: `${user.firstName} ${user.lastName}`.trim(),
       status: "Nuevo",
       userId: user.id,
+      evaluation: pendingEvaluation ?? undefined,
     });
+
+    if (pendingEvaluation) {
+      await pendingEvaluationRepository.clear();
+    }
 
     return { ok: true, user: toAuthUser(user) };
   },

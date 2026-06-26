@@ -1,6 +1,10 @@
-import { leadRepository } from "@/repositories";
+import { leadRepository, pendingEvaluationRepository } from "@/repositories";
 import { DEFAULT_RECOMMENDATION, PLAN_BY_OBJECTIVE } from "@/data/onboarding";
-import type { CreateEvaluationLeadInput, PlanRecommendation } from "@/types";
+import type {
+  CreateEvaluationLeadInput,
+  LeadEvaluation,
+  PlanRecommendation,
+} from "@/types";
 
 /**
  * Onboarding inteligente. La UI (wizard) consume estos metodos; nunca toca
@@ -15,5 +19,10 @@ export const onboardingService = {
   /** Guarda la evaluacion completa como un lead (no crea alumno todavia). */
   submitEvaluation(input: CreateEvaluationLeadInput) {
     return leadRepository.createEvaluationLead(input);
+  },
+
+  /** Guarda la evaluacion temporalmente para usarla en el registro. */
+  savePendingEvaluation(evaluation: LeadEvaluation) {
+    return pendingEvaluationRepository.save(evaluation);
   },
 };
