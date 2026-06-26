@@ -98,6 +98,19 @@ contenido es estatico y no requiere persistencia).
 - Ejecutar `npm run lint` y `npm run build` antes de entregar cambios finales.
 - Mantener componentes separados, responsivos y preparados para crecer.
 
+## Flujo de trabajo y mantenimiento (OBLIGATORIO en cada tarea importante)
+Estas reglas son permanentes; aplicarlas automaticamente sin que el usuario las recuerde.
+
+1. Antes de empezar una funcionalidad, leer `CLAUDE.md` y `CHANGELOG.md` para entender el estado actual del proyecto.
+2. Registrar SIEMPRE en `CLAUDE.md` (y en `CHANGELOG.md` si corresponde) toda nueva regla de arquitectura, decision tecnica, convencion, modulo, cambio importante de flujo o version. El objetivo es poder retomar el proyecto meses despues sin perder contexto.
+3. Si una nueva implementacion contradice reglas o decisiones existentes, NOTIFICARLO al usuario antes de modificar el codigo.
+4. Nunca eliminar funcionalidades existentes sin autorizacion explicita.
+5. Antes de dar una tarea por terminada: ejecutar `npm run lint` y `npm run build`, y verificar (preview en vivo) que la app sigue funcionando, en desktop y movil. Verificar tambien antes de commit/push.
+6. Al terminar una funcionalidad, indicar si conviene: dejarla en rama de feature, hacer merge a `main`, crear una nueva version (v0.x) y/o crear un tag de Git. Si queda estable y completa, indicarlo explicitamente.
+7. Al finalizar, indicar si hay documentacion adicional que deba actualizarse (p. ej. `README.md`, READMEs de carpetas).
+8. Proponer mejoras de arquitectura que no rompan compatibilidad, al finalizar la tarea (sin aplicarlas sin autorizacion).
+9. Versionado: trabajar en ramas `feature/*` (nunca directo en `main`); merge a `main` solo tras lint+build+pruebas; cada version estable se documenta en `CLAUDE.md` + `CHANGELOG.md` y se etiqueta con `git tag -a vX.Y`.
+
 ## Publicacion GitHub
 - Fecha de publicacion: 2026-06-25.
 - Repositorio: `fitness-coach-platform`.
