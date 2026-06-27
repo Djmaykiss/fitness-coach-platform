@@ -213,3 +213,136 @@ export type ClientProgress = {
   adherencia: string;
   tasks: string[];
 };
+
+/* ---------- Dashboard premium del alumno (coaching) ---------- */
+
+export type ChartPoint = { label: string; value: number };
+
+export type MetricSeries = {
+  weight: ChartPoint[];
+  waist: ChartPoint[];
+  fat: ChartPoint[];
+  muscle: ChartPoint[];
+};
+
+export type ComplianceData = {
+  training: number;
+  nutrition: number;
+  water: number;
+  sleep: number;
+};
+
+export type BodyMeasurement = {
+  key: string;
+  label: string;
+  start: number;
+  current: number;
+  unit: string;
+};
+
+export type GoalData = {
+  meta: string;
+  startWeight: number;
+  currentWeight: number;
+  targetWeight: number;
+};
+
+export type Achievement = { key: string; label: string; unlocked: boolean };
+
+export type HistoryEvent = { date: string; label: string; done: boolean };
+
+export type TodayRoutine = {
+  name: string;
+  duration: string;
+  calories: string;
+  level: string;
+  focus: string;
+};
+
+export type NutritionMeal = { key: string; label: string; items: string };
+
+export type ChecklistItem = { key: string; label: string };
+
+export type Resource = { key: string; type: string; label: string };
+
+export type ChatMessage = { from: "coach" | "alumno"; text: string; time: string };
+
+export type CheckIn = {
+  date: string;
+  time: string;
+  coach: string;
+  status: string;
+};
+
+/** Registro de fotos de progreso (persistido por cliente). */
+export type ProgressPhoto = {
+  id: string;
+  date: string;
+  front: string;
+  side: string;
+  back: string;
+  note: string;
+};
+
+export type CreateProgressPhoto = Omit<ProgressPhoto, "id">;
+
+export type BeforeAfter = { before: string; after: string };
+
+/** Entradas para calcular metricas corporales (formulas reales). */
+export type BodyMetricsInput = {
+  weightKg: number;
+  heightCm: number;
+  age: number;
+  sex: string;
+  targetKg: number;
+};
+
+export type BodyMetrics = {
+  imc: number;
+  imcLabel: string;
+  idealWeight: number;
+  remainingKg: number;
+  calories: number;
+  water: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+};
+
+/** Item de checklist con su estado de cumplimiento (mergeado con persistencia). */
+export type ChecklistState = {
+  items: { key: string; label: string; done: boolean }[];
+  percent: number;
+};
+
+/** Plan de comidas con estado de cada comida marcada. */
+export type NutritionState = {
+  meals: { key: string; label: string; items: string; done: boolean }[];
+  waterTarget: string;
+  percent: number;
+};
+
+/** Estado persistido de checklists por cliente: lista -> item -> done. */
+export type ChecklistChecks = Record<string, Record<string, boolean>>;
+
+/** Payload completo del dashboard premium del alumno. */
+export type CoachingDashboard = {
+  clientId: string;
+  metrics: MetricSeries;
+  compliance: ComplianceData;
+  measurements: BodyMeasurement[];
+  goal: GoalData;
+  transformationPct: number;
+  achievements: Achievement[];
+  history: HistoryEvent[];
+  routine: TodayRoutine;
+  nutrition: NutritionState;
+  reminders: ChecklistState;
+  weeklyGoals: ChecklistState;
+  resources: Resource[];
+  chat: ChatMessage[];
+  checkIn: CheckIn;
+  beforeAfter: BeforeAfter;
+  photos: ProgressPhoto[];
+  bodyMetrics: BodyMetrics;
+};

@@ -15,6 +15,12 @@ Todos los cambios relevantes del proyecto se registran en este archivo.
 - En `/admin`: ficha del lead y ficha del alumno muestran la evaluacion inicial (componente compartido `evaluation-details`).
 - Ilustraciones preparadas en `/public/images/onboarding/body-types/` y `/goals/` con placeholders (silueta/icono).
 
+### Dashboard premium del alumno (sobre esta misma rama)
+- 18 secciones tipo Trainerize/TrueCoach añadidas al `/dashboard` sin romper lo existente: "Mi transformación" (galería + timeline + alta de registros), gráficas de progreso (peso/cintura/grasa/músculo, SVG propio), objetivos de la semana, calendario de entrenamiento, medidas corporales, cumplimiento general, logros, progreso hacia la meta, historial, rutina del día, nutrición, chat con el coach (demo), recursos, recordatorios, comparador antes/después (slider), métricas corporales calculadas (IMC, peso ideal, calorías, agua, macros), barra de transformación y próximo check-in.
+- Objetivos, nutrición, recordatorios y fotos se marcan/agregan y persisten en `localStorage` (por id de cliente); el resto son datos demo preparados para Supabase.
+- Servicios `coachingService` y `metricsService`; repositorio `LocalCoachingRepository`. Sin dependencias nuevas.
+- DECISION: el dashboard se construye sobre `feature/intelligent-onboarding` (no sobre `main`) porque usa los datos del onboarding.
+
 ### Sin cambios de base
 - Sin backend, sin Supabase, sin IA, sin pagos: todo en `localStorage`.
 - Arquitectura intacta: UI -> services -> repositories -> localStorage.

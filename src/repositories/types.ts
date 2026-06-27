@@ -1,11 +1,13 @@
 import type {
   Benefit,
+  ChecklistChecks,
   Client,
   ClientProgress,
   CreateClientInput,
   CreateEvaluationLeadInput,
   CreateLeadInput,
   CreateProgramInput,
+  CreateProgressPhoto,
   Credentials,
   Lead,
   LeadStatus,
@@ -13,6 +15,7 @@ import type {
   PendingOnboarding,
   Program,
   ProgramRow,
+  ProgressPhoto,
   RegisterInput,
   Testimonial,
   Transformation,
@@ -87,4 +90,20 @@ export interface UserRepository {
   findByCredentials(credentials: Credentials): Promise<User | null>;
   findByEmail(email: string): Promise<User | null>;
   create(input: RegisterInput): Promise<User>;
+}
+
+/**
+ * Datos interactivos del dashboard premium del alumno (persistidos por cliente):
+ * fotos de progreso y estado de los checklists (objetivos, nutricion, recordatorios).
+ */
+export interface CoachingRepository {
+  getPhotos(clientId: string): Promise<ProgressPhoto[]>;
+  addPhoto(clientId: string, photo: CreateProgressPhoto): Promise<ProgressPhoto>;
+  getChecks(clientId: string): Promise<ChecklistChecks>;
+  setCheck(
+    clientId: string,
+    listKey: string,
+    itemKey: string,
+    done: boolean,
+  ): Promise<ChecklistChecks>;
 }

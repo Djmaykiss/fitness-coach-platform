@@ -16,6 +16,7 @@ import { DashboardShell } from "@/layouts/dashboard-shell";
 import { RequireAuth } from "@/components/require-auth";
 import { AccessBadge } from "@/components/access-badge";
 import { EvaluationDetails } from "@/components/evaluation-details";
+import { PremiumDashboard } from "@/components/dashboard/premium-dashboard";
 import { StatCard } from "@/components/ui";
 import { useAuth } from "@/context/auth-context";
 import { clientDashboardService } from "@/services/dashboard.service";
@@ -69,6 +70,7 @@ export default function ClientDashboardPage() {
             </div>
           </section>
         ) : null}
+        {user ? <PremiumDashboard userId={user.id} /> : null}
       </DashboardShell>
     </RequireAuth>
   );

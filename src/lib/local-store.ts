@@ -20,6 +20,8 @@ export const STORAGE_KEYS = {
   programs: "coach-fitness:programs",
   progress: "coach-fitness:progress",
   pendingEvaluation: "coach-fitness:pending-evaluation",
+  progressPhotos: "coach-fitness:progress-photos",
+  checklists: "coach-fitness:checklists",
 } as const;
 
 const isBrowser = () => typeof window !== "undefined";
