@@ -1,7 +1,17 @@
 # Coach Fitness MVP
 
-# Version 0.4 (Estable - main)
-Version estable actual en `main`. Incluye todo lo de v0.3 mas el onboarding
+# Version 0.5 (Estable - main)
+Version estable actual en `main`. Incluye todo lo de v0.4 mas el formulario de
+salud y alimentacion del cliente integrado en el onboarding inteligente: el wizard
+pasa de 8 a 11 pasos (paso 8 datos + antecedentes; pasos 9-10 alimentacion), las
+nuevas respuestas se guardan dentro de la misma evaluacion del lead y del alumno,
+y `evaluation-details` muestra la evaluacion agrupada en bloques (Datos personales,
+Antecedentes, Alimentacion) en el dashboard del alumno y en las fichas del admin.
+Sin backend, sin Supabase, sin pagos reales: todo en `localStorage`. Ver
+`CHANGELOG.md`.
+
+# Version 0.4 (Congelada)
+Incluye todo lo de v0.3 mas el onboarding
 inteligente del alumno (wizard de evaluacion de 8 pasos en la landing -> guarda
 lead + evaluacion -> redirige a `/register` -> la evaluacion queda en el perfil
 del alumno y se ve en `/dashboard` y en la ficha del admin) y el dashboard

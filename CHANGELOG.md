@@ -2,7 +2,10 @@
 
 Todos los cambios relevantes del proyecto se registran en este archivo.
 
-## (en rama `feature/client-health-nutrition-form`, pendiente de merge)
+## v0.5
+
+Version estable actual en `main` (formulario de salud y alimentacion del cliente
+integrado en el onboarding inteligente).
 
 ### Agregado
 - Formulario de salud y alimentacion del cliente integrado en el onboarding, SIN
@@ -29,7 +32,7 @@ Todos los cambios relevantes del proyecto se registran en este archivo.
 
 ## v0.4
 
-Version estable actual en `main` (integra onboarding inteligente + dashboard premium).
+Version previa (integra onboarding inteligente + dashboard premium).
 
 ### Agregado
 - Onboarding inteligente: la seccion "Agenda" de la landing se reemplaza por un wizard de evaluacion inicial de 8 pasos (paso 1 con nombre, email, telefono, edad y sexo; luego estado actual, tipo de cuerpo, objetivo, experiencia, disponibilidad, habitos, resumen con plan recomendado).
