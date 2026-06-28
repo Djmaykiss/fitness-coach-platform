@@ -1,12 +1,22 @@
 # Coach Fitness MVP
 
-# Version 0.3 (Estable - main)
-Version estable actual en `main`. Incluye todo lo de v0.2 mas la gestion de
-leads: el boton "Agendar llamada" de la landing lleva a `/agendar` (formulario
-de lead), y en `/admin` el dueno ve los leads, cambia su estado
-(Nuevo/Contactado/Convertido/Descartado) y convierte un lead en alumno. Sin
+# Version 0.4 (Estable - main)
+Version estable actual en `main`. Incluye todo lo de v0.3 mas el onboarding
+inteligente del alumno (wizard de evaluacion de 8 pasos en la landing -> guarda
+lead + evaluacion -> redirige a `/register` -> la evaluacion queda en el perfil
+del alumno y se ve en `/dashboard` y en la ficha del admin) y el dashboard
+premium del alumno (18 secciones tipo Trainerize/TrueCoach: galería de progreso,
+gráficas, objetivos, calendario, medidas, cumplimiento, logros, historial,
+nutrición, chat demo, recursos, recordatorios, métricas corporales, etc.). Sin
 backend, sin Supabase, sin pagos reales: todo en `localStorage`. Ver
 `CHANGELOG.md`.
+
+# Version 0.3 (Congelada)
+Incluye todo lo de v0.2 mas la gestion de leads: el boton "Agendar llamada" de la
+landing lleva a `/agendar` (formulario de lead), y en `/admin` el dueno ve los
+leads, cambia su estado (Nuevo/Contactado/Convertido/Descartado) y convierte un
+lead en alumno. Sin backend, sin Supabase, sin pagos reales: todo en
+`localStorage`. Ver `CHANGELOG.md`.
 
 # Version 0.2 (Congelada)
 Incluye todo lo de v0.1 mas el control de acceso mensual manual de alumnos
@@ -88,8 +98,8 @@ contenido es estatico y no requiere persistencia).
 - IDs locales: no deben depender solo de `Date.now()`. Para clientes y usuarios locales se usa `Date.now()` + sufijo aleatorio, para evitar colisiones por doble clic o creaciones rapidas. Al migrar a Supabase, los IDs deberan ser UUID generados por la base de datos / Auth.
 - Autenticacion simulada con Context API (sin JWT ni sesiones reales). La sesion se guarda en `localStorage` (`coach-fitness:auth-user`). Usuarios demo: `admin@coach.com` / `123456` y `cliente@coach.com` / `123456`.
 - Migracion futura a base de datos / Supabase: implementar las interfaces de `src/repositories` con nuevas clases y cambiar el cableado en `src/repositories/index.ts`, sin tocar UI ni servicios.
-- Dashboard premium del alumno (en `feature/intelligent-onboarding`): se AGREGAN 18 secciones tipo Trainerize/TrueCoach sin romper lo existente (acceso, programa, tareas, "Mi evaluacion inicial" siguen intactos). Secciones: galería de progreso "Mi transformación" (timeline + alta de registros), gráficas de progreso (peso/cintura/grasa/musculo, SVG), objetivos de la semana, calendario de entrenamiento, medidas corporales, cumplimiento general, logros, progreso hacia la meta, historial, rutina del día, nutrición, chat con el coach (demo), recursos, recordatorios, comparador antes/después (slider), métricas corporales calculadas (IMC, peso ideal, calorias Mifflin-St Jeor, agua, macros), barra principal de transformación y próximo check-in. Arquitectura: `coachingService` (compone seed `src/data/coaching.ts` + persistidos) y `metricsService` (formulas reales); persistencia via `LocalCoachingRepository` (fotos y checklists por id de cliente, claves `coach-fitness:progress-photos` y `coach-fitness:checklists`). Lo interactivo (objetivos, nutricion, recordatorios, fotos) persiste en localStorage; el resto son datos demo preparados para Supabase. Imagenes demo vacias por defecto (placeholder elegante via `onError`).
-- DECISION de ramas: el Dashboard del alumno depende de los datos del onboarding, por lo que sus funcionalidades se construyen SIEMPRE sobre `feature/intelligent-onboarding` (no sobre `main`), para evitar ramas paralelas que generen conflictos. `feature/intelligent-onboarding` es la base de trabajo del dashboard hasta que se decida su merge a `main`.
+- Dashboard premium del alumno (en `main` desde v0.4): se AGREGAN 18 secciones tipo Trainerize/TrueCoach sin romper lo existente (acceso, programa, tareas, "Mi evaluacion inicial" siguen intactos). Secciones: galería de progreso "Mi transformación" (timeline + alta de registros), gráficas de progreso (peso/cintura/grasa/musculo, SVG), objetivos de la semana, calendario de entrenamiento, medidas corporales, cumplimiento general, logros, progreso hacia la meta, historial, rutina del día, nutrición, chat con el coach (demo), recursos, recordatorios, comparador antes/después (slider), métricas corporales calculadas (IMC, peso ideal, calorias Mifflin-St Jeor, agua, macros), barra principal de transformación y próximo check-in. Arquitectura: `coachingService` (compone seed `src/data/coaching.ts` + persistidos) y `metricsService` (formulas reales); persistencia via `LocalCoachingRepository` (fotos y checklists por id de cliente, claves `coach-fitness:progress-photos` y `coach-fitness:checklists`). Lo interactivo (objetivos, nutricion, recordatorios, fotos) persiste en localStorage; el resto son datos demo preparados para Supabase. Imagenes demo vacias por defecto (placeholder elegante via `onError`).
+- DECISION de ramas: el onboarding y el dashboard premium se integraron juntos en `main` en v0.4 (el dashboard depende de los datos del onboarding). Las nuevas funcionalidades del dashboard ya pueden ramificar desde `main`, que contiene ambas. Mantener la regla de evitar ramas paralelas que toquen `dashboard/page.tsx` a la vez.
 - No implementar todavia: Supabase, pagos, IA, WhatsApp/Instagram/Facebook Messenger, CRM avanzado, nutricion avanzada, videos avanzados ni automatizaciones. Se agregan en etapas futuras.
 - Footer obligatorio con credito: "Desarrollado por Michael Perez" y enlaces a portafolio (https://djmaykiss.github.io/Minuevocurriculum/), sitio web (https://markingwebs.com/) y GitHub (https://github.com/Djmaykiss). Se muestra en todas las paginas: footer completo en la landing y `MiniFooter` (compacto) en login, registro y dashboards.
 - La sesion mock se cierra con el boton "Salir" del header de los dashboards (`src/components/logout-button.tsx`).

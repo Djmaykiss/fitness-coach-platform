@@ -2,7 +2,9 @@
 
 Todos los cambios relevantes del proyecto se registran en este archivo.
 
-## v0.4 (en rama `feature/intelligent-onboarding`, pendiente de merge)
+## v0.4
+
+Version estable actual en `main` (integra onboarding inteligente + dashboard premium).
 
 ### Agregado
 - Onboarding inteligente: la seccion "Agenda" de la landing se reemplaza por un wizard de evaluacion inicial de 8 pasos (paso 1 con nombre, email, telefono, edad y sexo; luego estado actual, tipo de cuerpo, objetivo, experiencia, disponibilidad, habitos, resumen con plan recomendado).
@@ -19,7 +21,7 @@ Todos los cambios relevantes del proyecto se registran en este archivo.
 - 18 secciones tipo Trainerize/TrueCoach añadidas al `/dashboard` sin romper lo existente: "Mi transformación" (galería + timeline + alta de registros), gráficas de progreso (peso/cintura/grasa/músculo, SVG propio), objetivos de la semana, calendario de entrenamiento, medidas corporales, cumplimiento general, logros, progreso hacia la meta, historial, rutina del día, nutrición, chat con el coach (demo), recursos, recordatorios, comparador antes/después (slider), métricas corporales calculadas (IMC, peso ideal, calorías, agua, macros), barra de transformación y próximo check-in.
 - Objetivos, nutrición, recordatorios y fotos se marcan/agregan y persisten en `localStorage` (por id de cliente); el resto son datos demo preparados para Supabase.
 - Servicios `coachingService` y `metricsService`; repositorio `LocalCoachingRepository`. Sin dependencias nuevas.
-- DECISION: el dashboard se construye sobre `feature/intelligent-onboarding` (no sobre `main`) porque usa los datos del onboarding.
+- El dashboard usa los datos del onboarding (evaluacion del alumno); ambas funcionalidades quedan integradas juntas en `main` desde v0.4.
 
 ### Sin cambios de base
 - Sin backend, sin Supabase, sin IA, sin pagos: todo en `localStorage`.
@@ -28,7 +30,7 @@ Todos los cambios relevantes del proyecto se registran en este archivo.
 
 ## v0.3
 
-Version estable actual en `main`.
+Version previa (gestion de leads).
 
 ### Agregado
 - Gestion de leads. El boton "Agendar llamada" de la landing lleva a `/agendar`, un formulario (nombre, email, telefono, objetivo, mensaje) que crea un lead en `localStorage`.
