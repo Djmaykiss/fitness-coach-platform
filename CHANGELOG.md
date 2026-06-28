@@ -2,6 +2,31 @@
 
 Todos los cambios relevantes del proyecto se registran en este archivo.
 
+## (en rama `feature/client-health-nutrition-form`, pendiente de merge)
+
+### Agregado
+- Formulario de salud y alimentacion del cliente integrado en el onboarding, SIN
+  eliminar ninguna pregunta existente. El wizard pasa de 8 a 11 pasos.
+- Paso 8 "Datos y antecedentes": direccion + antecedentes personales (hipertension
+  arterial, hepatitis, cirugias previas, asmatico, otra condicion a mencionar).
+- Pasos 9-10 "Alimentacion": consume azucar + habitos, refrescos, alcohol, pollo,
+  carne roja, cerdo, alimentos del mar (Pescados/Mariscos/Ambos/Ninguno), lacteos
+  (Si/No/Intolerante a la lactosa), frutas, vegetales, arroz (Si/No/Integral),
+  viveres, tipo de pan (Blanco/Integral/Ambos/Ninguno), pastas, condimentos
+  artificiales, alergias alimentarias y alimento que prefiere no consumir.
+- Estos pasos son opcionales: el alumno puede continuar y completarlos con el coach.
+- Toda la informacion se guarda dentro de la misma evaluacion inicial del lead y
+  del alumno (campos opcionales en `LeadEvaluation`; el objeto fluye completo por el
+  pipeline existente, sin cambios en servicios ni repositorios).
+- "Mi evaluacion inicial" (dashboard del alumno) y las fichas del admin (alumno y
+  lead) ahora muestran la evaluacion agrupada en bloques: Datos personales,
+  Antecedentes y Alimentacion (`evaluation-details` solo renderiza campos con valor).
+
+### Sin cambios de base
+- Sin backend, sin Supabase, sin IA, sin pagos: todo en `localStorage`.
+- Arquitectura intacta: UI -> services -> repositories -> localStorage.
+- No se modifico el diseno general ni otras secciones de la landing/app.
+
 ## v0.4
 
 Version estable actual en `main` (integra onboarding inteligente + dashboard premium).

@@ -34,6 +34,13 @@ export const AVAILABILITY_DAYS = ["2", "3", "4", "5", "6", "7"];
 export const SLEEP_OPTIONS = ["Menos de 5", "5–6", "7–8", "Más de 8"];
 export const NUTRITION_OPTIONS = ["Mala", "Regular", "Buena", "Excelente"];
 
+/* Opciones del formulario de salud y alimentacion (paso de antecedentes/nutricion) */
+export const YES_NO = ["Sí", "No"];
+export const SEAFOOD_OPTIONS = ["Pescados", "Mariscos", "Ambos", "Ninguno"];
+export const DAIRY_OPTIONS = ["Sí", "No", "Intolerante a la lactosa"];
+export const RICE_OPTIONS = ["Sí", "No", "Integral"];
+export const BREAD_OPTIONS = ["Blanco", "Integral", "Ambos", "Ninguno"];
+
 /** Recomendacion de plan segun objetivo (reglas simples). */
 export const PLAN_BY_OBJECTIVE: Record<string, PlanRecommendation> = {
   "Perder grasa": { plan: "Transformación 12 Semanas", weeks: "12 semanas" },

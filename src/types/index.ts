@@ -139,6 +139,36 @@ export type LeadEvaluation = {
   sleep: string;
   nutrition: string;
   recommendedPlan: string;
+
+  /* Datos personales extra (formulario de salud/nutricion) */
+  address?: string;
+
+  /* Antecedentes personales */
+  hypertension?: string;
+  hepatitis?: string;
+  surgeries?: string;
+  asthma?: string;
+  otherCondition?: string;
+
+  /* Alimentacion actual */
+  sugar?: string;
+  sugarHabits?: string;
+  softDrinks?: string;
+  alcohol?: string;
+  chicken?: string;
+  redMeat?: string;
+  pork?: string;
+  seafood?: string;
+  dairy?: string;
+  fruits?: string;
+  vegetables?: string;
+  rice?: string;
+  groceries?: string;
+  breadType?: string;
+  pasta?: string;
+  artificialCondiments?: string;
+  foodAllergy?: string;
+  avoidFood?: string;
 };
 
 /** Lead captado (formulario simple, onboarding o sembrado). */

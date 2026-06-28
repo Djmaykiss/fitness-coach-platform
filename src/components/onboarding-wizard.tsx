@@ -21,15 +21,20 @@ import { onboardingService } from "@/services/onboarding.service";
 import {
   AVAILABILITY_DAYS,
   BODY_TYPES,
+  BREAD_OPTIONS,
+  DAIRY_OPTIONS,
   LEVELS,
   NUTRITION_OPTIONS,
   OBJECTIVES,
   PLACES,
+  RICE_OPTIONS,
+  SEAFOOD_OPTIONS,
   SEXES,
   SLEEP_OPTIONS,
+  YES_NO,
 } from "@/data/onboarding";
 
-const TOTAL_STEPS = 8;
+const TOTAL_STEPS = 11;
 
 const OBJECTIVE_ICONS: Record<string, ComponentType<LucideProps>> = {
   "Perder grasa": Flame,
@@ -56,6 +61,33 @@ type WizardData = {
   availability: string;
   sleep: string;
   nutrition: string;
+  // Datos personales extra
+  address: string;
+  // Antecedentes
+  hypertension: string;
+  hepatitis: string;
+  surgeries: string;
+  asthma: string;
+  otherCondition: string;
+  // Alimentacion
+  sugar: string;
+  sugarHabits: string;
+  softDrinks: string;
+  alcohol: string;
+  chicken: string;
+  redMeat: string;
+  pork: string;
+  seafood: string;
+  dairy: string;
+  fruits: string;
+  vegetables: string;
+  rice: string;
+  groceries: string;
+  breadType: string;
+  pasta: string;
+  artificialCondiments: string;
+  foodAllergy: string;
+  avoidFood: string;
 };
 
 const INITIAL: WizardData = {
@@ -74,6 +106,30 @@ const INITIAL: WizardData = {
   availability: "",
   sleep: "",
   nutrition: "",
+  address: "",
+  hypertension: "",
+  hepatitis: "",
+  surgeries: "",
+  asthma: "",
+  otherCondition: "",
+  sugar: "",
+  sugarHabits: "",
+  softDrinks: "",
+  alcohol: "",
+  chicken: "",
+  redMeat: "",
+  pork: "",
+  seafood: "",
+  dairy: "",
+  fruits: "",
+  vegetables: "",
+  rice: "",
+  groceries: "",
+  breadType: "",
+  pasta: "",
+  artificialCondiments: "",
+  foodAllergy: "",
+  avoidFood: "",
 };
 
 export function OnboardingWizard() {
@@ -134,6 +190,30 @@ export function OnboardingWizard() {
       sleep: data.sleep,
       nutrition: data.nutrition,
       recommendedPlan: recommendation.plan,
+      address: data.address,
+      hypertension: data.hypertension,
+      hepatitis: data.hepatitis,
+      surgeries: data.surgeries,
+      asthma: data.asthma,
+      otherCondition: data.otherCondition,
+      sugar: data.sugar,
+      sugarHabits: data.sugarHabits,
+      softDrinks: data.softDrinks,
+      alcohol: data.alcohol,
+      chicken: data.chicken,
+      redMeat: data.redMeat,
+      pork: data.pork,
+      seafood: data.seafood,
+      dairy: data.dairy,
+      fruits: data.fruits,
+      vegetables: data.vegetables,
+      rice: data.rice,
+      groceries: data.groceries,
+      breadType: data.breadType,
+      pasta: data.pasta,
+      artificialCondiments: data.artificialCondiments,
+      foodAllergy: data.foodAllergy,
+      avoidFood: data.avoidFood,
     };
     // Guardar el lead con toda la evaluacion + dejar la evaluacion pendiente
     // para el registro, y redirigir a /register.
@@ -414,10 +494,188 @@ function Step({
     );
   }
 
-  // Paso 8: resumen
+  if (step === 8) {
+    return (
+      <div>
+        <StepHeader eyebrow="Paso 8" title="Datos y antecedentes" />
+        <div className="grid gap-4 sm:grid-cols-2">
+          <TextField
+            label="Dirección"
+            value={data.address}
+            onChange={(v) => set("address", v)}
+            placeholder="Tu dirección"
+          />
+          <Question
+            label="Hipertensión arterial"
+            options={YES_NO}
+            value={data.hypertension}
+            onChange={(v) => set("hypertension", v)}
+          />
+          <Question
+            label="Hepatitis"
+            options={YES_NO}
+            value={data.hepatitis}
+            onChange={(v) => set("hepatitis", v)}
+          />
+          <Question
+            label="Asmático"
+            options={YES_NO}
+            value={data.asthma}
+            onChange={(v) => set("asthma", v)}
+          />
+          <TextField
+            label="Cirugías previas (¿cuáles?)"
+            value={data.surgeries}
+            onChange={(v) => set("surgeries", v)}
+            placeholder="Ninguna / detalle"
+          />
+          <TextField
+            label="Otra condición a mencionar"
+            value={data.otherCondition}
+            onChange={(v) => set("otherCondition", v)}
+            placeholder="Opcional"
+          />
+        </div>
+        <p className="mt-4 text-xs text-zinc-500">
+          Estas preguntas son opcionales: puedes continuar y completarlas con tu
+          coach.
+        </p>
+      </div>
+    );
+  }
+
+  if (step === 9) {
+    return (
+      <div>
+        <StepHeader eyebrow="Paso 9" title="Alimentación (1/2)" />
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Question
+            label="¿Consumes azúcar?"
+            options={YES_NO}
+            value={data.sugar}
+            onChange={(v) => set("sugar", v)}
+          />
+          <TextField
+            label="Hábitos con el azúcar"
+            value={data.sugarHabits}
+            onChange={(v) => set("sugarHabits", v)}
+            placeholder="Ej: 2 cucharadas/día"
+          />
+          <Question
+            label="¿Consumes refrescos?"
+            options={YES_NO}
+            value={data.softDrinks}
+            onChange={(v) => set("softDrinks", v)}
+          />
+          <Question
+            label="¿Bebidas alcohólicas?"
+            options={YES_NO}
+            value={data.alcohol}
+            onChange={(v) => set("alcohol", v)}
+          />
+          <Question
+            label="¿Consumes pollo?"
+            options={YES_NO}
+            value={data.chicken}
+            onChange={(v) => set("chicken", v)}
+          />
+          <Question
+            label="¿Carne roja?"
+            options={YES_NO}
+            value={data.redMeat}
+            onChange={(v) => set("redMeat", v)}
+          />
+          <Question
+            label="¿Carne de cerdo?"
+            options={YES_NO}
+            value={data.pork}
+            onChange={(v) => set("pork", v)}
+          />
+          <Question
+            label="Alimentos del mar"
+            options={SEAFOOD_OPTIONS}
+            value={data.seafood}
+            onChange={(v) => set("seafood", v)}
+          />
+          <Question
+            label="Productos lácteos"
+            options={DAIRY_OPTIONS}
+            value={data.dairy}
+            onChange={(v) => set("dairy", v)}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  if (step === 10) {
+    return (
+      <div>
+        <StepHeader eyebrow="Paso 10" title="Alimentación (2/2)" />
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Question
+            label="¿Consumes frutas?"
+            options={YES_NO}
+            value={data.fruits}
+            onChange={(v) => set("fruits", v)}
+          />
+          <Question
+            label="¿Consumes vegetales?"
+            options={YES_NO}
+            value={data.vegetables}
+            onChange={(v) => set("vegetables", v)}
+          />
+          <Question
+            label="¿Consumes arroz?"
+            options={RICE_OPTIONS}
+            value={data.rice}
+            onChange={(v) => set("rice", v)}
+          />
+          <TextField
+            label="Víveres (¿cuáles?)"
+            value={data.groceries}
+            onChange={(v) => set("groceries", v)}
+            placeholder="Ej: frijoles, lentejas"
+          />
+          <Question
+            label="Tipo de pan"
+            options={BREAD_OPTIONS}
+            value={data.breadType}
+            onChange={(v) => set("breadType", v)}
+          />
+          <Question
+            label="¿Consumes pastas?"
+            options={YES_NO}
+            value={data.pasta}
+            onChange={(v) => set("pasta", v)}
+          />
+          <TextField
+            label="Condimentos artificiales (especificar)"
+            value={data.artificialCondiments}
+            onChange={(v) => set("artificialCondiments", v)}
+            placeholder="Opcional"
+          />
+          <TextField
+            label="¿Alérgico a algún alimento?"
+            value={data.foodAllergy}
+            onChange={(v) => set("foodAllergy", v)}
+            placeholder="Especificar / Ninguno"
+          />
+          <TextField
+            label="Alimento que prefieres no consumir"
+            value={data.avoidFood}
+            onChange={(v) => set("avoidFood", v)}
+            placeholder="Opcional"
+          />
+        </div>
+      </div>
+    );
+  }
+
+  // Paso 11: resumen
   return (
     <div>
-      <StepHeader eyebrow="Paso 8" title="Tu perfil inicial" />
+      <StepHeader eyebrow="Paso 11" title="Tu perfil inicial" />
       <div className="grid gap-3 sm:grid-cols-2">
         <SummaryRow label="Objetivo" value={data.objective} highlight />
         <SummaryRow label="Nivel" value={data.level} />
@@ -508,6 +766,26 @@ function Pills({
           {option}
         </button>
       ))}
+    </div>
+  );
+}
+
+/** Pregunta de opcion unica: etiqueta + pills (para salud/alimentacion). */
+function Question({
+  label,
+  options,
+  value,
+  onChange,
+}: {
+  label: string;
+  options: string[];
+  value: string;
+  onChange: (value: string) => void;
+}) {
+  return (
+    <div>
+      <p className="text-sm font-bold text-zinc-200">{label}</p>
+      <Pills options={options} value={value} onChange={onChange} />
     </div>
   );
 }
