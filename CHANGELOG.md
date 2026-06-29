@@ -2,7 +2,9 @@
 
 Todos los cambios relevantes del proyecto se registran en este archivo.
 
-## (en rama `feature/onboarding-illustrations-copy`, pendiente de merge)
+## v0.7
+
+Version estable actual en `main` (ilustraciones y copy premium del onboarding).
 
 ### Mejorado (solo onboarding: visual y contenido)
 - Ilustraciones vectoriales propias (SVG, estilo neón consistente) que reemplazan
@@ -30,7 +32,7 @@ Todos los cambios relevantes del proyecto se registran en este archivo.
 
 ## v0.6
 
-Version estable actual en `main` (pulido visual premium, solo diseño).
+Version previa (pulido visual premium, solo diseño).
 
 ### Mejorado (solo diseño)
 - Pulido visual general para una apariencia más premium y comercial, manteniendo

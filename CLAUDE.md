@@ -1,7 +1,18 @@
 # Coach Fitness MVP
 
-# Version 0.6 (Estable - main)
-Version estable actual en `main`. Incluye todo lo de v0.5 mas un pulido visual
+# Version 0.7 (Estable - main)
+Version estable actual en `main`. Incluye todo lo de v0.6 mas el rediseño visual
+y de contenido del onboarding (solo onboarding): ilustraciones vectoriales propias
+(SVG, estilo neon) para tipos de cuerpo, objetivos, nivel y lugar en
+`public/images/onboarding/` (con fallback `onError` y `dangerouslyAllowSVG` en
+`next.config.ts`); copys con voz de coach (titulo + subtitulo por paso); resumen
+final rediseñado como diagnostico profesional con tarjeta premium del plan
+recomendado; y microanimaciones suaves (hover/seleccion de tarjetas, transicion de
+pasos, barra de progreso). Sin funciones nuevas, sin cambios de flujo, servicios,
+repositorios, tipos, `localStorage` ni dashboard. Ver `CHANGELOG.md`.
+
+# Version 0.6 (Congelada)
+Incluye todo lo de v0.5 mas un pulido visual
 premium (SOLO diseño): `globals.css` con `.premium-card` mejorada, utilidades
 `.card-hover` y `.reveal-up`, halo de fondo, `:focus-visible` neon, scrollbar a
 tono y `prefers-reduced-motion`; botones primarios con gradiente neon + lift;
