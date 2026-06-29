@@ -2,6 +2,23 @@
 
 Todos los cambios relevantes del proyecto se registran en este archivo.
 
+## (en rama `feature/dev-infrastructure`, pendiente de merge)
+
+### Infraestructura de desarrollo (no cambia la app)
+- Solucionado el problema recurrente de procesos `next dev` huerfanos que dejaban
+  el puerto 3000 ocupado y hacian que el dev saltara a otro puerto o que
+  localhost:3000 quedara caido.
+- Nuevo `scripts/free-port.mjs` (cross-platform, sin dependencias, best-effort):
+  antes de arrancar libera el puerto 3000 y mata procesos `next dev`/`next-server`
+  huerfanos, garantizando un unico servidor Next.
+- `package.json`: `predev` ejecuta la limpieza automaticamente antes de `dev`;
+  nuevo `clean:port` para limpiarlo manualmente. `dev`, `build`, `start` y `lint`
+  sin cambios.
+- `.claude/launch.json` revisado: se mantiene `port: 3000` + `autoPort: true` para
+  preferir el 3000 (ya liberado por `predev`) y, si estuviera ocupado, mostrar
+  claramente el puerto alternativo.
+- No se modifico ninguna funcionalidad de la aplicacion.
+
 ## v0.8
 
 Version estable actual en `main` (bloqueo del dashboard por mensualidad + CRUD

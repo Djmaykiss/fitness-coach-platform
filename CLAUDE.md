@@ -160,6 +160,12 @@ contenido es estatico y no requiere persistencia).
 - Ejecutar `npm run lint` y `npm run build` antes de entregar cambios finales.
 - Mantener componentes separados, responsivos y preparados para crecer.
 
+## Infraestructura de desarrollo (servidor Next)
+- `npm run dev` ejecuta automaticamente `predev` (`scripts/free-port.mjs`) ANTES de arrancar: libera el puerto 3000 y mata procesos `next dev`/`next-server` huerfanos, garantizando un unico servidor Next. Resuelve el problema recurrente de procesos huerfanos que dejaban el 3000 ocupado y hacian saltar el dev a otro puerto. El script es cross-platform (Windows/macOS/Linux), sin dependencias y best-effort (cualquier error se ignora; nunca impide el arranque) y NO toca la app.
+- `npm run clean:port` ejecuta la misma limpieza manualmente (acepta un puerto opcional: `node scripts/free-port.mjs 3001`).
+- `.claude/launch.json` mantiene `port: 3000` + `autoPort: true`: normalmente arranca en 3000 (porque `predev` lo deja libre) y, si por algo 3000 estuviera ocupado por un proceso ajeno, Claude Preview cae a otro puerto y lo MUESTRA claramente. Next dev tambien anuncia el puerto si cambia.
+- Si el build falla con `EPERM ... unlink '.next\\...'` (lock de Windows/OneDrive), borrar `.next` (`rm -rf .next`) y reconstruir.
+
 ## Flujo de trabajo y mantenimiento (OBLIGATORIO en cada tarea importante)
 Estas reglas son permanentes; aplicarlas automaticamente sin que el usuario las recuerde.
 
