@@ -12,10 +12,12 @@ import {
   UserCheck,
 } from "lucide-react";
 import { trainingService } from "@/services/training.service";
+import { exerciseLibraryService } from "@/services/exercise-library.service";
 import { adminDashboardService } from "@/services/dashboard.service";
 import type {
   AdminClientRow,
   CreateTrainingProgramInput,
+  LibraryExercise,
   TrainingProgram,
 } from "@/types";
 
@@ -53,16 +55,19 @@ type Panel =
 export function TrainingProgramsManager() {
   const [programs, setPrograms] = useState<TrainingProgram[]>([]);
   const [clients, setClients] = useState<AdminClientRow[]>([]);
+  const [library, setLibrary] = useState<LibraryExercise[]>([]);
   const [loaded, setLoaded] = useState(false);
   const [panel, setPanel] = useState<Panel>(null);
 
   async function load() {
-    const [p, c] = await Promise.all([
+    const [p, c, lib] = await Promise.all([
       trainingService.getPrograms(),
       adminDashboardService.getClientRows(),
+      exerciseLibraryService.getExercises(),
     ]);
     setPrograms(p);
     setClients(c);
+    setLibrary(lib);
     setLoaded(true);
   }
 
@@ -148,6 +153,7 @@ export function TrainingProgramsManager() {
             {panel.kind === "build" && building ? (
               <ProgramBuilder
                 program={building}
+                library={library}
                 onClose={() => setPanel(null)}
                 onChange={load}
               />
@@ -319,10 +325,12 @@ function ProgramForm({
 /* ---------- Builder de días y ejercicios ---------- */
 function ProgramBuilder({
   program,
+  library,
   onClose,
   onChange,
 }: {
   program: TrainingProgram;
+  library: LibraryExercise[];
   onClose: () => void;
   onChange: () => Promise<void>;
 }) {
@@ -382,6 +390,7 @@ function ProgramBuilder({
               key={day.id}
               programId={program.id}
               day={day}
+              library={library}
               onChange={onChange}
             />
           ))}
@@ -394,13 +403,15 @@ function ProgramBuilder({
 function DayCard({
   programId,
   day,
+  library,
   onChange,
 }: {
   programId: string;
   day: TrainingProgram["days"][number];
+  library: LibraryExercise[];
   onChange: () => Promise<void>;
 }) {
-  const [name, setName] = useState("");
+  const [exerciseId, setExerciseId] = useState("");
   const [sets, setSets] = useState("");
   const [reps, setReps] = useState("");
   const [rest, setRest] = useState("");
@@ -467,37 +478,58 @@ function DayCard({
         </div>
       ) : null}
 
-      {/* Agregar ejercicio */}
-      <form
-        className="mt-3 grid gap-2 sm:grid-cols-[1.4fr_0.6fr_0.7fr_0.8fr_1.2fr_auto]"
-        onSubmit={async (e) => {
-          e.preventDefault();
-          if (!name.trim()) return;
-          await trainingService.addExercise(programId, day.id, {
-            name,
-            sets,
-            reps,
-            rest,
-            notes,
-          });
-          setName("");
-          setSets("");
-          setReps("");
-          setRest("");
-          setNotes("");
-          await onChange();
-        }}
-      >
-        <input className={inputClass} value={name} onChange={(e) => setName(e.target.value)} placeholder="Ejercicio" />
-        <input className={inputClass} value={sets} onChange={(e) => setSets(e.target.value)} placeholder="Series" />
-        <input className={inputClass} value={reps} onChange={(e) => setReps(e.target.value)} placeholder="Reps" />
-        <input className={inputClass} value={rest} onChange={(e) => setRest(e.target.value)} placeholder="Descanso" />
-        <input className={inputClass} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Notas" />
-        <button type="submit" className={`${secondaryBtn} mt-2`}>
-          <Plus size={16} />
-          Añadir
-        </button>
-      </form>
+      {/* Agregar ejercicio desde la biblioteca */}
+      {library.length === 0 ? (
+        <p className="mt-3 text-sm text-zinc-500">
+          Crea ejercicios en la biblioteca para poder añadirlos a este día.
+        </p>
+      ) : (
+        <form
+          className="mt-3 grid gap-2 sm:grid-cols-[1.6fr_0.6fr_0.7fr_0.8fr_1.1fr_auto]"
+          onSubmit={async (e) => {
+            e.preventDefault();
+            const picked = library.find((l) => l.id === exerciseId);
+            if (!picked) return;
+            await trainingService.addExercise(programId, day.id, {
+              exerciseId: picked.id,
+              name: picked.name,
+              sets,
+              reps,
+              rest: rest || picked.recommendedRest,
+              notes,
+            });
+            setExerciseId("");
+            setSets("");
+            setReps("");
+            setRest("");
+            setNotes("");
+            await onChange();
+          }}
+        >
+          <select
+            className={inputClass}
+            value={exerciseId}
+            onChange={(e) => setExerciseId(e.target.value)}
+          >
+            <option value="" className="bg-[#0a0d0b]">
+              Elegir ejercicio…
+            </option>
+            {library.map((l) => (
+              <option key={l.id} value={l.id} className="bg-[#0a0d0b]">
+                {l.name} · {l.muscleGroup || "—"}
+              </option>
+            ))}
+          </select>
+          <input className={inputClass} value={sets} onChange={(e) => setSets(e.target.value)} placeholder="Series" />
+          <input className={inputClass} value={reps} onChange={(e) => setReps(e.target.value)} placeholder="Reps" />
+          <input className={inputClass} value={rest} onChange={(e) => setRest(e.target.value)} placeholder="Descanso" />
+          <input className={inputClass} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Notas" />
+          <button type="submit" disabled={!exerciseId} className={`${secondaryBtn} disabled:cursor-not-allowed disabled:opacity-50`}>
+            <Plus size={16} />
+            Añadir
+          </button>
+        </form>
+      )}
     </div>
   );
 }

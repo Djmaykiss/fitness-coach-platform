@@ -4,35 +4,59 @@ import { useEffect, useState } from "react";
 import {
   CalendarDays,
   CheckCircle2,
+  ChevronDown,
   ClipboardList,
+  Circle,
   Dumbbell,
   Flame,
+  ImageIcon,
+  Play,
   Target,
 } from "lucide-react";
 import { trainingService } from "@/services/training.service";
-import type { AssignedTraining, TrainingDay } from "@/types";
+import { exerciseLibraryService } from "@/services/exercise-library.service";
+import type {
+  AssignedTraining,
+  LibraryExercise,
+  TrainingDay,
+  TrainingExercise,
+} from "@/types";
+
+/** Cuántas series tiene una prescripción (ej. "4" -> 4). 0 si no es numérico. */
+function seriesCount(sets: string): number {
+  const n = Number.parseInt(sets, 10);
+  return Number.isFinite(n) && n > 0 ? Math.min(n, 12) : 0;
+}
 
 /**
- * Programa de entrenamiento asignado al alumno (lectura). Muestra el programa,
- * sus dias, la rutina de hoy con sus ejercicios y permite marcar el entrenamiento
- * como completado (persistido en localStorage por el servicio).
+ * Programa de entrenamiento del alumno: muestra la rutina de hoy, los días y, por
+ * cada ejercicio, su ficha completa (resuelta desde la biblioteca) y un checklist
+ * por series. Todo el progreso se persiste en localStorage vía `trainingService`.
  */
 export function TrainingProgramView({ userId }: { userId: string }) {
   const [data, setData] = useState<AssignedTraining | null>(null);
+  const [library, setLibrary] = useState<Record<string, LibraryExercise>>({});
   const [loaded, setLoaded] = useState(false);
 
-  function load() {
-    return trainingService.getAssignedForUser(userId).then((result) => {
-      setData(result);
-      setLoaded(true);
-    });
+  async function load() {
+    const [assigned, lib] = await Promise.all([
+      trainingService.getAssignedForUser(userId),
+      exerciseLibraryService.getExercises(),
+    ]);
+    setData(assigned);
+    setLibrary(Object.fromEntries(lib.map((e) => [e.id, e])));
+    setLoaded(true);
   }
 
   useEffect(() => {
     let active = true;
-    trainingService.getAssignedForUser(userId).then((result) => {
+    Promise.all([
+      trainingService.getAssignedForUser(userId),
+      exerciseLibraryService.getExercises(),
+    ]).then(([assigned, lib]) => {
       if (!active) return;
-      setData(result);
+      setData(assigned);
+      setLibrary(Object.fromEntries(lib.map((e) => [e.id, e])));
       setLoaded(true);
     });
     return () => {
@@ -56,18 +80,20 @@ export function TrainingProgramView({ userId }: { userId: string }) {
     );
   }
 
-  const { program, completedDayIds } = data;
-  const completed = new Set(completedDayIds);
-  // Rutina de hoy: el primer día no completado; si están todos hechos, el primero.
+  const { program, completedDayIds, seriesProgress } = data;
+  const completedDays = new Set(completedDayIds);
   const focusDay =
-    program.days.find((d) => !completed.has(d.id)) ?? program.days[0] ?? null;
+    program.days.find((d) => !completedDays.has(d.id)) ?? program.days[0] ?? null;
+  const doneCount = program.days.filter((d) => completedDays.has(d.id)).length;
 
-  async function toggle(dayId: string, done: boolean) {
+  async function toggleDay(dayId: string, done: boolean) {
     await trainingService.toggleDayForUser(userId, dayId, done);
     await load();
   }
-
-  const doneCount = program.days.filter((d) => completed.has(d.id)).length;
+  async function toggleSeries(exId: string, index: number, done: boolean) {
+    await trainingService.toggleSeriesForUser(userId, exId, index, done);
+    await load();
+  }
 
   return (
     <section className="mt-6 space-y-6">
@@ -78,16 +104,13 @@ export function TrainingProgramView({ userId }: { userId: string }) {
         </h2>
       </div>
 
-      {/* Cabecera del programa */}
       <div className="premium-card rounded-2xl p-6">
         <h3 className="text-2xl font-black">{program.name}</h3>
         <div className="mt-3 flex flex-wrap gap-2 text-xs font-bold">
           <Chip icon={<Target size={13} />}>{program.objective || "—"}</Chip>
           <Chip>{program.level || "—"}</Chip>
           <Chip>{program.duration || "—"}</Chip>
-          <Chip icon={<CalendarDays size={13} />}>
-            {program.days.length} días
-          </Chip>
+          <Chip icon={<CalendarDays size={13} />}>{program.days.length} días</Chip>
           <Chip icon={<CheckCircle2 size={13} />}>
             {doneCount}/{program.days.length} completados
           </Chip>
@@ -100,7 +123,6 @@ export function TrainingProgramView({ userId }: { userId: string }) {
         ) : null}
       </div>
 
-      {/* Rutina de hoy */}
       {focusDay ? (
         <div className="premium-card rounded-2xl border border-[#65ff4f]/30 p-6">
           <div className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.2em] text-[#65ff4f]">
@@ -109,9 +131,12 @@ export function TrainingProgramView({ userId }: { userId: string }) {
           </div>
           <DayBlock
             day={focusDay}
-            done={completed.has(focusDay.id)}
+            done={completedDays.has(focusDay.id)}
+            library={library}
+            seriesProgress={seriesProgress}
             highlight
-            onToggle={(done) => toggle(focusDay.id, done)}
+            onToggleDay={(done) => toggleDay(focusDay.id, done)}
+            onToggleSeries={toggleSeries}
           />
         </div>
       ) : (
@@ -120,7 +145,6 @@ export function TrainingProgramView({ userId }: { userId: string }) {
         </p>
       )}
 
-      {/* Todos los días */}
       {program.days.length > 0 ? (
         <div className="premium-card rounded-2xl p-6">
           <h3 className="text-lg font-black">Días de entrenamiento</h3>
@@ -129,8 +153,11 @@ export function TrainingProgramView({ userId }: { userId: string }) {
               <DayBlock
                 key={day.id}
                 day={day}
-                done={completed.has(day.id)}
-                onToggle={(done) => toggle(day.id, done)}
+                done={completedDays.has(day.id)}
+                library={library}
+                seriesProgress={seriesProgress}
+                onToggleDay={(done) => toggleDay(day.id, done)}
+                onToggleSeries={toggleSeries}
               />
             ))}
           </div>
@@ -144,19 +171,23 @@ function DayBlock({
   day,
   done,
   highlight = false,
-  onToggle,
+  library,
+  seriesProgress,
+  onToggleDay,
+  onToggleSeries,
 }: {
   day: TrainingDay;
   done: boolean;
   highlight?: boolean;
-  onToggle: (done: boolean) => void;
+  library: Record<string, LibraryExercise>;
+  seriesProgress: Record<string, number[]>;
+  onToggleDay: (done: boolean) => void;
+  onToggleSeries: (exId: string, index: number, done: boolean) => void;
 }) {
   return (
     <div
-      className={`rounded-xl border p-4 ${
-        highlight
-          ? "mt-4 border-white/10 bg-white/[0.02]"
-          : "border-white/10 bg-white/[0.03]"
+      className={`rounded-xl border border-white/10 p-4 ${
+        highlight ? "mt-4 bg-white/[0.02]" : "bg-white/[0.03]"
       }`}
     >
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -173,29 +204,18 @@ function DayBlock({
       </div>
 
       {day.exercises.length > 0 ? (
-        <div className="mt-3 overflow-x-auto">
-          <table className="w-full min-w-[520px] border-collapse text-left text-sm">
-            <thead className="text-xs uppercase tracking-wide text-zinc-500">
-              <tr>
-                <th className="py-2 pr-3 font-black">Ejercicio</th>
-                <th className="py-2 pr-3 font-black">Series</th>
-                <th className="py-2 pr-3 font-black">Reps</th>
-                <th className="py-2 pr-3 font-black">Descanso</th>
-                <th className="py-2 font-black">Notas</th>
-              </tr>
-            </thead>
-            <tbody>
-              {day.exercises.map((ex) => (
-                <tr key={ex.id} className="border-t border-white/10">
-                  <td className="py-2 pr-3 font-semibold text-white">{ex.name}</td>
-                  <td className="py-2 pr-3 text-zinc-300">{ex.sets || "—"}</td>
-                  <td className="py-2 pr-3 text-zinc-300">{ex.reps || "—"}</td>
-                  <td className="py-2 pr-3 text-zinc-300">{ex.rest || "—"}</td>
-                  <td className="py-2 text-zinc-400">{ex.notes || "—"}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="mt-3 space-y-2">
+          {day.exercises.map((ex) => (
+            <ExerciseCard
+              key={ex.id}
+              exercise={ex}
+              detail={ex.exerciseId ? library[ex.exerciseId] : undefined}
+              completedSeries={seriesProgress[ex.id] ?? []}
+              onToggleSeries={(index, value) =>
+                onToggleSeries(ex.id, index, value)
+              }
+            />
+          ))}
         </div>
       ) : (
         <p className="mt-2 text-sm text-zinc-500">Sin ejercicios en este día.</p>
@@ -203,7 +223,7 @@ function DayBlock({
 
       <button
         type="button"
-        onClick={() => onToggle(!done)}
+        onClick={() => onToggleDay(!done)}
         className={
           done
             ? "mt-4 inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-[#65ff4f]/40 px-5 text-sm font-black uppercase tracking-wide text-[#65ff4f] transition duration-300 hover:bg-[#65ff4f]/10"
@@ -213,6 +233,193 @@ function DayBlock({
         <CheckCircle2 size={18} />
         {done ? "Entrenamiento completado" : "Marcar entrenamiento completado"}
       </button>
+    </div>
+  );
+}
+
+function ExerciseCard({
+  exercise,
+  detail,
+  completedSeries,
+  onToggleSeries,
+}: {
+  exercise: TrainingExercise;
+  detail?: LibraryExercise;
+  completedSeries: number[];
+  onToggleSeries: (index: number, done: boolean) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const total = seriesCount(exercise.sets);
+  const doneSet = new Set(completedSeries);
+  const exerciseDone = total > 0 && doneSet.size >= total;
+
+  return (
+    <div className="rounded-xl border border-white/10 bg-black/20">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        className="flex w-full items-center justify-between gap-3 p-3 text-left"
+      >
+        <span className="min-w-0">
+          <span className="flex items-center gap-2 font-bold text-white">
+            {exerciseDone ? (
+              <CheckCircle2 size={16} className="shrink-0 text-[#65ff4f]" />
+            ) : (
+              <Circle size={16} className="shrink-0 text-zinc-600" />
+            )}
+            <span className="truncate">{exercise.name}</span>
+          </span>
+          <span className="mt-0.5 block pl-6 text-xs text-zinc-500">
+            {[
+              detail?.muscleGroup,
+              exercise.sets && exercise.reps
+                ? `${exercise.sets} × ${exercise.reps}`
+                : exercise.sets || exercise.reps,
+              exercise.rest ? `Descanso ${exercise.rest}` : "",
+            ]
+              .filter(Boolean)
+              .join(" · ")}
+          </span>
+        </span>
+        <ChevronDown
+          size={18}
+          className={`shrink-0 text-zinc-500 transition-transform ${open ? "rotate-180" : ""}`}
+        />
+      </button>
+
+      {open ? (
+        <div className="border-t border-white/10 p-4">
+          {/* Multimedia */}
+          <div className="overflow-hidden rounded-xl border border-white/10 bg-white/[0.03]">
+            <Media
+              src={detail?.gif || detail?.image || ""}
+              alt={exercise.name}
+            />
+          </div>
+          {detail?.video ? (
+            <a
+              href={detail.video}
+              target="_blank"
+              rel="noreferrer"
+              className="mt-3 inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-[#65ff4f]/40 px-5 text-sm font-black uppercase tracking-wide text-[#65ff4f] transition duration-300 hover:bg-[#65ff4f]/10"
+            >
+              <Play size={16} />
+              Ver demostración
+            </a>
+          ) : null}
+
+          {/* Datos */}
+          <div className="mt-4 flex flex-wrap gap-2 text-xs font-bold">
+            {detail?.equipment ? <Chip>{detail.equipment}</Chip> : null}
+            {detail?.difficulty ? <Chip>{detail.difficulty}</Chip> : null}
+          </div>
+          {detail ? (
+            <div className="mt-4 space-y-3">
+              <Field label="Músculos trabajados">
+                {[detail.muscleGroup, detail.secondaryMuscles]
+                  .filter(Boolean)
+                  .join(" · ") || "—"}
+              </Field>
+              {detail.technique ? (
+                <Field label="Técnica correcta">{detail.technique}</Field>
+              ) : null}
+              {detail.commonMistakes ? (
+                <Field label="Errores comunes">{detail.commonMistakes}</Field>
+              ) : null}
+              {detail.coachTips ? (
+                <Field label="Consejos del coach">{detail.coachTips}</Field>
+              ) : null}
+            </div>
+          ) : (
+            <p className="mt-4 text-sm text-zinc-500">
+              Este ejercicio no tiene ficha en la biblioteca.
+            </p>
+          )}
+
+          {exercise.notes ? (
+            <p className="mt-3 rounded-lg border border-white/10 bg-white/[0.03] p-3 text-sm leading-6 text-zinc-300">
+              <span className="font-bold text-zinc-200">Nota del coach:</span>{" "}
+              {exercise.notes}
+            </p>
+          ) : null}
+
+          {/* Checklist por series */}
+          {total > 0 ? (
+            <div className="mt-4">
+              <p className="text-xs font-black uppercase tracking-wide text-zinc-500">
+                Series
+              </p>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {Array.from({ length: total }, (_, i) => {
+                  const checked = doneSet.has(i);
+                  return (
+                    <button
+                      key={i}
+                      type="button"
+                      onClick={() => onToggleSeries(i, !checked)}
+                      className={`inline-flex min-h-10 items-center gap-2 rounded-lg border px-3 text-sm font-bold transition ${
+                        checked
+                          ? "border-[#65ff4f] bg-[#65ff4f]/10 text-[#65ff4f]"
+                          : "border-white/10 bg-white/[0.03] text-zinc-300 hover:border-[#65ff4f]/40"
+                      }`}
+                    >
+                      {checked ? (
+                        <CheckCircle2 size={15} />
+                      ) : (
+                        <Circle size={15} />
+                      )}
+                      Serie {i + 1}
+                    </button>
+                  );
+                })}
+              </div>
+              {exerciseDone ? (
+                <p className="mt-3 inline-flex items-center gap-1.5 text-sm font-black text-[#65ff4f]">
+                  <CheckCircle2 size={16} />
+                  Ejercicio completado
+                </p>
+              ) : null}
+            </div>
+          ) : null}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+function Media({ src, alt }: { src: string; alt: string }) {
+  const [ok, setOk] = useState(Boolean(src));
+  if (!src || !ok) {
+    return (
+      <div className="flex aspect-video w-full items-center justify-center text-zinc-600">
+        <ImageIcon size={32} />
+      </div>
+    );
+  }
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={src}
+      alt={alt}
+      className="aspect-video w-full object-contain"
+      onError={() => setOk(false)}
+    />
+  );
+}
+
+function Field({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div>
+      <p className="text-xs font-black uppercase tracking-wide text-[#65ff4f]">
+        {label}
+      </p>
+      <p className="mt-1 text-sm leading-6 text-zinc-300">{children}</p>
     </div>
   );
 }

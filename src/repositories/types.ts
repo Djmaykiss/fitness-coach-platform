@@ -7,10 +7,12 @@ import type {
   CreateEvaluationLeadInput,
   CreateLeadInput,
   CreateProgramInput,
+  CreateLibraryExerciseInput,
   CreateProgressPhoto,
   CreateTrainingExercise,
   CreateTrainingProgramInput,
   Credentials,
+  LibraryExercise,
   Lead,
   LeadStatus,
   NavLink,
@@ -135,6 +137,29 @@ export interface TrainingProgramRepository {
     dayId: string,
     done: boolean,
   ): Promise<string[]>;
+  /** Series completadas por ejercicio del alumno: exerciseInstanceId -> indices. */
+  getExerciseProgress(clientId: string): Promise<Record<string, number[]>>;
+  toggleSeries(
+    clientId: string,
+    exerciseInstanceId: string,
+    seriesIndex: number,
+    done: boolean,
+  ): Promise<Record<string, number[]>>;
+}
+
+/**
+ * Biblioteca de ejercicios (catalogo del coach). CRUD persistido en localStorage;
+ * los programas referencian estos ejercicios por id.
+ */
+export interface ExerciseLibraryRepository {
+  getExercises(): Promise<LibraryExercise[]>;
+  getExercise(id: string): Promise<LibraryExercise | null>;
+  createExercise(input: CreateLibraryExerciseInput): Promise<LibraryExercise>;
+  updateExercise(
+    id: string,
+    patch: Partial<CreateLibraryExerciseInput>,
+  ): Promise<LibraryExercise | null>;
+  deleteExercise(id: string): Promise<boolean>;
 }
 
 /**

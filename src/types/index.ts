@@ -379,9 +379,15 @@ export type CoachingDashboard = {
 
 /* ---------- Programas de entrenamiento (builder real, persistido) ---------- */
 
-/** Un ejercicio dentro de un dia de entrenamiento. */
+/**
+ * Un ejercicio dentro de un dia de entrenamiento. `exerciseId` referencia a un
+ * ejercicio de la biblioteca (para mostrar su ficha completa al alumno); `name`
+ * queda denormalizado para mostrar aunque la referencia ya no exista. `sets`,
+ * `reps`, `rest` y `notes` son la prescripcion de ese programa.
+ */
 export type TrainingExercise = {
   id: string;
+  exerciseId?: string;
   name: string;
   sets: string;
   reps: string;
@@ -423,4 +429,31 @@ export type AssignedTraining = {
   clientId: string;
   program: TrainingProgram;
   completedDayIds: string[];
+  /** Series completadas por ejercicio: id de ejercicio (instancia) -> indices. */
+  seriesProgress: Record<string, number[]>;
 };
+
+/* ---------- Biblioteca de ejercicios (catalogo del coach) ---------- */
+
+/** Ficha completa de un ejercicio (catalogo reutilizable en los programas). */
+export type LibraryExercise = {
+  id: string;
+  name: string;
+  muscleGroup: string;
+  secondaryMuscles: string;
+  image: string;
+  gif: string;
+  video: string;
+  equipment: string;
+  difficulty: string;
+  description: string;
+  technique: string;
+  commonMistakes: string;
+  coachTips: string;
+  variants: string;
+  substitutions: string;
+  recommendedTime: string;
+  recommendedRest: string;
+};
+
+export type CreateLibraryExerciseInput = Omit<LibraryExercise, "id">;

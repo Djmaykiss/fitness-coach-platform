@@ -180,4 +180,33 @@ export class LocalTrainingProgramRepository
     writeRecord(STORAGE_KEYS.workoutProgress, record);
     return resolveMock(next);
   }
+
+  /* ---- Series completadas por ejercicio (clientId -> exId -> indices) ---- */
+  private readSeries(): Record<string, Record<string, number[]>> {
+    return readRecord<Record<string, number[]>>(
+      STORAGE_KEYS.exerciseProgress,
+      {},
+    );
+  }
+
+  getExerciseProgress(clientId: string) {
+    return resolveMock(this.readSeries()[clientId] ?? {});
+  }
+
+  toggleSeries(
+    clientId: string,
+    exerciseInstanceId: string,
+    seriesIndex: number,
+    done: boolean,
+  ) {
+    const record = this.readSeries();
+    const forClient = { ...(record[clientId] ?? {}) };
+    const set = new Set(forClient[exerciseInstanceId] ?? []);
+    if (done) set.add(seriesIndex);
+    else set.delete(seriesIndex);
+    forClient[exerciseInstanceId] = [...set].sort((a, b) => a - b);
+    record[clientId] = forClient;
+    writeRecord(STORAGE_KEYS.exerciseProgress, record);
+    return resolveMock(forClient);
+  }
 }

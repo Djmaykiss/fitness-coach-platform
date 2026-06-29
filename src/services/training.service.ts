@@ -40,7 +40,7 @@ export const trainingService = {
     trainingProgramRepository.getAssignment(clientId),
 
   /* ---- Alumno: lectura por usuario autenticado ---- */
-  /** Programa asignado + dias completados del alumno (resuelto por su userId). */
+  /** Programa asignado + dias completados + series por ejercicio (por userId). */
   async getAssignedForUser(userId: string): Promise<AssignedTraining | null> {
     const client = await clientRepository.findByUserId(userId);
     if (!client) return null;
@@ -50,7 +50,9 @@ export const trainingService = {
     if (!program) return null;
     const completedDayIds =
       await trainingProgramRepository.getWorkoutProgress(client.id);
-    return { clientId: client.id, program, completedDayIds };
+    const seriesProgress =
+      await trainingProgramRepository.getExerciseProgress(client.id);
+    return { clientId: client.id, program, completedDayIds, seriesProgress };
   },
 
   /** Marca/desmarca un dia como completado para el alumno autenticado. */
@@ -58,5 +60,22 @@ export const trainingService = {
     const client = await clientRepository.findByUserId(userId);
     if (!client) return [];
     return trainingProgramRepository.setDayCompleted(client.id, dayId, done);
+  },
+
+  /** Marca/desmarca una serie de un ejercicio para el alumno autenticado. */
+  async toggleSeriesForUser(
+    userId: string,
+    exerciseInstanceId: string,
+    seriesIndex: number,
+    done: boolean,
+  ) {
+    const client = await clientRepository.findByUserId(userId);
+    if (!client) return {};
+    return trainingProgramRepository.toggleSeries(
+      client.id,
+      exerciseInstanceId,
+      seriesIndex,
+      done,
+    );
   },
 };

@@ -2,6 +2,32 @@
 
 Todos los cambios relevantes del proyecto se registran en este archivo.
 
+## (en rama `feature/exercise-library`, pendiente de merge)
+
+### Agregado — Biblioteca de ejercicios (todo en localStorage)
+- Admin (`/admin`): nueva "Biblioteca de ejercicios" con CRUD completo. Cada
+  ejercicio tiene nombre, grupo muscular, músculos secundarios, imagen, GIF, video
+  YouTube, equipo, dificultad, descripción, técnica correcta, errores comunes,
+  consejos del coach, variantes, sustituciones, tiempo y descanso recomendados.
+- El builder de programas ahora ELIGE ejercicios de la biblioteca (ya no se
+  escriben a mano): cada ejercicio del día guarda la referencia (`exerciseId`) más
+  la prescripción (series, reps, descanso, notas).
+- Alumno (`/dashboard`): al abrir un ejercicio ve su ficha completa — imagen/GIF
+  grande, botón "Ver demostración" si hay video, técnica, errores comunes,
+  consejos, equipo y músculos trabajados — y un CHECKLIST POR SERIES (Serie 1..N
+  según las series prescritas). Al marcar todas: "✓ Ejercicio completado". El
+  progreso por serie se guarda en `localStorage`.
+- Capa de datos (UI → services → repositories → localStorage): tipos
+  `LibraryExercise`/`CreateLibraryExerciseInput`, `TrainingExercise.exerciseId`,
+  `AssignedTraining.seriesProgress`; `exerciseLibraryService` +
+  `LocalExerciseLibraryRepository` + seed `src/data/exercise-library.ts` (12
+  ejercicios, el programa demo los referencia). Claves nuevas: `exercise-library`,
+  `exercise-progress`.
+
+### Sin cambios
+- No se tocó landing ni onboarding, sin cambios de diseño general, sin pagos, sin
+  Supabase ni backend. Verificado responsive (móvil) sin overflow.
+
 ## v1.0
 
 Version estable actual en `main` (primer módulo funcional completo de programas de

@@ -15,6 +15,7 @@ import {
 import { StatCard } from "@/components/ui";
 import { AccessBadge } from "@/components/access-badge";
 import { EvaluationDetails } from "@/components/evaluation-details";
+import { ExerciseLibraryManager } from "@/components/admin/exercise-library";
 import { TrainingProgramsManager } from "@/components/admin/training-programs";
 import { adminDashboardService } from "@/services/dashboard.service";
 import { leadService } from "@/services/lead.service";
@@ -244,6 +245,9 @@ export function AdminPanel() {
           rows={programs.map((p) => [p.name, p.clients, p.duration, p.status])}
         />
       </section>
+
+      {/* Biblioteca de ejercicios (catálogo) */}
+      <ExerciseLibraryManager />
 
       {/* Programas de entrenamiento (builder real) */}
       <TrainingProgramsManager />
