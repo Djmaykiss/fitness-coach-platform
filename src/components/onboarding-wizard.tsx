@@ -6,14 +6,22 @@ import { useMemo, useState } from "react";
 import {
   ArrowLeft,
   ArrowRight,
+  Award,
+  BarChart3,
+  CalendarDays,
+  CheckCircle2,
   Dumbbell,
   Flame,
   HeartPulse,
+  Home,
+  MapPin,
   PersonStanding,
   Repeat,
+  Ruler,
   Sparkles,
   Target,
   Trophy,
+  Weight,
 } from "lucide-react";
 import type { ComponentType } from "react";
 import type { LucideProps } from "lucide-react";
@@ -23,10 +31,10 @@ import {
   BODY_TYPES,
   BREAD_OPTIONS,
   DAIRY_OPTIONS,
-  LEVELS,
+  LEVEL_OPTIONS,
   NUTRITION_OPTIONS,
   OBJECTIVES,
-  PLACES,
+  PLACE_OPTIONS,
   RICE_OPTIONS,
   SEAFOOD_OPTIONS,
   SEXES,
@@ -43,6 +51,12 @@ const OBJECTIVE_ICONS: Record<string, ComponentType<LucideProps>> = {
   Tonificar: Sparkles,
   "Mejorar condición física": HeartPulse,
   "Rendimiento deportivo": Trophy,
+};
+
+const PLACE_ICONS: Record<string, ComponentType<LucideProps>> = {
+  Gimnasio: Dumbbell,
+  Casa: Home,
+  Ambos: MapPin,
 };
 
 type WizardData = {
@@ -307,7 +321,11 @@ function Step({
   if (step === 1) {
     return (
       <div>
-        <StepHeader eyebrow="Paso 1" title="Cuéntanos sobre ti" />
+        <StepHeader
+          eyebrow="Paso 1 de 11"
+          title="Hagamos esto personal"
+          subtitle="Cuéntanos quién eres para construir un plan hecho a tu medida, sin plantillas genéricas."
+        />
         <div className="grid gap-4 sm:grid-cols-2">
           <TextField
             label="Nombre"
@@ -346,7 +364,11 @@ function Step({
   if (step === 2) {
     return (
       <div>
-        <StepHeader eyebrow="Paso 2" title="Tu estado actual" />
+        <StepHeader
+          eyebrow="Paso 2 de 11"
+          title="Tu punto de partida"
+          subtitle="Estos números son la base para medir cada avance. La cintura es opcional."
+        />
         <div className="grid gap-4 sm:grid-cols-2">
           <TextField
             label="Peso actual (kg)"
@@ -380,8 +402,9 @@ function Step({
     return (
       <div>
         <StepHeader
-          eyebrow="Paso 3"
-          title="¿Qué cuerpo se parece más al tuyo?"
+          eyebrow="Paso 3 de 11"
+          title="¿Con cuál te identificas hoy?"
+          subtitle="Elige la figura que más se parece a tu cuerpo ahora mismo. Aquí no se juzga: es tu punto de inicio."
         />
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
           {BODY_TYPES.map((body) => (
@@ -406,7 +429,11 @@ function Step({
   if (step === 4) {
     return (
       <div>
-        <StepHeader eyebrow="Paso 4" title="¿Qué quieres lograr?" />
+        <StepHeader
+          eyebrow="Paso 4 de 11"
+          title="¿Qué transformación quieres lograr?"
+          subtitle="Tu objetivo define todo tu entrenamiento. Elige el que más te mueve hoy."
+        />
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
           {OBJECTIVES.map((objective) => {
             const Icon = OBJECTIVE_ICONS[objective.label] ?? Target;
@@ -433,19 +460,48 @@ function Step({
   if (step === 5) {
     return (
       <div>
-        <StepHeader eyebrow="Paso 5" title="Tu experiencia" />
-        <p className="text-sm font-bold text-zinc-200">Nivel</p>
-        <Pills
-          options={LEVELS}
-          value={data.level}
-          onChange={(v) => set("level", v)}
+        <StepHeader
+          eyebrow="Paso 5 de 11"
+          title="Tu nivel y tu cancha"
+          subtitle="Adaptamos la intensidad a tu experiencia y al lugar donde vas a entrenar."
         />
-        <p className="mt-6 text-sm font-bold text-zinc-200">¿Dónde entrenas?</p>
-        <Pills
-          options={PLACES}
-          value={data.place}
-          onChange={(v) => set("place", v)}
-        />
+        <p className="text-sm font-bold text-zinc-200">¿Cuál es tu experiencia?</p>
+        <div className="mt-3 grid grid-cols-3 gap-3">
+          {LEVEL_OPTIONS.map((lvl) => (
+            <SelectCard
+              key={lvl.key}
+              selected={data.level === lvl.label}
+              onClick={() => set("level", lvl.label)}
+              media={
+                <CardMedia
+                  src={lvl.image}
+                  fallback={<BarChart3 className="text-[#65ff4f]" size={34} />}
+                />
+              }
+              label={lvl.label}
+            />
+          ))}
+        </div>
+        <p className="mt-6 text-sm font-bold text-zinc-200">¿Dónde vas a entrenar?</p>
+        <div className="mt-3 grid grid-cols-3 gap-3">
+          {PLACE_OPTIONS.map((place) => {
+            const Icon = PLACE_ICONS[place.label] ?? Dumbbell;
+            return (
+              <SelectCard
+                key={place.key}
+                selected={data.place === place.label}
+                onClick={() => set("place", place.label)}
+                media={
+                  <CardMedia
+                    src={place.image}
+                    fallback={<Icon className="text-[#65ff4f]" size={34} />}
+                  />
+                }
+                label={place.label}
+              />
+            );
+          })}
+        </div>
       </div>
     );
   }
@@ -453,7 +509,11 @@ function Step({
   if (step === 6) {
     return (
       <div>
-        <StepHeader eyebrow="Paso 6" title="¿Cuántos días puedes entrenar?" />
+        <StepHeader
+          eyebrow="Paso 6 de 11"
+          title="¿Cuánto tiempo te das a la semana?"
+          subtitle="Sé realista: la constancia le gana a la intensidad. Elige los días que de verdad puedes sostener."
+        />
         <div className="grid grid-cols-3 gap-3 sm:grid-cols-6">
           {AVAILABILITY_DAYS.map((day) => (
             <button
@@ -477,7 +537,11 @@ function Step({
   if (step === 7) {
     return (
       <div>
-        <StepHeader eyebrow="Paso 7" title="Tus hábitos" />
+        <StepHeader
+          eyebrow="Paso 7 de 11"
+          title="Tu estilo de vida"
+          subtitle="El descanso y la nutrición son la otra mitad de tus resultados. Cuéntanos cómo vienes."
+        />
         <p className="text-sm font-bold text-zinc-200">Horas de sueño</p>
         <Pills
           options={SLEEP_OPTIONS}
@@ -497,7 +561,11 @@ function Step({
   if (step === 8) {
     return (
       <div>
-        <StepHeader eyebrow="Paso 8" title="Datos y antecedentes" />
+        <StepHeader
+          eyebrow="Paso 8 de 11"
+          title="Tu salud va primero"
+          subtitle="Entrenamos seguro. Cuéntanos tus antecedentes para cuidarte en cada sesión."
+        />
         <div className="grid gap-4 sm:grid-cols-2">
           <TextField
             label="Dirección"
@@ -547,7 +615,11 @@ function Step({
   if (step === 9) {
     return (
       <div>
-        <StepHeader eyebrow="Paso 9" title="Alimentación (1/2)" />
+        <StepHeader
+          eyebrow="Paso 9 de 11"
+          title="Cómo comes hoy (1 de 2)"
+          subtitle="Sin culpas ni juicios: solo queremos conocer tus hábitos reales para personalizar tu guía."
+        />
         <div className="grid gap-4 sm:grid-cols-2">
           <Question
             label="¿Consumes azúcar?"
@@ -611,7 +683,11 @@ function Step({
   if (step === 10) {
     return (
       <div>
-        <StepHeader eyebrow="Paso 10" title="Alimentación (2/2)" />
+        <StepHeader
+          eyebrow="Paso 10 de 11"
+          title="Cómo comes hoy (2 de 2)"
+          subtitle="Último tramo. Con esto afinamos tu guía nutricional a tu día a día."
+        />
         <div className="grid gap-4 sm:grid-cols-2">
           <Question
             label="¿Consumes frutas?"
@@ -672,28 +748,62 @@ function Step({
     );
   }
 
-  // Paso 11: resumen
+  // Paso 11: diagnostico profesional
+  const bodyLabel =
+    BODY_TYPES.find((b) => b.key === data.bodyType)?.label ?? data.bodyType;
+
   return (
     <div>
-      <StepHeader eyebrow="Paso 11" title="Tu perfil inicial" />
-      <div className="grid gap-3 sm:grid-cols-2">
-        <SummaryRow label="Objetivo" value={data.objective} highlight />
-        <SummaryRow label="Nivel" value={data.level} />
-        <SummaryRow
-          label="Frecuencia recomendada"
-          value={`${data.availability} días`}
-        />
-        <SummaryRow
-          label="Plan recomendado"
-          value={recommendation.plan}
-          highlight
-        />
-        <SummaryRow label="Tiempo estimado" value={recommendation.weeks} />
-        <SummaryRow label="Lugar" value={data.place} />
+      <StepHeader
+        eyebrow="Paso 11 de 11"
+        title="Tu diagnóstico está listo"
+        subtitle="Esto es lo que vemos en tu evaluación y el plan con mayor potencial para acompañarte."
+      />
+
+      <div className="mb-4 flex items-center gap-2 text-xs font-black uppercase tracking-[0.2em] text-zinc-500">
+        <CheckCircle2 size={16} className="text-[#65ff4f]" />
+        Resumen de tu evaluación
       </div>
+
+      <div className="grid gap-3 sm:grid-cols-2">
+        <SummaryRow icon={Target} label="Objetivo" value={data.objective} highlight />
+        <SummaryRow icon={BarChart3} label="Nivel" value={data.level} />
+        <SummaryRow icon={PersonStanding} label="Tipo corporal" value={bodyLabel} />
+        <SummaryRow icon={Weight} label="Peso actual" value={data.weight ? `${data.weight} kg` : ""} />
+        <SummaryRow icon={Ruler} label="Estatura" value={data.height ? `${data.height} cm` : ""} />
+        <SummaryRow icon={MapPin} label="Lugar de entrenamiento" value={data.place} />
+        <SummaryRow icon={CalendarDays} label="Días disponibles" value={data.availability ? `${data.availability} días` : ""} />
+        <SummaryRow icon={Repeat} label="Frecuencia semanal" value={data.availability ? `${data.availability} días/semana` : ""} />
+      </div>
+
+      {/* Tarjeta premium con el plan recomendado */}
+      <div className="mt-5 overflow-hidden rounded-2xl border border-[#65ff4f]/40 bg-gradient-to-br from-[#65ff4f]/[0.16] via-[#65ff4f]/[0.05] to-transparent p-5 shadow-[0_0_50px_-20px_rgba(101,255,79,0.6)]">
+        <div className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.2em] text-[#65ff4f]">
+          <Award size={16} />
+          Plan recomendado para ti
+        </div>
+        <p className="mt-3 text-2xl font-black tracking-tight text-white sm:text-3xl">
+          {recommendation.plan}
+        </p>
+        <div className="mt-4 flex flex-wrap gap-2">
+          <span className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-black/30 px-3 py-1.5 text-sm font-bold text-zinc-200">
+            <CalendarDays size={15} className="text-[#65ff4f]" />
+            Duración: {recommendation.weeks}
+          </span>
+          <span className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-black/30 px-3 py-1.5 text-sm font-bold text-zinc-200">
+            <Repeat size={15} className="text-[#65ff4f]" />
+            {data.availability ? `${data.availability} días/semana` : "Frecuencia a definir"}
+          </span>
+        </div>
+        <p className="mt-4 border-t border-white/10 pt-4 text-sm leading-6 text-zinc-200">
+          Basándonos en tu evaluación creemos que este plan tiene el mayor
+          potencial para ayudarte a conseguir tus objetivos.
+        </p>
+      </div>
+
       <p className="mt-5 text-sm leading-6 text-zinc-400">
         Al continuar guardaremos tu evaluación y crearás tu cuenta para acceder a
-        tu plan.
+        tu plan y empezar a registrar tu progreso.
       </p>
     </div>
   );
@@ -701,7 +811,15 @@ function Step({
 
 /* ---------- Sub-componentes ---------- */
 
-function StepHeader({ eyebrow, title }: { eyebrow: string; title: string }) {
+function StepHeader({
+  eyebrow,
+  title,
+  subtitle,
+}: {
+  eyebrow: string;
+  title: string;
+  subtitle?: string;
+}) {
   return (
     <div className="mb-6">
       <p className="text-xs font-black uppercase tracking-[0.24em] text-[#65ff4f]">
@@ -710,6 +828,11 @@ function StepHeader({ eyebrow, title }: { eyebrow: string; title: string }) {
       <h3 className="mt-2 text-2xl font-black tracking-tight sm:text-3xl">
         {title}
       </h3>
+      {subtitle ? (
+        <p className="mt-2 text-sm leading-6 text-zinc-400 sm:text-base">
+          {subtitle}
+        </p>
+      ) : null}
     </div>
   );
 }
@@ -805,15 +928,16 @@ function SelectCard({
     <button
       type="button"
       onClick={onClick}
-      className={`flex flex-col items-center gap-2 rounded-2xl border p-3 text-center transition ${
+      data-selected={selected}
+      className={`group flex flex-col items-center gap-2 rounded-2xl border p-3 text-center transition duration-300 hover:-translate-y-0.5 active:scale-[0.97] ${
         selected
-          ? "border-[#65ff4f] bg-[#65ff4f]/10"
-          : "border-white/10 bg-white/[0.03] hover:border-[#65ff4f]/40"
+          ? "border-[#65ff4f] bg-[#65ff4f]/10 shadow-[0_0_30px_-10px_rgba(101,255,79,0.7)]"
+          : "border-white/10 bg-white/[0.03] hover:border-[#65ff4f]/40 hover:bg-white/[0.05]"
       }`}
     >
       {media}
       <span
-        className={`text-sm font-bold ${selected ? "text-[#65ff4f]" : "text-zinc-200"}`}
+        className={`text-sm font-bold transition-colors ${selected ? "text-[#65ff4f]" : "text-zinc-200"}`}
       >
         {label}
       </span>
@@ -822,8 +946,8 @@ function SelectCard({
 }
 
 /**
- * Media de una tarjeta con placeholder elegante si la imagen aun no existe.
- * Las rutas viven en `src/data/onboarding.ts` (body-types/ y goals/).
+ * Media de una tarjeta con ilustracion vectorial (SVG) y placeholder elegante si
+ * la imagen aun no existe. Las rutas viven en `src/data/onboarding.ts`.
  */
 function CardMedia({
   src,
@@ -834,14 +958,14 @@ function CardMedia({
 }) {
   const [ok, setOk] = useState(true);
   return (
-    <div className="relative flex h-20 w-full items-center justify-center overflow-hidden rounded-xl bg-white/[0.04]">
+    <div className="relative flex h-24 w-full items-center justify-center overflow-hidden rounded-xl border border-white/5 bg-gradient-to-b from-white/[0.06] to-white/[0.01] transition-transform duration-300 group-hover:scale-[1.04] group-data-[selected=true]:scale-[1.06]">
       {ok ? (
         <Image
           src={src}
           alt=""
           fill
           sizes="160px"
-          className="object-contain"
+          className="object-contain p-3"
           onError={() => setOk(false)}
         />
       ) : (
@@ -855,21 +979,30 @@ function SummaryRow({
   label,
   value,
   highlight = false,
+  icon: Icon,
 }: {
   label: string;
   value: string;
   highlight?: boolean;
+  icon?: ComponentType<LucideProps>;
 }) {
   return (
-    <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
-      <p className="text-xs font-bold uppercase tracking-wide text-zinc-500">
-        {label}
-      </p>
-      <p
-        className={`mt-1 text-lg font-black ${highlight ? "text-[#65ff4f]" : "text-white"}`}
-      >
-        {value || "—"}
-      </p>
+    <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.03] p-4 transition-colors hover:border-[#65ff4f]/25">
+      {Icon ? (
+        <span className="inline-flex shrink-0 rounded-lg border border-[#65ff4f]/20 bg-[#65ff4f]/10 p-2 text-[#65ff4f]">
+          <Icon size={18} />
+        </span>
+      ) : null}
+      <div className="min-w-0">
+        <p className="text-xs font-bold uppercase tracking-wide text-zinc-500">
+          {label}
+        </p>
+        <p
+          className={`mt-0.5 truncate text-lg font-black ${highlight ? "text-[#65ff4f]" : "text-white"}`}
+        >
+          {value || "—"}
+        </p>
+      </div>
     </div>
   );
 }

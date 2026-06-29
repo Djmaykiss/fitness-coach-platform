@@ -2,6 +2,32 @@
 
 Todos los cambios relevantes del proyecto se registran en este archivo.
 
+## (en rama `feature/onboarding-illustrations-copy`, pendiente de merge)
+
+### Mejorado (solo onboarding: visual y contenido)
+- Ilustraciones vectoriales propias (SVG, estilo neón consistente) que reemplazan
+  los placeholders del onboarding, en `public/images/onboarding/`: `body-types/`
+  (6), `goals/` (6), `levels/` (3) y `places/` (3). Se mantiene el fallback
+  `onError`. Habilitado `images.dangerouslyAllowSVG` en `next.config.ts` para
+  servir los SVG propios via `next/image`.
+- Los pasos de nivel y lugar de entrenamiento pasan a tarjetas con ilustración
+  (antes eran "pills"), con el mismo dato guardado (su `label`).
+- Reescritura de TODOS los textos con voz de coach: cada paso tiene título
+  atractivo, subtítulo humano y contexto breve (`StepHeader` ahora acepta
+  `subtitle`).
+- Resumen final rediseñado como diagnóstico profesional: tarjetas con icono por
+  campo (Objetivo, Nivel, Tipo corporal, Peso, Estatura, Lugar, Días disponibles,
+  Frecuencia semanal) + tarjeta premium con plan recomendado, duración, frecuencia
+  y el mensaje "Basándonos en tu evaluación creemos que este plan tiene el mayor
+  potencial para ayudarte a conseguir tus objetivos."
+- Microanimaciones suaves: hover y selección de tarjetas (lift + glow + pop de la
+  ilustración), transición entre pasos y barra de progreso animada.
+- Verificado responsive (desktop, tablet, móvil) sin overflow horizontal.
+
+### Sin cambios
+- No se agregaron funciones ni preguntas; no se modificó el flujo, los servicios,
+  los repositorios, los tipos, `localStorage` ni el dashboard.
+
 ## v0.6
 
 Version estable actual en `main` (pulido visual premium, solo diseño).
