@@ -2,7 +2,10 @@
 
 Todos los cambios relevantes del proyecto se registran en este archivo.
 
-## (en rama `feature/training-program-builder`, pendiente de merge)
+## v1.0
+
+Version estable actual en `main` (primer módulo funcional completo de programas de
+entrenamiento).
 
 ### Agregado — Módulo de programas de entrenamiento (todo en localStorage)
 - Admin (`/admin`): nueva sección "Programas de entrenamiento" con builder real:
@@ -26,8 +29,8 @@ Todos los cambios relevantes del proyecto se registran en este archivo.
 
 ## v0.9
 
-Version estable actual en `main` (infraestructura de desarrollo robusta + rediseño
-de la pantalla de acceso bloqueado del alumno).
+Version previa (infraestructura de desarrollo robusta + rediseño de la pantalla de
+acceso bloqueado del alumno).
 
 ### Infraestructura de desarrollo (no cambia la app)
 - Solucionado el problema recurrente de procesos `next dev` huerfanos que dejaban

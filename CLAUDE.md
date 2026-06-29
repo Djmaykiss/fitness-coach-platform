@@ -1,7 +1,17 @@
 # Coach Fitness MVP
 
-# Version 0.9 (Estable - main)
-Version estable actual en `main`. Incluye todo lo de v0.8 mas dos mejoras (sin
+# Version 1.0 (Estable - main)
+Version estable actual en `main`. Incluye todo lo de v0.9 mas el primer modulo
+funcional completo de programas de entrenamiento: en `/admin` el coach crea, edita
+y elimina programas con dias y ejercicios (series, repeticiones, descanso, notas,
+nivel, duracion, objetivo) y los asigna a un alumno; en `/dashboard` el alumno ve
+su programa asignado con la "rutina de hoy", sus dias, ejercicios y notas del coach,
+y puede "marcar entrenamiento completado" (progreso persistido en `localStorage`).
+Sin backend, sin Supabase, sin pagos; arquitectura UI -> services -> repositories ->
+localStorage intacta; no se toco landing ni onboarding. Ver `CHANGELOG.md`.
+
+# Version 0.9 (Congelada)
+Incluye todo lo de v0.8 mas dos mejoras (sin
 funciones nuevas de negocio): (1) infraestructura de desarrollo robusta — `predev`
 ejecuta `scripts/free-port.mjs` que libera el puerto 3000 y mata procesos
 `next dev`/`next-server` huerfanos antes de arrancar (un unico servidor Next;
@@ -140,7 +150,7 @@ cargan via servicios en `useEffect`. La landing sigue siendo servidor (su
 contenido es estatico y no requiere persistencia).
 
 ## Decisiones tecnicas
-- Modulo de programas de entrenamiento (builder real, en `main` desde v0.9.x): el coach crea/edita/elimina programas en `/admin` con dias y ejercicios (series, repeticiones, descanso, notas, nivel, duracion, objetivo) y los asigna a un alumno; el alumno ve en `/dashboard` su programa asignado con la "rutina de hoy", todos los dias, sus ejercicios y un boton "Marcar entrenamiento completado" que persiste el progreso. Capas: tipos `TrainingProgram`/`TrainingDay`/`TrainingExercise`/`AssignedTraining` (`src/types`), `trainingService` -> `trainingProgramRepository` (`Local*`) -> `localStorage`; seed en `src/data/training.ts` (programa "Hipertrofia 3 días" asignado a `c-demo`). Claves nuevas en `STORAGE_KEYS`: `trainingPrograms`, `programAssignments` (clientId -> programId), `workoutProgress` (clientId -> ids de dias completados). El alumno se resuelve por `userId` (`getAssignedForUser`/`toggleDayForUser`). "Rutina de hoy" = primer dia no completado (si todos hechos, el primero). Este modulo es INDEPENDIENTE de la lista simple "Programas" (`ProgramRow`) que sigue intacta. Sin backend, sin Supabase. UI: `training-programs.tsx` (admin) y `training-program-view.tsx` (alumno); no se toco landing ni onboarding.
+- Modulo de programas de entrenamiento (builder real, en `main` desde v1.0): el coach crea/edita/elimina programas en `/admin` con dias y ejercicios (series, repeticiones, descanso, notas, nivel, duracion, objetivo) y los asigna a un alumno; el alumno ve en `/dashboard` su programa asignado con la "rutina de hoy", todos los dias, sus ejercicios y un boton "Marcar entrenamiento completado" que persiste el progreso. Capas: tipos `TrainingProgram`/`TrainingDay`/`TrainingExercise`/`AssignedTraining` (`src/types`), `trainingService` -> `trainingProgramRepository` (`Local*`) -> `localStorage`; seed en `src/data/training.ts` (programa "Hipertrofia 3 días" asignado a `c-demo`). Claves nuevas en `STORAGE_KEYS`: `trainingPrograms`, `programAssignments` (clientId -> programId), `workoutProgress` (clientId -> ids de dias completados). El alumno se resuelve por `userId` (`getAssignedForUser`/`toggleDayForUser`). "Rutina de hoy" = primer dia no completado (si todos hechos, el primero). Este modulo es INDEPENDIENTE de la lista simple "Programas" (`ProgramRow`) que sigue intacta. Sin backend, sin Supabase. UI: `training-programs.tsx` (admin) y `training-program-view.tsx` (alumno); no se toco landing ni onboarding.
 - No usar nombre real ni logo real por ahora. Mantener textos genericos como "Coach Fitness" y "Fitness Coaching".
 - Los textos demo de resultados (Antes y Despues), programas y testimonios estan humanizados para parecer casos reales de coaching (nombres anonimos tipo "Carlos R.", objetivos, detalles y citas naturales). No representan identidades reales y no se usan fotos reales. Viven en `src/data` (`transformations.ts`, `programs.ts`, `testimonials.ts`), nunca hardcodeados en componentes.
 - La seccion Antes y Despues quedo preparada para usar imagenes profesionales de transformaciones. Las rutas viven en `src/data/transformations.ts` (`beforeImage`/`afterImage`) y apuntan a `/public/images/transformations/` (`carlos-before.webp`, `carlos-after.webp`, `mariana-*`, `andres-*`). Si el archivo aun no existe, `TransformationImage` (`src/components/transformation-image.tsx`) muestra un placeholder elegante via `onError` sin romper el diseno. Ver `public/images/transformations/README.md` para nombres y prompts. Imagenes ficticias y realistas: sin personas famosas ni fotos de clientes reales.
