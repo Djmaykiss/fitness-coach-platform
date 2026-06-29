@@ -1,7 +1,20 @@
 # Coach Fitness MVP
 
-# Version 0.8 (Estable - main)
-Version estable actual en `main`. Incluye todo lo de v0.7 mas el bloqueo del
+# Version 0.9 (Estable - main)
+Version estable actual en `main`. Incluye todo lo de v0.8 mas dos mejoras (sin
+funciones nuevas de negocio): (1) infraestructura de desarrollo robusta — `predev`
+ejecuta `scripts/free-port.mjs` que libera el puerto 3000 y mata procesos
+`next dev`/`next-server` huerfanos antes de arrancar (un unico servidor Next;
+`clean:port` para limpiar a mano); (2) rediseño de la pantalla de acceso bloqueado
+del alumno — header solo con logo + "Salir" (`minimalNav`), saludo con el nombre
+real ("Hola, {nombre}" o solo "Hola"; nunca "Hola, Cliente"), tarjeta con tres
+variantes (Activo verde / Pausado amarillo / Vencido rojo), textos nuevos y botones
+"RENOVAR ACCESO" + "CONTACTAR COACH" (aun sin funcion), ocultando todos los modulos
+premium cuando el acceso no es `Activo`. No se toco onboarding, landing, admin,
+repositorios ni servicios. Ver `CHANGELOG.md`.
+
+# Version 0.8 (Congelada)
+Incluye todo lo de v0.7 mas el bloqueo del
 dashboard del alumno por mensualidad (si `accessStatus` es `Vencido` o `Pausado`,
 `/dashboard` oculta las funciones premium y muestra solo `LockedDashboard`; con
 `Activo` se ve el dashboard completo; solo se condiciona el renderizado) y el CRUD
