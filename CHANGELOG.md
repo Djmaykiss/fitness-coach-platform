@@ -2,7 +2,10 @@
 
 Todos los cambios relevantes del proyecto se registran en este archivo.
 
-## (en rama `feature/dev-infrastructure`, pendiente de merge)
+## v0.9
+
+Version estable actual en `main` (infraestructura de desarrollo robusta + rediseño
+de la pantalla de acceso bloqueado del alumno).
 
 ### Infraestructura de desarrollo (no cambia la app)
 - Solucionado el problema recurrente de procesos `next dev` huerfanos que dejaban
@@ -17,12 +20,31 @@ Todos los cambios relevantes del proyecto se registran en este archivo.
 - `.claude/launch.json` revisado: se mantiene `port: 3000` + `autoPort: true` para
   preferir el 3000 (ya liberado por `predev`) y, si estuviera ocupado, mostrar
   claramente el puerto alternativo.
-- No se modifico ninguna funcionalidad de la aplicacion.
+
+### Pantalla de acceso bloqueado del alumno (solo vista del alumno)
+- Header de la pantalla bloqueada: se eliminan los enlaces "Cliente" y "Admin";
+  solo se muestran el logo y el botón "Salir" (`minimalNav` en `DashboardShell`).
+- Saludo: siempre el nombre real del alumno ("Hola, Michael"). Si no hay nombre
+  (o es el placeholder "Cliente") muestra solo "Hola"; nunca "Hola, Cliente".
+- Tarjeta de acceso bloqueado rediseñada: título "Tu acceso ha vencido" /
+  "Tu acceso está en pausa", subtítulo "Tu plan se encuentra temporalmente
+  desactivado.", badge de estado, fecha ("Venció el …" / "Vigente hasta el …") y
+  mensaje para recuperar el acceso.
+- Botones: "RENOVAR ACCESO" (verde, principal) y "CONTACTAR COACH" (secundario),
+  por ahora sin funcionalidad (nota de que se habilitarán próximamente).
+- Tres variantes visuales de estado: Activo (verde, `AccessNotice`), Pausado
+  (amarillo) y Vencido (rojo), cada una con su icono y mensaje (`LOCKED_CONFIG`).
+- Cuando el acceso NO es Activo se ocultan por completo todos los módulos premium
+  (estadísticas, progreso, evaluación, nutrición, tareas, calendario, chat, fotos,
+  gráficos): solo se ve la tarjeta de acceso bloqueado.
+
+### Sin cambios
+- No se tocó onboarding, landing, admin, repositorios ni servicios. Sin Supabase,
+  sin backend. Verificado responsive (móvil) sin overflow.
 
 ## v0.8
 
-Version estable actual en `main` (bloqueo del dashboard por mensualidad + CRUD
-completo de alumnos).
+Version previa (bloqueo del dashboard por mensualidad + CRUD completo de alumnos).
 
 ### Agregado
 - Bloqueo del dashboard del alumno por mensualidad: si el `accessStatus` es

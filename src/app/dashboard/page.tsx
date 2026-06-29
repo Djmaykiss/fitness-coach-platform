@@ -7,6 +7,7 @@ import {
   Dumbbell,
   MessageCircle,
   PauseCircle,
+  RefreshCw,
   ShieldAlert,
   ShieldCheck,
   Target,
@@ -54,19 +55,30 @@ export default function ClientDashboardPage() {
   // pausado). Solo se condiciona el renderizado: nada se elimina.
   const locked = access != null && access.accessStatus !== "Activo";
 
+  // Nombre real del alumno. "Cliente" es el placeholder de la cuenta demo: se
+  // trata como ausencia de nombre para no saludar "Hola, Cliente".
+  const realName =
+    user?.firstName && user.firstName !== "Cliente" ? user.firstName : "";
+
   return (
     <RequireAuth role="client">
       <DashboardShell
-        title={`Bienvenido, ${user?.firstName ?? ""}`}
-        subtitle="Tu programa, tu progreso, tu próxima llamada y tus tareas de la semana en un solo lugar."
+        title={
+          locked
+            ? `Hola${realName ? `, ${realName}` : ""}`
+            : `Bienvenido, ${user?.firstName ?? ""}`
+        }
+        subtitle={
+          locked
+            ? ""
+            : "Tu programa, tu progreso, tu próxima llamada y tus tareas de la semana en un solo lugar."
+        }
+        minimalNav={locked}
       >
         {!accessLoaded ? (
           <p className="text-zinc-400">Cargando tu acceso...</p>
         ) : locked && access ? (
-          <LockedDashboard
-            name={user?.firstName ?? ""}
-            access={access}
-          />
+          <LockedDashboard access={access} />
         ) : (
           <>
             {access ? <AccessNotice access={access} /> : null}
@@ -144,44 +156,71 @@ function AccessNotice({ access }: { access: ClientAccess }) {
   );
 }
 
+/** Configuracion visual por estado de acceso bloqueado (vencido / pausado). */
+const LOCKED_CONFIG: Record<
+  "Vencido" | "Pausado",
+  {
+    icon: typeof ShieldAlert;
+    iconWrap: string;
+    title: string;
+    dateLabel: string;
+    message: string;
+  }
+> = {
+  Vencido: {
+    icon: ShieldAlert,
+    iconWrap: "border-red-500/30 bg-red-500/[0.08] text-red-400",
+    title: "Tu acceso ha vencido",
+    dateLabel: "Venció el",
+    message:
+      "Renueva tu acceso para recuperar todas las funciones de tu plataforma.",
+  },
+  Pausado: {
+    icon: PauseCircle,
+    iconWrap: "border-amber-400/30 bg-amber-400/[0.08] text-amber-300",
+    title: "Tu acceso está en pausa",
+    dateLabel: "Vigente hasta el",
+    message:
+      "Reactiva tu acceso para recuperar todas las funciones de tu plataforma.",
+  },
+};
+
 /**
  * Vista restringida cuando el acceso NO esta activo (vencido o pausado).
- * No muestra las funciones premium: solo el estado y como recuperarlo.
+ * Oculta TODOS los modulos premium: solo muestra el estado y como recuperarlo.
  */
-function LockedDashboard({
-  name,
-  access,
-}: {
-  name: string;
-  access: ClientAccess;
-}) {
-  const isPaused = access.accessStatus === "Pausado";
-  const Icon = isPaused ? PauseCircle : ShieldAlert;
-  const tone = isPaused
-    ? "border-amber-400/30 bg-amber-400/[0.06] text-amber-300"
-    : "border-red-500/30 bg-red-500/[0.06] text-red-400";
+function LockedDashboard({ access }: { access: ClientAccess }) {
+  const config =
+    access.accessStatus === "Pausado"
+      ? LOCKED_CONFIG.Pausado
+      : LOCKED_CONFIG.Vencido;
+  const Icon = config.icon;
 
   return (
-    <section className="premium-card mx-auto max-w-2xl rounded-2xl p-8 text-center sm:p-10">
+    <section className="premium-card mx-auto max-w-xl rounded-3xl p-8 text-center sm:p-10">
       <div
-        className={`mx-auto flex h-16 w-16 items-center justify-center rounded-2xl border ${tone}`}
+        className={`mx-auto flex h-16 w-16 items-center justify-center rounded-2xl border ${config.iconWrap}`}
       >
         <Icon size={30} />
       </div>
 
-      <h2 className="mt-5 text-2xl font-black tracking-tight sm:text-3xl">
-        {name ? `${name}, ` : ""}
-        {isPaused ? "tu acceso está en pausa" : "tu acceso venció"}
+      <h2 className="mt-6 text-2xl font-black tracking-tight sm:text-3xl">
+        {config.title}
       </h2>
+      <p className="mt-2 text-sm leading-6 text-zinc-400 sm:text-base">
+        Tu plan se encuentra temporalmente desactivado.
+      </p>
 
-      <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
-        <span className="text-sm font-bold text-zinc-400">Estado de acceso:</span>
+      <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+        <span className="text-xs font-bold uppercase tracking-wide text-zinc-500">
+          Estado
+        </span>
         <AccessBadge status={access.accessStatus} />
       </div>
 
       {access.accessExpiresAt ? (
         <p className="mt-3 text-sm text-zinc-400">
-          {isPaused ? "Vigente hasta el " : "Venció el "}
+          {config.dateLabel}{" "}
           <span className="font-bold text-zinc-200">
             {formatDate(access.accessExpiresAt)}
           </span>
@@ -189,22 +228,28 @@ function LockedDashboard({
       ) : null}
 
       <p className="mx-auto mt-5 max-w-md text-base leading-7 text-zinc-300">
-        Renueva tu mensualidad con tu coach para recuperar el acceso.
+        {config.message}
       </p>
 
-      <div className="mx-auto mt-7 max-w-xs">
+      <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
         <button
           type="button"
-          disabled
-          className="inline-flex min-h-12 w-full cursor-not-allowed items-center justify-center gap-2 rounded-lg border border-white/10 bg-white/[0.04] px-5 text-sm font-black uppercase tracking-wide text-zinc-500"
+          className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg bg-gradient-to-b from-[#85ff73] to-[#65ff4f] px-6 text-sm font-black uppercase tracking-wide text-black shadow-[0_8px_30px_-8px_rgba(101,255,79,0.5)] transition duration-300 hover:-translate-y-0.5 hover:brightness-110 active:translate-y-0 active:scale-[0.98]"
+        >
+          <RefreshCw size={18} />
+          Renovar acceso
+        </button>
+        <button
+          type="button"
+          className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg border border-white/15 bg-white/5 px-6 text-sm font-black uppercase tracking-wide text-white transition duration-300 hover:border-[#65ff4f]/50 hover:bg-[#65ff4f]/10"
         >
           <MessageCircle size={18} />
           Contactar coach
         </button>
-        <p className="mt-2 text-xs text-zinc-600">
-          El número del coach se agregará después.
-        </p>
       </div>
+      <p className="mt-4 text-xs text-zinc-600">
+        La renovación y el contacto se habilitarán próximamente.
+      </p>
     </section>
   );
 }

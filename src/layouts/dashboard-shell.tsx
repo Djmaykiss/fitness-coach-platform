@@ -7,11 +7,14 @@ export function DashboardShell({
   title,
   subtitle,
   eyebrow = "Área privada",
+  minimalNav = false,
   children,
 }: {
   title: string;
   subtitle: string;
   eyebrow?: string;
+  /** Si es true, el header solo muestra el logo y "Salir" (sin Cliente/Admin). */
+  minimalNav?: boolean;
   children: ReactNode;
 }) {
   return (
@@ -23,12 +26,16 @@ export function DashboardShell({
               Coach <span className="text-[#65ff4f]">Fitness</span>
             </Link>
             <div className="flex items-center gap-3 text-sm font-bold text-zinc-300 sm:gap-4">
-              <Link href="/dashboard" className="hover:text-[#65ff4f]">
-                Cliente
-              </Link>
-              <Link href="/admin" className="hover:text-[#65ff4f]">
-                Admin
-              </Link>
+              {minimalNav ? null : (
+                <>
+                  <Link href="/dashboard" className="hover:text-[#65ff4f]">
+                    Cliente
+                  </Link>
+                  <Link href="/admin" className="hover:text-[#65ff4f]">
+                    Admin
+                  </Link>
+                </>
+              )}
               <LogoutButton />
             </div>
           </div>
@@ -42,9 +49,11 @@ export function DashboardShell({
             <h1 className="mt-3 text-4xl font-black tracking-tight sm:text-6xl">
               {title}
             </h1>
-            <p className="mt-4 max-w-2xl text-base leading-7 text-zinc-400">
-              {subtitle}
-            </p>
+            {subtitle ? (
+              <p className="mt-4 max-w-2xl text-base leading-7 text-zinc-400">
+                {subtitle}
+              </p>
+            ) : null}
           </div>
           {children}
         </section>
