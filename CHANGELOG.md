@@ -2,7 +2,10 @@
 
 Todos los cambios relevantes del proyecto se registran en este archivo.
 
-## (en rama `feature/exercise-library`, pendiente de merge)
+## v1.1
+
+Version estable actual en `main` (biblioteca profesional de ejercicios + programas
+que eligen ejercicios de la biblioteca).
 
 ### Agregado — Biblioteca de ejercicios (todo en localStorage)
 - Admin (`/admin`): nueva "Biblioteca de ejercicios" con CRUD completo. Cada
@@ -30,8 +33,7 @@ Todos los cambios relevantes del proyecto se registran en este archivo.
 
 ## v1.0
 
-Version estable actual en `main` (primer módulo funcional completo de programas de
-entrenamiento).
+Version previa (primer módulo funcional completo de programas de entrenamiento).
 
 ### Agregado — Módulo de programas de entrenamiento (todo en localStorage)
 - Admin (`/admin`): nueva sección "Programas de entrenamiento" con builder real:
