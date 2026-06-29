@@ -17,7 +17,7 @@ export function DashboardShell({
   return (
     <main className="flex min-h-screen flex-col bg-[#050706] text-white">
       <div className="hero-grid flex flex-1 flex-col">
-        <nav className="border-b border-white/10 bg-black/30 px-5 py-4 backdrop-blur sm:px-8">
+        <nav className="sticky top-0 z-30 border-b border-white/10 bg-black/50 px-5 py-4 backdrop-blur-xl sm:px-8">
           <div className="mx-auto flex max-w-7xl items-center justify-between gap-4">
             <Link href="/" className="font-black uppercase tracking-wide">
               Coach <span className="text-[#65ff4f]">Fitness</span>

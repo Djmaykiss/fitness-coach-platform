@@ -182,7 +182,7 @@ function SectionCard({
       <div className="mb-5 flex items-start justify-between gap-4">
         <div className="flex items-center gap-3">
           {Icon ? (
-            <span className="inline-flex rounded-lg border border-[#65ff4f]/20 bg-[#65ff4f]/10 p-2 text-[#65ff4f]">
+            <span className="inline-flex rounded-lg border border-[#65ff4f]/20 bg-[#65ff4f]/10 p-2 text-[#65ff4f] shadow-[0_0_20px_-6px_rgba(101,255,79,0.5)]">
               <Icon size={18} />
             </span>
           ) : null}

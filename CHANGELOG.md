@@ -2,6 +2,28 @@
 
 Todos los cambios relevantes del proyecto se registran en este archivo.
 
+## (en rama `feature/premium-visual-polish`, pendiente de merge)
+
+### Mejorado (solo diseño)
+- Pulido visual general para una apariencia más premium y comercial, manteniendo
+  la paleta actual (negro, blanco, gris, verde neón). Sin funciones nuevas, sin
+  cambios de arquitectura y sin tocar la lógica de `localStorage`.
+- `globals.css`: `.premium-card` con sombras en capas + highlight interno y
+  transición suave; nueva utilidad `.card-hover` (lift + glow neón en hover);
+  animación de entrada `.reveal-up` (+ delays) sin JS; halo de fondo sutil
+  (`body::before`); `:focus-visible` neón; scrollbar a tono; `.neon-ring` y
+  `.gym-hero` con más profundidad; soporte de `prefers-reduced-motion`.
+- Botones primarios unificados con gradiente neón, lift en hover y `active:scale`
+  (landing, login/registro, wizard y panel admin).
+- Inputs con foco neón + halo y hover de borde (auth, wizard y admin).
+- Landing: animación de entrada del hero, hover premium en tarjetas de programas,
+  beneficios, transformaciones y testimonios; CTA final con flecha animada.
+- Encabezados de sección con acento neón; `StatCard` con jerarquía y glow.
+- Dashboard del alumno: nav superior fija con blur; íconos de sección con glow.
+- Panel admin: tablas con hover de fila y encabezados más legibles.
+- Mejor jerarquía visual, espaciados y responsive; verificado en desktop y móvil
+  sin overflow horizontal.
+
 ## v0.5
 
 Version estable actual en `main` (formulario de salud y alimentacion del cliente

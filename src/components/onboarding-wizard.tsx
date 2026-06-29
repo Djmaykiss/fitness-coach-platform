@@ -243,7 +243,7 @@ export function OnboardingWizard() {
         </div>
         <div className="h-2 overflow-hidden rounded-full bg-white/10">
           <div
-            className="h-full rounded-full bg-[#65ff4f] transition-all duration-300"
+            className="h-full rounded-full bg-gradient-to-r from-[#65ff4f] to-[#85ff73] shadow-[0_0_14px_rgba(101,255,79,0.5)] transition-all duration-500 ease-out"
             style={{ width: `${(step / TOTAL_STEPS) * 100}%` }}
           />
         </div>
@@ -270,7 +270,7 @@ export function OnboardingWizard() {
             type="button"
             onClick={() => setStep((s) => Math.min(TOTAL_STEPS, s + 1))}
             disabled={!canContinue}
-            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg bg-[#65ff4f] px-6 text-sm font-black uppercase tracking-wide text-black transition hover:bg-[#85ff73] disabled:cursor-not-allowed disabled:opacity-40"
+            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg bg-gradient-to-b from-[#85ff73] to-[#65ff4f] px-6 text-sm font-black uppercase tracking-wide text-black shadow-[0_8px_30px_-8px_rgba(101,255,79,0.5)] transition duration-300 hover:-translate-y-0.5 hover:brightness-110 active:translate-y-0 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0"
           >
             Siguiente
             <ArrowRight size={18} />
@@ -280,7 +280,7 @@ export function OnboardingWizard() {
             type="button"
             onClick={submit}
             disabled={submitting}
-            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg bg-[#65ff4f] px-6 text-sm font-black uppercase tracking-wide text-black transition hover:bg-[#85ff73] disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg bg-gradient-to-b from-[#85ff73] to-[#65ff4f] px-6 text-sm font-black uppercase tracking-wide text-black shadow-[0_8px_30px_-8px_rgba(101,255,79,0.5)] transition duration-300 hover:-translate-y-0.5 hover:brightness-110 active:translate-y-0 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0"
           >
             {submitting ? "Guardando..." : "Quiero comenzar"}
             <ArrowRight size={18} />
@@ -735,7 +735,7 @@ function TextField({
         value={value}
         onChange={(event) => onChange(event.target.value)}
         placeholder={placeholder}
-        className="mt-2 h-12 w-full rounded-lg border border-white/10 bg-black/35 px-4 text-white outline-none transition placeholder:text-zinc-600 focus:border-[#65ff4f]"
+        className="mt-2 h-12 w-full rounded-lg border border-white/10 bg-black/35 px-4 text-white outline-none transition duration-300 placeholder:text-zinc-600 hover:border-white/20 focus:border-[#65ff4f] focus:bg-black/50 focus:shadow-[0_0_0_3px_rgba(101,255,79,0.12)]"
       />
     </label>
   );

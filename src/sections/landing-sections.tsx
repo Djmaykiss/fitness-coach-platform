@@ -28,18 +28,18 @@ export async function HeroSection() {
 
       <div className="mx-auto grid max-w-7xl items-center gap-10 px-5 pb-16 pt-14 sm:px-8 lg:min-h-[calc(92vh-88px)] lg:grid-cols-[1.05fr_0.95fr]">
         <div>
-          <div className="mb-6 inline-flex items-center gap-2 rounded-lg border border-[#65ff4f]/30 bg-[#65ff4f]/10 px-3 py-2 text-sm font-bold text-[#65ff4f] backdrop-blur">
+          <div className="reveal-up mb-6 inline-flex items-center gap-2 rounded-lg border border-[#65ff4f]/30 bg-[#65ff4f]/10 px-3 py-2 text-sm font-bold text-[#65ff4f] backdrop-blur">
             <ShieldCheck size={16} />
             Fitness coaching premium
           </div>
-          <h1 className="max-w-4xl text-5xl font-black uppercase leading-[0.96] tracking-tight sm:text-7xl lg:text-8xl">
+          <h1 className="reveal-up reveal-delay-1 max-w-4xl text-5xl font-black uppercase leading-[0.96] tracking-tight sm:text-7xl lg:text-8xl">
             Entrena fuerte. Mide todo. Cambia de verdad.
           </h1>
-          <p className="mt-6 max-w-2xl text-lg leading-8 text-zinc-300 sm:text-xl">
+          <p className="reveal-up reveal-delay-2 mt-6 max-w-2xl text-lg leading-8 text-zinc-300 sm:text-xl">
             Entrenamiento personalizado, seguimiento semanal y un plan claro para
             que avances con dirección y sin improvisar.
           </p>
-          <div className="mt-9 flex flex-col gap-3 sm:flex-row">
+          <div className="reveal-up reveal-delay-3 mt-9 flex flex-col gap-3 sm:flex-row">
             <ButtonLink href="#agenda">Agendar llamada</ButtonLink>
             <ButtonLink href="#programas" variant="secondary">
               Ver programas
@@ -47,7 +47,7 @@ export async function HeroSection() {
           </div>
         </div>
 
-        <div className="premium-card hidden rounded-3xl p-4 lg:block">
+        <div className="premium-card reveal-up reveal-delay-2 hidden overflow-hidden rounded-3xl p-4 lg:block">
           <div className="trainer-card min-h-[520px] rounded-2xl border border-white/10" />
         </div>
       </div>
@@ -93,7 +93,7 @@ export async function ProgramsSection() {
         />
         <div className="grid gap-5 md:grid-cols-3">
           {programs.map((program) => (
-            <article key={program.title} className="premium-card rounded-2xl p-6 transition duration-300 hover:-translate-y-1 hover:border-[#65ff4f]/30">
+            <article key={program.title} className="premium-card card-hover rounded-2xl p-6">
               <p className="text-sm font-bold uppercase tracking-[0.2em] text-[#65ff4f]">
                 {program.duration}
               </p>
@@ -136,7 +136,7 @@ export async function TransformationsSection() {
       />
       <div className="grid gap-5 md:grid-cols-3">
         {transformations.map((item) => (
-          <article key={item.name} className="premium-card rounded-2xl p-5">
+          <article key={item.name} className="premium-card card-hover rounded-2xl p-5">
             <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-1 xl:grid-cols-2">
               <TransformationImage
                 src={item.beforeImage}
@@ -189,7 +189,7 @@ export async function TestimonialsSection() {
         />
         <div className="grid gap-5 md:grid-cols-3">
           {testimonials.map((item) => (
-            <article key={item.name} className="premium-card rounded-2xl p-6">
+            <article key={item.name} className="premium-card card-hover rounded-2xl p-6">
               <p className="text-4xl font-black text-[#65ff4f]">{item.result}</p>
               <p className="mt-5 text-base leading-7 text-zinc-300">
                 &ldquo;{item.quote}&rdquo;
@@ -220,8 +220,8 @@ export async function BenefitsSection() {
         {benefits.map((benefit) => {
           const Icon = benefit.icon;
           return (
-            <article key={benefit.title} className="premium-card rounded-2xl p-6 transition duration-300 hover:-translate-y-1 hover:border-[#65ff4f]/30">
-              <div className="mb-5 inline-flex rounded-xl border border-[#65ff4f]/20 bg-[#65ff4f]/10 p-3 text-[#65ff4f]">
+            <article key={benefit.title} className="premium-card card-hover rounded-2xl p-6">
+              <div className="mb-5 inline-flex rounded-xl border border-[#65ff4f]/20 bg-[#65ff4f]/10 p-3 text-[#65ff4f] shadow-[0_0_24px_-8px_rgba(101,255,79,0.5)]">
                 <Icon size={24} />
               </div>
               <h3 className="text-xl font-black">{benefit.title}</h3>
@@ -266,9 +266,13 @@ export function FinalCtaSection() {
         </div>
         <a
           href="/register"
-          className="inline-flex min-h-12 items-center justify-center gap-2 whitespace-nowrap rounded-lg bg-black px-5 text-sm font-black uppercase tracking-wide text-white transition hover:bg-zinc-900"
+          className="group inline-flex min-h-12 items-center justify-center gap-2 whitespace-nowrap rounded-lg bg-black px-6 text-sm font-black uppercase tracking-wide text-white shadow-[0_12px_30px_-12px_rgba(0,0,0,0.8)] transition duration-300 hover:-translate-y-0.5 hover:bg-zinc-900 active:translate-y-0 active:scale-[0.98]"
         >
-          Empezar ahora <ArrowRight size={18} />
+          Empezar ahora
+          <ArrowRight
+            size={18}
+            className="transition-transform duration-300 group-hover:translate-x-1"
+          />
         </a>
       </div>
     </section>

@@ -15,13 +15,13 @@ export function ButtonLink({
 }: ButtonLinkProps) {
   const styles =
     variant === "primary"
-      ? "bg-[#65ff4f] text-black shadow-[0_0_32px_rgba(101,255,79,0.18)] hover:bg-[#85ff73]"
+      ? "bg-gradient-to-b from-[#85ff73] to-[#65ff4f] text-black shadow-[0_8px_30px_-8px_rgba(101,255,79,0.5)] hover:shadow-[0_10px_40px_-8px_rgba(101,255,79,0.7)] hover:brightness-110"
       : "border border-white/15 bg-white/5 text-white backdrop-blur hover:border-[#65ff4f]/50 hover:bg-[#65ff4f]/10";
 
   return (
     <Link
       href={href}
-      className={`inline-flex min-h-12 items-center justify-center rounded-lg px-5 text-sm font-black uppercase tracking-wide transition duration-300 ${styles}`}
+      className={`inline-flex min-h-12 items-center justify-center rounded-lg px-6 text-sm font-black uppercase tracking-wide transition duration-300 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] ${styles}`}
     >
       {children}
     </Link>
@@ -38,9 +38,11 @@ export function SectionHeader({
   description: string;
 }) {
   return (
-    <div className="mx-auto mb-10 max-w-3xl text-center">
-      <p className="mb-3 text-sm font-black uppercase tracking-[0.24em] text-[#65ff4f]">
+    <div className="mx-auto mb-12 max-w-3xl text-center">
+      <p className="mb-3 inline-flex items-center gap-2 text-sm font-black uppercase tracking-[0.24em] text-[#65ff4f]">
+        <span className="h-px w-6 bg-gradient-to-r from-transparent to-[#65ff4f]" />
         {eyebrow}
+        <span className="h-px w-6 bg-gradient-to-l from-transparent to-[#65ff4f]" />
       </p>
       <h2 className="text-3xl font-black tracking-tight text-white sm:text-5xl">
         {title}
@@ -62,14 +64,18 @@ export function StatCard({
   icon?: ComponentType<LucideProps>;
 }) {
   return (
-    <div className="premium-card rounded-2xl p-5 transition duration-300 hover:-translate-y-1 hover:border-[#65ff4f]/30">
+    <div className="premium-card card-hover rounded-2xl p-5">
       <div className="flex items-center justify-between gap-4">
         <div>
-          <p className="text-sm text-zinc-400">{label}</p>
-          <p className="mt-2 text-3xl font-black text-white">{value}</p>
+          <p className="text-xs font-bold uppercase tracking-[0.18em] text-zinc-400">
+            {label}
+          </p>
+          <p className="mt-2 text-3xl font-black tracking-tight text-white sm:text-4xl">
+            {value}
+          </p>
         </div>
         {Icon ? (
-          <div className="rounded-md border border-[#65ff4f]/20 bg-[#65ff4f]/10 p-3 text-[#65ff4f]">
+          <div className="rounded-xl border border-[#65ff4f]/20 bg-[#65ff4f]/10 p-3 text-[#65ff4f] shadow-[0_0_24px_-8px_rgba(101,255,79,0.5)]">
             <Icon size={22} />
           </div>
         ) : null}

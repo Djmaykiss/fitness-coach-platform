@@ -157,7 +157,7 @@ export function AdminPanel() {
             />
             <tbody>
               {clients.map((client) => (
-                <tr key={client.id} className="border-t border-white/10">
+                <tr key={client.id} className="border-t border-white/10 transition-colors hover:bg-white/[0.03]">
                   <td className="px-6 py-4 font-semibold text-white">
                     {client.name}
                   </td>
@@ -244,7 +244,7 @@ export function AdminPanel() {
             />
             <tbody>
               {leads.map((lead) => (
-                <tr key={lead.id} className="border-t border-white/10">
+                <tr key={lead.id} className="border-t border-white/10 transition-colors hover:bg-white/[0.03]">
                   <td className="px-6 py-4">
                     <p className="font-semibold text-white">{lead.name}</p>
                     <p className="text-xs text-zinc-500">{lead.email}</p>
@@ -801,13 +801,13 @@ function clampPct(value: number): number {
 /* ---------- UI helpers ---------- */
 
 const primaryBtn =
-  "inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-[#65ff4f] px-5 text-sm font-black uppercase tracking-wide text-black transition hover:bg-[#85ff73] disabled:cursor-not-allowed disabled:opacity-60";
+  "inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-gradient-to-b from-[#85ff73] to-[#65ff4f] px-5 text-sm font-black uppercase tracking-wide text-black shadow-[0_8px_30px_-8px_rgba(101,255,79,0.5)] transition duration-300 hover:-translate-y-0.5 hover:brightness-110 active:translate-y-0 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0";
 const secondaryBtn =
-  "inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-white/15 px-5 text-sm font-bold text-zinc-300 transition hover:border-[#65ff4f]/50 hover:text-[#65ff4f]";
+  "inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-white/15 px-5 text-sm font-bold text-zinc-300 transition duration-300 hover:border-[#65ff4f]/50 hover:bg-[#65ff4f]/5 hover:text-[#65ff4f]";
 const dangerBtn =
-  "inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-red-500/40 px-5 text-sm font-bold text-red-400 transition hover:border-red-500/70 hover:text-red-300 disabled:cursor-not-allowed disabled:opacity-60";
+  "inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-red-500/40 px-5 text-sm font-bold text-red-400 transition duration-300 hover:border-red-500/70 hover:bg-red-500/5 hover:text-red-300 disabled:cursor-not-allowed disabled:opacity-60";
 const inputClass =
-  "mt-2 h-11 w-full rounded-lg border border-white/10 bg-black/35 px-3 text-white outline-none transition placeholder:text-zinc-600 focus:border-[#65ff4f]";
+  "mt-2 h-11 w-full rounded-lg border border-white/10 bg-black/35 px-3 text-white outline-none transition duration-300 placeholder:text-zinc-600 hover:border-white/20 focus:border-[#65ff4f] focus:bg-black/50 focus:shadow-[0_0_0_3px_rgba(101,255,79,0.12)]";
 
 function Form({
   children,
@@ -968,7 +968,7 @@ function ActionButton({
     <button
       type="button"
       onClick={onClick}
-      className="inline-flex items-center gap-2 rounded-lg bg-[#65ff4f] px-4 py-2 text-xs font-black uppercase tracking-wide text-black transition hover:bg-[#85ff73]"
+      className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-b from-[#85ff73] to-[#65ff4f] px-4 py-2 text-xs font-black uppercase tracking-wide text-black shadow-[0_6px_22px_-8px_rgba(101,255,79,0.5)] transition duration-300 hover:-translate-y-0.5 hover:brightness-110 active:translate-y-0 active:scale-[0.98]"
     >
       {icon}
       {children}
@@ -1010,7 +1010,7 @@ function Badge({ children }: { children: React.ReactNode }) {
 
 function TableHead({ columns }: { columns: string[] }) {
   return (
-    <thead className="bg-white/[0.03] text-xs uppercase tracking-wide text-zinc-500">
+    <thead className="border-b border-white/10 bg-white/[0.04] text-xs uppercase tracking-[0.12em] text-zinc-400">
       <tr>
         {columns.map((column, index) => (
           <th key={column || index} className="px-6 py-4 font-black">
@@ -1035,7 +1035,7 @@ function ReadonlyTable({
         <TableHead columns={columns} />
         <tbody>
           {rows.map((row) => (
-            <tr key={row.join("-")} className="border-t border-white/10">
+            <tr key={row.join("-")} className="border-t border-white/10 transition-colors hover:bg-white/[0.03]">
               {row.map((cell, index) => (
                 <td key={`${cell}-${index}`} className="px-6 py-4 text-zinc-300">
                   {index === row.length - 1 ? <Badge>{cell}</Badge> : cell}

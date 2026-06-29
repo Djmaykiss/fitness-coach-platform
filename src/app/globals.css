@@ -5,6 +5,7 @@
   --foreground: #f4f7f4;
   --muted: #9aa69d;
   --neon: #65ff4f;
+  --neon-soft: #85ff73;
   --panel: #101411;
   --panel-soft: #151b17;
 }
@@ -28,6 +29,28 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  letter-spacing: -0.01em;
+}
+
+/* Una capa sutil de profundidad en el fondo general (no cambia los colores). */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(60% 50% at 50% -10%, rgba(101, 255, 79, 0.06), transparent 70%),
+    radial-gradient(40% 40% at 100% 0%, rgba(101, 255, 79, 0.05), transparent 70%);
+}
+
+h1,
+h2,
+h3 {
+  letter-spacing: -0.02em;
 }
 
 a {
@@ -36,6 +59,40 @@ a {
 
 ::selection {
   background: rgba(101, 255, 79, 0.28);
+}
+
+/* Foco visible y premium (accesibilidad + coherencia de marca). */
+:focus-visible {
+  outline: 2px solid rgba(101, 255, 79, 0.55);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* Scrollbar discreta a tono con el tema. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(101, 255, 79, 0.35) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  border-radius: 999px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: rgba(101, 255, 79, 0.4);
+  background-clip: padding-box;
 }
 
 .hero-grid {
@@ -47,7 +104,8 @@ a {
 
 .gym-hero {
   background-image:
-    radial-gradient(circle at 72% 28%, rgba(101, 255, 79, 0.18), transparent 26%),
+    radial-gradient(circle at 72% 28%, rgba(101, 255, 79, 0.22), transparent 28%),
+    linear-gradient(180deg, transparent 60%, rgba(5, 7, 6, 0.9) 100%),
     linear-gradient(90deg, rgba(5, 7, 6, 0.98) 0%, rgba(5, 7, 6, 0.86) 45%, rgba(5, 7, 6, 0.36) 100%),
     url("https://images.unsplash.com/photo-1605296867304-46d5465a13f1?auto=format&fit=crop&w=1800&q=85");
   background-position: center;
@@ -55,14 +113,35 @@ a {
 }
 
 .premium-card {
+  position: relative;
   border: 1px solid rgba(255, 255, 255, 0.09);
   background: linear-gradient(180deg, rgba(21, 27, 23, 0.82), rgba(11, 14, 12, 0.86));
   backdrop-filter: blur(18px);
-  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.34);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.05) inset,
+    0 18px 50px -20px rgba(0, 0, 0, 0.7),
+    0 30px 90px -40px rgba(0, 0, 0, 0.55);
+  transition:
+    transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.35s ease,
+    box-shadow 0.35s ease;
+}
+
+/* Utilidad opt-in para tarjetas interactivas (lift + glow al pasar el cursor). */
+.card-hover:hover {
+  transform: translateY(-4px);
+  border-color: rgba(101, 255, 79, 0.35);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.07) inset,
+    0 26px 70px -24px rgba(0, 0, 0, 0.8),
+    0 0 50px -18px rgba(101, 255, 79, 0.35);
 }
 
 .neon-ring {
-  box-shadow: 0 0 0 1px rgba(101, 255, 79, 0.18), 0 0 40px rgba(101, 255, 79, 0.12);
+  box-shadow:
+    0 0 0 1px rgba(101, 255, 79, 0.22),
+    0 0 50px rgba(101, 255, 79, 0.18),
+    0 24px 70px -30px rgba(101, 255, 79, 0.4);
 }
 
 .trainer-card {
@@ -71,6 +150,11 @@ a {
     url("https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?auto=format&fit=crop&w=1000&q=85");
   background-position: center;
   background-size: cover;
+  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.trainer-card:hover {
+  transform: scale(1.02);
 }
 
 .transformation-tile {
@@ -100,4 +184,44 @@ a {
 
 .onboarding-step {
   animation: onboarding-step-in 0.35s ease both;
+}
+
+/* Entrada suave de elementos (hero, encabezados). Sin JS, sin parpadeo. */
+@keyframes reveal-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.reveal-up {
+  animation: reveal-up 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.reveal-delay-1 {
+  animation-delay: 0.08s;
+}
+
+.reveal-delay-2 {
+  animation-delay: 0.16s;
+}
+
+.reveal-delay-3 {
+  animation-delay: 0.24s;
+}
+
+/* Respeta a quien prefiere menos movimiento. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
 }
