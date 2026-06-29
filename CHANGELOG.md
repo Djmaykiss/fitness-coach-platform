@@ -2,7 +2,9 @@
 
 Todos los cambios relevantes del proyecto se registran en este archivo.
 
-## (en rama `feature/premium-visual-polish`, pendiente de merge)
+## v0.6
+
+Version estable actual en `main` (pulido visual premium, solo diseño).
 
 ### Mejorado (solo diseño)
 - Pulido visual general para una apariencia más premium y comercial, manteniendo
@@ -26,8 +28,8 @@ Todos los cambios relevantes del proyecto se registran en este archivo.
 
 ## v0.5
 
-Version estable actual en `main` (formulario de salud y alimentacion del cliente
-integrado en el onboarding inteligente).
+Version previa (formulario de salud y alimentacion del cliente integrado en el
+onboarding inteligente).
 
 ### Agregado
 - Formulario de salud y alimentacion del cliente integrado en el onboarding, SIN

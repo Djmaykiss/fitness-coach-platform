@@ -1,7 +1,17 @@
 # Coach Fitness MVP
 
-# Version 0.5 (Estable - main)
-Version estable actual en `main`. Incluye todo lo de v0.4 mas el formulario de
+# Version 0.6 (Estable - main)
+Version estable actual en `main`. Incluye todo lo de v0.5 mas un pulido visual
+premium (SOLO diseño): `globals.css` con `.premium-card` mejorada, utilidades
+`.card-hover` y `.reveal-up`, halo de fondo, `:focus-visible` neon, scrollbar a
+tono y `prefers-reduced-motion`; botones primarios con gradiente neon + lift;
+inputs con foco neon; landing con animacion de entrada y hover premium; nav del
+dashboard fija; tablas del admin con hover. Sin funciones nuevas, sin cambios de
+arquitectura y sin tocar la logica de `localStorage`. Paleta intacta
+(negro/blanco/gris/verde neon). Ver `CHANGELOG.md`.
+
+# Version 0.5 (Congelada)
+Incluye todo lo de v0.4 mas el formulario de
 salud y alimentacion del cliente integrado en el onboarding inteligente: el wizard
 pasa de 8 a 11 pasos (paso 8 datos + antecedentes; pasos 9-10 alimentacion), las
 nuevas respuestas se guardan dentro de la misma evaluacion del lead y del alumno,
