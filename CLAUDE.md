@@ -1,7 +1,17 @@
 # Coach Fitness MVP
 
-# Version 0.7 (Estable - main)
-Version estable actual en `main`. Incluye todo lo de v0.6 mas el rediseño visual
+# Version 0.8 (Estable - main)
+Version estable actual en `main`. Incluye todo lo de v0.7 mas el bloqueo del
+dashboard del alumno por mensualidad (si `accessStatus` es `Vencido` o `Pausado`,
+`/dashboard` oculta las funciones premium y muestra solo `LockedDashboard`; con
+`Activo` se ve el dashboard completo; solo se condiciona el renderizado) y el CRUD
+completo de alumnos en `/admin` (crear, editar y ELIMINAR con confirmacion; el
+borrado limpia en cascada cliente + progreso + fotos + checklists sin tocar las
+cuentas de usuario). Sin Supabase, sin backend, sin cambios de diseño general; no
+se toco landing ni onboarding. Ver `CHANGELOG.md`.
+
+# Version 0.7 (Congelada)
+Incluye todo lo de v0.6 mas el rediseño visual
 y de contenido del onboarding (solo onboarding): ilustraciones vectoriales propias
 (SVG, estilo neon) para tipos de cuerpo, objetivos, nivel y lugar en
 `public/images/onboarding/` (con fallback `onError` y `dangerouslyAllowSVG` en

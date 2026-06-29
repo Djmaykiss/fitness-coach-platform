@@ -2,7 +2,10 @@
 
 Todos los cambios relevantes del proyecto se registran en este archivo.
 
-## (en rama `feature/student-access-gating-crud`, pendiente de merge)
+## v0.8
+
+Version estable actual en `main` (bloqueo del dashboard por mensualidad + CRUD
+completo de alumnos).
 
 ### Agregado
 - Bloqueo del dashboard del alumno por mensualidad: si el `accessStatus` es
@@ -27,7 +30,7 @@ Todos los cambios relevantes del proyecto se registran en este archivo.
 
 ## v0.7
 
-Version estable actual en `main` (ilustraciones y copy premium del onboarding).
+Version previa (ilustraciones y copy premium del onboarding).
 
 ### Mejorado (solo onboarding: visual y contenido)
 - Ilustraciones vectoriales propias (SVG, estilo neón consistente) que reemplazan
