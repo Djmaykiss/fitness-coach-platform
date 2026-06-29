@@ -55,4 +55,12 @@ export class LocalClientRepository implements ClientRepository {
     this.write(clients);
     return resolveMock<Client | null>(updated);
   }
+
+  deleteClient(id: string) {
+    const clients = this.read();
+    const next = clients.filter((client) => client.id !== id);
+    const removed = next.length !== clients.length;
+    if (removed) this.write(next);
+    return resolveMock(removed);
+  }
 }

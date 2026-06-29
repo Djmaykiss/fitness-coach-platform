@@ -62,6 +62,8 @@ export interface ClientRepository {
     id: string,
     patch: Partial<Omit<Client, "id">>,
   ): Promise<Client | null>;
+  /** Elimina el cliente local. Devuelve true si existía y se borró. */
+  deleteClient(id: string): Promise<boolean>;
 }
 
 export interface LeadRepository {
@@ -84,6 +86,8 @@ export interface ProgressRepository {
     clientId: string,
     progress: ClientProgress,
   ): Promise<ClientProgress>;
+  /** Elimina el progreso persistido de un cliente (al borrar el alumno). */
+  removeForClient(clientId: string): Promise<void>;
 }
 
 export interface UserRepository {
@@ -106,4 +110,6 @@ export interface CoachingRepository {
     itemKey: string,
     done: boolean,
   ): Promise<ChecklistChecks>;
+  /** Elimina fotos y checklists de un cliente (al borrar el alumno). */
+  removeClient(clientId: string): Promise<void>;
 }

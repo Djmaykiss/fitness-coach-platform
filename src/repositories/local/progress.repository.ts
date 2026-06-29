@@ -26,4 +26,13 @@ export class LocalProgressRepository implements ProgressRepository {
     writeRecord(STORAGE_KEYS.progress, record);
     return resolveMock(progress);
   }
+
+  removeForClient(clientId: string) {
+    const record = this.read();
+    if (record[clientId]) {
+      delete record[clientId];
+      writeRecord(STORAGE_KEYS.progress, record);
+    }
+    return resolveMock<void>(undefined);
+  }
 }

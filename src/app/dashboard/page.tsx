@@ -28,6 +28,7 @@ export default function ClientDashboardPage() {
   const { user } = useAuth();
   const [progress, setProgress] = useState<ClientProgress | null>(null);
   const [access, setAccess] = useState<ClientAccess | null>(null);
+  const [accessLoaded, setAccessLoaded] = useState(false);
   const [evaluation, setEvaluation] = useState<LeadEvaluation | null>(null);
 
   useEffect(() => {
@@ -37,7 +38,9 @@ export default function ClientDashboardPage() {
       if (active) setProgress(data);
     });
     clientDashboardService.getAccessForUser(user.id).then((data) => {
-      if (active) setAccess(data);
+      if (!active) return;
+      setAccess(data);
+      setAccessLoaded(true);
     });
     clientDashboardService.getEvaluationForUser(user.id).then((data) => {
       if (active) setEvaluation(data);
@@ -47,30 +50,45 @@ export default function ClientDashboardPage() {
     };
   }, [user]);
 
+  // El acceso bloquea las funciones premium cuando NO esta activo (vencido o
+  // pausado). Solo se condiciona el renderizado: nada se elimina.
+  const locked = access != null && access.accessStatus !== "Activo";
+
   return (
     <RequireAuth role="client">
       <DashboardShell
         title={`Bienvenido, ${user?.firstName ?? ""}`}
         subtitle="Tu programa, tu progreso, tu próxima llamada y tus tareas de la semana en un solo lugar."
       >
-        {access ? <AccessNotice access={access} /> : null}
-        {progress ? (
-          <ProgressView progress={progress} />
+        {!accessLoaded ? (
+          <p className="text-zinc-400">Cargando tu acceso...</p>
+        ) : locked && access ? (
+          <LockedDashboard
+            name={user?.firstName ?? ""}
+            access={access}
+          />
         ) : (
-          <p className="text-zinc-400">Cargando tu progreso...</p>
+          <>
+            {access ? <AccessNotice access={access} /> : null}
+            {progress ? (
+              <ProgressView progress={progress} />
+            ) : (
+              <p className="text-zinc-400">Cargando tu progreso...</p>
+            )}
+            {evaluation ? (
+              <section className="premium-card mt-6 rounded-2xl p-6">
+                <h2 className="text-2xl font-black">Mi evaluación inicial</h2>
+                <p className="mt-1 text-sm text-zinc-400">
+                  Los datos que registraste al comenzar.
+                </p>
+                <div className="mt-5">
+                  <EvaluationDetails evaluation={evaluation} />
+                </div>
+              </section>
+            ) : null}
+            {user ? <PremiumDashboard userId={user.id} /> : null}
+          </>
         )}
-        {evaluation ? (
-          <section className="premium-card mt-6 rounded-2xl p-6">
-            <h2 className="text-2xl font-black">Mi evaluación inicial</h2>
-            <p className="mt-1 text-sm text-zinc-400">
-              Los datos que registraste al comenzar.
-            </p>
-            <div className="mt-5">
-              <EvaluationDetails evaluation={evaluation} />
-            </div>
-          </section>
-        ) : null}
-        {user ? <PremiumDashboard userId={user.id} /> : null}
       </DashboardShell>
     </RequireAuth>
   );
@@ -121,6 +139,71 @@ function AccessNotice({ access }: { access: ClientAccess }) {
           <AccessBadge status={accessStatus} />
         </div>
         <p className="mt-1 text-sm leading-6 text-zinc-400">{config.message}</p>
+      </div>
+    </section>
+  );
+}
+
+/**
+ * Vista restringida cuando el acceso NO esta activo (vencido o pausado).
+ * No muestra las funciones premium: solo el estado y como recuperarlo.
+ */
+function LockedDashboard({
+  name,
+  access,
+}: {
+  name: string;
+  access: ClientAccess;
+}) {
+  const isPaused = access.accessStatus === "Pausado";
+  const Icon = isPaused ? PauseCircle : ShieldAlert;
+  const tone = isPaused
+    ? "border-amber-400/30 bg-amber-400/[0.06] text-amber-300"
+    : "border-red-500/30 bg-red-500/[0.06] text-red-400";
+
+  return (
+    <section className="premium-card mx-auto max-w-2xl rounded-2xl p-8 text-center sm:p-10">
+      <div
+        className={`mx-auto flex h-16 w-16 items-center justify-center rounded-2xl border ${tone}`}
+      >
+        <Icon size={30} />
+      </div>
+
+      <h2 className="mt-5 text-2xl font-black tracking-tight sm:text-3xl">
+        {name ? `${name}, ` : ""}
+        {isPaused ? "tu acceso está en pausa" : "tu acceso venció"}
+      </h2>
+
+      <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
+        <span className="text-sm font-bold text-zinc-400">Estado de acceso:</span>
+        <AccessBadge status={access.accessStatus} />
+      </div>
+
+      {access.accessExpiresAt ? (
+        <p className="mt-3 text-sm text-zinc-400">
+          {isPaused ? "Vigente hasta el " : "Venció el "}
+          <span className="font-bold text-zinc-200">
+            {formatDate(access.accessExpiresAt)}
+          </span>
+        </p>
+      ) : null}
+
+      <p className="mx-auto mt-5 max-w-md text-base leading-7 text-zinc-300">
+        Renueva tu mensualidad con tu coach para recuperar el acceso.
+      </p>
+
+      <div className="mx-auto mt-7 max-w-xs">
+        <button
+          type="button"
+          disabled
+          className="inline-flex min-h-12 w-full cursor-not-allowed items-center justify-center gap-2 rounded-lg border border-white/10 bg-white/[0.04] px-5 text-sm font-black uppercase tracking-wide text-zinc-500"
+        >
+          <MessageCircle size={18} />
+          Contactar coach
+        </button>
+        <p className="mt-2 text-xs text-zinc-600">
+          El número del coach se agregará después.
+        </p>
       </div>
     </section>
   );

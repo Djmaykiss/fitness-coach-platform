@@ -1,5 +1,6 @@
 import {
   clientRepository,
+  coachingRepository,
   leadRepository,
   programRepository,
   progressRepository,
@@ -96,6 +97,16 @@ export const adminDashboardService = {
     id: string,
     patch: { name?: string; status?: string },
   ) => clientRepository.updateClient(id, patch),
+
+  /**
+   * Elimina un alumno y todos sus datos asociados (progreso, fotos y checklists).
+   * No toca cuentas de usuario: el acceso de login se conserva.
+   */
+  async deleteClient(clientId: string) {
+    await clientRepository.deleteClient(clientId);
+    await progressRepository.removeForClient(clientId);
+    await coachingRepository.removeClient(clientId);
+  },
 
   createProgram: (input: CreateProgramInput) =>
     programRepository.createProgramRow(input),

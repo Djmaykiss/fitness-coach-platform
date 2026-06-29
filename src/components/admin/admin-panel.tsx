@@ -2,12 +2,14 @@
 
 import { useEffect, useState } from "react";
 import {
+  AlertTriangle,
   FileText,
   KeyRound,
   Pencil,
   Plus,
   SlidersHorizontal,
   Target,
+  Trash2,
   UserPlus,
 } from "lucide-react";
 import { StatCard } from "@/components/ui";
@@ -44,6 +46,7 @@ const LEAD_STATUSES: LeadStatus[] = [
 type Editor =
   | { kind: "createClient" }
   | { kind: "editClient"; client: AdminClientRow }
+  | { kind: "deleteClient"; client: AdminClientRow }
   | { kind: "assign"; client: AdminClientRow }
   | { kind: "progress"; client: AdminClientRow }
   | { kind: "access"; client: AdminClientRow }
@@ -205,6 +208,13 @@ export function AdminPanel() {
                         icon={<SlidersHorizontal size={14} />}
                       >
                         Progreso
+                      </RowButton>
+                      <RowButton
+                        onClick={() => setEditor({ kind: "deleteClient", client })}
+                        icon={<Trash2 size={14} />}
+                        danger
+                      >
+                        Eliminar
                       </RowButton>
                     </div>
                   </td>
@@ -444,6 +454,21 @@ function EditorCard({
     );
   }
 
+  if (editor.kind === "deleteClient") {
+    return (
+      <FormShell title={`Eliminar alumno: ${editor.client.name}`} onClose={onClose}>
+        <DeleteClientForm
+          client={editor.client}
+          onCancel={onClose}
+          onConfirm={async () => {
+            await adminDashboardService.deleteClient(editor.client.id);
+            await onDone();
+          }}
+        />
+      </FormShell>
+    );
+  }
+
   if (editor.kind === "assign") {
     return (
       <FormShell
@@ -601,6 +626,54 @@ function ClientForm({
         />
       </div>
     </Form>
+  );
+}
+
+function DeleteClientForm({
+  client,
+  onConfirm,
+  onCancel,
+}: {
+  client: AdminClientRow;
+  onConfirm: () => Promise<void>;
+  onCancel: () => void;
+}) {
+  const [saving, setSaving] = useState(false);
+
+  return (
+    <div className="space-y-5">
+      <div className="flex items-start gap-3 rounded-xl border border-red-500/30 bg-red-500/[0.06] p-4">
+        <AlertTriangle className="mt-0.5 shrink-0 text-red-400" size={20} />
+        <div className="text-sm leading-6 text-zinc-200">
+          <p className="font-bold text-white">
+            ¿Eliminar a {client.name}?
+          </p>
+          <p className="mt-1 text-zinc-400">
+            Se borrarán su ficha, su progreso, sus fotos y sus checklists. Esta
+            acción no se puede deshacer. La cuenta de inicio de sesión del alumno
+            no se elimina.
+          </p>
+        </div>
+      </div>
+
+      <div className="flex flex-wrap gap-3">
+        <button
+          type="button"
+          disabled={saving}
+          onClick={async () => {
+            setSaving(true);
+            await onConfirm();
+          }}
+          className={dangerBtn}
+        >
+          <Trash2 size={16} />
+          {saving ? "Eliminando..." : "Sí, eliminar alumno"}
+        </button>
+        <button type="button" onClick={onCancel} className={secondaryBtn}>
+          Cancelar
+        </button>
+      </div>
+    </div>
   );
 }
 
@@ -981,18 +1054,23 @@ function RowButton({
   onClick,
   icon,
   disabled = false,
+  danger = false,
 }: {
   children: React.ReactNode;
   onClick: () => void;
   icon: React.ReactNode;
   disabled?: boolean;
+  danger?: boolean;
 }) {
+  const tone = danger
+    ? "border-red-500/30 text-red-400 hover:border-red-500/60 hover:text-red-300 disabled:hover:border-red-500/30 disabled:hover:text-red-400"
+    : "border-white/15 text-zinc-300 hover:border-[#65ff4f]/50 hover:text-[#65ff4f] disabled:hover:border-white/15 disabled:hover:text-zinc-300";
   return (
     <button
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className="inline-flex items-center gap-1.5 rounded-lg border border-white/15 px-3 py-1.5 text-xs font-bold text-zinc-300 transition hover:border-[#65ff4f]/50 hover:text-[#65ff4f] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-white/15 disabled:hover:text-zinc-300"
+      className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-bold transition disabled:cursor-not-allowed disabled:opacity-40 ${tone}`}
     >
       {icon}
       {children}

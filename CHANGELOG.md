@@ -2,6 +2,29 @@
 
 Todos los cambios relevantes del proyecto se registran en este archivo.
 
+## (en rama `feature/student-access-gating-crud`, pendiente de merge)
+
+### Agregado
+- Bloqueo del dashboard del alumno por mensualidad: si el `accessStatus` es
+  `Vencido` o `Pausado`, en `/dashboard` se ocultan las funciones premium y solo
+  se muestra una vista restringida elegante (`LockedDashboard`) con: nombre del
+  alumno, estado de acceso, fecha de vencimiento (si existe), mensaje "Renueva tu
+  mensualidad con tu coach para recuperar el acceso." y un botón visual "Contactar
+  coach" (sin WhatsApp todavía). Con acceso `Activo` se ve el dashboard completo.
+  Solo se condiciona el renderizado: no se eliminó ningún componente.
+- CRUD completo de alumnos en `/admin`: además de crear y editar, ahora se puede
+  ELIMINAR un alumno con confirmación. El borrado limpia en cascada su cliente,
+  progreso, fotos y checklists, sin tocar las cuentas de usuario/login (no rompe
+  los usuarios demo). Botón "Eliminar" (rojo) por fila + tarjeta de confirmación.
+
+### Técnico
+- Nuevos métodos en la capa de datos (UI → services → repositories → localStorage):
+  `clientRepository.deleteClient`, `progressRepository.removeForClient`,
+  `coachingRepository.removeClient`, orquestados por
+  `adminDashboardService.deleteClient`.
+- Sin Supabase, sin backend, sin cambios de diseño general; no se tocó la landing
+  ni el onboarding. Verificado responsive (móvil) sin overflow.
+
 ## v0.7
 
 Version estable actual en `main` (ilustraciones y copy premium del onboarding).

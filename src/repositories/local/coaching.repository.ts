@@ -61,4 +61,19 @@ export class LocalCoachingRepository implements CoachingRepository {
     writeRecord(STORAGE_KEYS.checklists, record);
     return resolveMock(updated);
   }
+
+  /* ---- Limpieza al eliminar un alumno ---- */
+  removeClient(clientId: string) {
+    const photos = this.readPhotos();
+    if (photos[clientId]) {
+      delete photos[clientId];
+      writeRecord(STORAGE_KEYS.progressPhotos, photos);
+    }
+    const checks = this.readChecks();
+    if (checks[clientId]) {
+      delete checks[clientId];
+      writeRecord(STORAGE_KEYS.checklists, checks);
+    }
+    return resolveMock<void>(undefined);
+  }
 }
