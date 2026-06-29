@@ -8,6 +8,8 @@ import type {
   CreateLeadInput,
   CreateProgramInput,
   CreateProgressPhoto,
+  CreateTrainingExercise,
+  CreateTrainingProgramInput,
   Credentials,
   Lead,
   LeadStatus,
@@ -18,6 +20,7 @@ import type {
   ProgressPhoto,
   RegisterInput,
   Testimonial,
+  TrainingProgram,
   Transformation,
   User,
 } from "@/types";
@@ -94,6 +97,44 @@ export interface UserRepository {
   findByCredentials(credentials: Credentials): Promise<User | null>;
   findByEmail(email: string): Promise<User | null>;
   create(input: RegisterInput): Promise<User>;
+}
+
+/**
+ * Programas de entrenamiento (builder real del coach). CRUD de programas + dias +
+ * ejercicios, asignacion a alumnos y progreso de entrenamientos completados.
+ * Todo persistido en localStorage (clientId -> programId, clientId -> dias hechos).
+ */
+export interface TrainingProgramRepository {
+  getPrograms(): Promise<TrainingProgram[]>;
+  getProgram(id: string): Promise<TrainingProgram | null>;
+  createProgram(input: CreateTrainingProgramInput): Promise<TrainingProgram>;
+  updateProgram(
+    id: string,
+    patch: Partial<CreateTrainingProgramInput>,
+  ): Promise<TrainingProgram | null>;
+  deleteProgram(id: string): Promise<boolean>;
+  addDay(programId: string, name: string): Promise<TrainingProgram | null>;
+  deleteDay(programId: string, dayId: string): Promise<TrainingProgram | null>;
+  addExercise(
+    programId: string,
+    dayId: string,
+    exercise: CreateTrainingExercise,
+  ): Promise<TrainingProgram | null>;
+  deleteExercise(
+    programId: string,
+    dayId: string,
+    exerciseId: string,
+  ): Promise<TrainingProgram | null>;
+  /** Asigna un programa a un alumno (clientId -> programId). */
+  assignToClient(clientId: string, programId: string): Promise<void>;
+  getAssignment(clientId: string): Promise<string | null>;
+  /** Ids de los dias que el alumno marco como completados. */
+  getWorkoutProgress(clientId: string): Promise<string[]>;
+  setDayCompleted(
+    clientId: string,
+    dayId: string,
+    done: boolean,
+  ): Promise<string[]>;
 }
 
 /**

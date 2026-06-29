@@ -22,6 +22,9 @@ export const STORAGE_KEYS = {
   pendingEvaluation: "coach-fitness:pending-evaluation",
   progressPhotos: "coach-fitness:progress-photos",
   checklists: "coach-fitness:checklists",
+  trainingPrograms: "coach-fitness:training-programs",
+  programAssignments: "coach-fitness:program-assignments",
+  workoutProgress: "coach-fitness:workout-progress",
 } as const;
 
 const isBrowser = () => typeof window !== "undefined";

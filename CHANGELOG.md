@@ -2,6 +2,28 @@
 
 Todos los cambios relevantes del proyecto se registran en este archivo.
 
+## (en rama `feature/training-program-builder`, pendiente de merge)
+
+### Agregado — Módulo de programas de entrenamiento (todo en localStorage)
+- Admin (`/admin`): nueva sección "Programas de entrenamiento" con builder real:
+  crear, editar y eliminar programa (nombre, objetivo, nivel, duración, notas);
+  crear días de entrenamiento; agregar/quitar ejercicios por día (series,
+  repeticiones, descanso, notas); y asignar el programa a un alumno.
+- Alumno (`/dashboard`): nueva sección "Mi programa de entrenamiento" que muestra
+  el programa asignado, los días, la "rutina de hoy" con sus ejercicios
+  (series/reps/descanso/notas) y las notas del coach, con un botón
+  "Marcar entrenamiento completado" cuyo progreso se guarda en `localStorage`.
+- Arquitectura intacta (UI → services → repositories → localStorage): tipos
+  `TrainingProgram`/`TrainingDay`/`TrainingExercise`/`AssignedTraining`,
+  `trainingService`, `LocalTrainingProgramRepository` y seed `src/data/training.ts`
+  (programa demo "Hipertrofia 3 días" asignado al alumno demo). Claves nuevas:
+  `training-programs`, `program-assignments`, `workout-progress`.
+
+### Sin cambios
+- Independiente de la lista simple "Programas" existente (que sigue igual). No se
+  tocó landing ni onboarding, sin cambios de diseño general, sin pagos, sin
+  Supabase. Verificado responsive (móvil) sin overflow.
+
 ## v0.9
 
 Version estable actual en `main` (infraestructura de desarrollo robusta + rediseño

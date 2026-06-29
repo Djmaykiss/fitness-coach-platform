@@ -376,3 +376,51 @@ export type CoachingDashboard = {
   photos: ProgressPhoto[];
   bodyMetrics: BodyMetrics;
 };
+
+/* ---------- Programas de entrenamiento (builder real, persistido) ---------- */
+
+/** Un ejercicio dentro de un dia de entrenamiento. */
+export type TrainingExercise = {
+  id: string;
+  name: string;
+  sets: string;
+  reps: string;
+  rest: string;
+  notes: string;
+};
+
+export type CreateTrainingExercise = Omit<TrainingExercise, "id">;
+
+/** Un dia de entrenamiento con sus ejercicios. */
+export type TrainingDay = {
+  id: string;
+  name: string;
+  exercises: TrainingExercise[];
+};
+
+/** Programa de entrenamiento completo (lo arma el coach en /admin). */
+export type TrainingProgram = {
+  id: string;
+  name: string;
+  objective: string;
+  level: string;
+  duration: string;
+  notes: string;
+  days: TrainingDay[];
+};
+
+/** Datos editables del programa (sin id ni dias). */
+export type CreateTrainingProgramInput = {
+  name: string;
+  objective: string;
+  level: string;
+  duration: string;
+  notes: string;
+};
+
+/** Resuelto para el alumno: programa asignado + ids de dias completados. */
+export type AssignedTraining = {
+  clientId: string;
+  program: TrainingProgram;
+  completedDayIds: string[];
+};

@@ -15,6 +15,7 @@ import {
 import { StatCard } from "@/components/ui";
 import { AccessBadge } from "@/components/access-badge";
 import { EvaluationDetails } from "@/components/evaluation-details";
+import { TrainingProgramsManager } from "@/components/admin/training-programs";
 import { adminDashboardService } from "@/services/dashboard.service";
 import { leadService } from "@/services/lead.service";
 import { formatDate } from "@/lib/format";
@@ -243,6 +244,9 @@ export function AdminPanel() {
           rows={programs.map((p) => [p.name, p.clients, p.duration, p.status])}
         />
       </section>
+
+      {/* Programas de entrenamiento (builder real) */}
+      <TrainingProgramsManager />
 
       {/* Leads */}
       <section className="premium-card mt-6 overflow-hidden rounded-2xl">
