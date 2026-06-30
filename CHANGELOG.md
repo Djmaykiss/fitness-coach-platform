@@ -2,6 +2,33 @@
 
 Todos los cambios relevantes del proyecto se registran en este archivo.
 
+## (en rama `feature/coach-admin-professional`, pendiente de merge)
+
+### Agregado — Panel del coach profesional + contacto centralizado
+- Configuración global del coach en `src/config/coachConfig.ts` (nombre, teléfono,
+  WhatsApp, precio mensual). Es la única fuente del contacto en toda la app.
+- WhatsApp: todos los botones de contactar/renovar/ayuda (pantalla de acceso
+  bloqueado, contacto del dashboard, acciones del admin) abren
+  `wa.me/17868704262` con un mensaje prellenado vía `whatsappUrl()`.
+- Dashboard del alumno: header con logo + nombre real + Salir (sin Cliente/Admin).
+- Admin: panel ejecutivo con total alumnos, activos, vencidos, pausados, renuevan
+  esta semana, sin programa, sin nutrición, sin evaluación, leads pendientes e
+  ingresos estimados.
+- Admin: buscador de alumnos (nombre/email) y filtros (Todos, Activos, Vencidos,
+  Pausados, Sin programa, Sin nutrición, Sin evaluación, Renovación próxima).
+- Admin: acciones rápidas por alumno — Perfil, Editar, Entrenamiento (asignar),
+  Nutrición (asignar), WhatsApp, Renovar, Pausar, Eliminar.
+- Admin: leads con buscador (nombre/email/teléfono), editar, eliminar, convertir y
+  WhatsApp.
+
+### Técnico
+- Nuevos derivados/métodos: `adminDashboardService.getExecutiveStats`, banderas en
+  `getClientRows` (`hasProgram`/`hasNutrition`/`hasEvaluation`/`renewSoon`/`email`),
+  `userRepository.getUsers`, `leadRepository.updateLead`/`deleteLead`.
+- Arquitectura UI → services → repositories → localStorage intacta. Sin Supabase ni
+  backend. No se tocó landing ni onboarding; sin cambios de diseño general.
+  Responsive (desktop, tablet, móvil) verificado sin overflow.
+
 ## v1.3
 
 Version estable actual en `main` (dashboard del alumno totalmente interactivo).

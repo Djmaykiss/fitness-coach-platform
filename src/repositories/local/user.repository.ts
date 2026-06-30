@@ -18,6 +18,10 @@ export class LocalUserRepository implements UserRepository {
     writeCollection(STORAGE_KEYS.users, users);
   }
 
+  getUsers() {
+    return resolveMock(this.read());
+  }
+
   findByCredentials({ email, password }: Credentials) {
     const normalized = email.trim().toLowerCase();
     const match =

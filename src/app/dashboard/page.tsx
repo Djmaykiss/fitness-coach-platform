@@ -24,6 +24,7 @@ import { StatCard } from "@/components/ui";
 import { useAuth } from "@/context/auth-context";
 import { clientDashboardService } from "@/services/dashboard.service";
 import type { ClientAccess } from "@/services/dashboard.service";
+import { coachConfig, whatsappUrl } from "@/config/coachConfig";
 import { formatDate } from "@/lib/format";
 import type { ClientProgress, LeadEvaluation } from "@/types";
 
@@ -81,7 +82,7 @@ export default function ClientDashboardPage() {
         {!accessLoaded ? (
           <p className="text-zinc-400">Cargando tu acceso...</p>
         ) : locked && access ? (
-          <LockedDashboard access={access} />
+          <LockedDashboard access={access} name={realName} />
         ) : (
           <>
             {access ? <AccessNotice access={access} /> : null}
@@ -194,7 +195,13 @@ const LOCKED_CONFIG: Record<
  * Vista restringida cuando el acceso NO esta activo (vencido o pausado).
  * Oculta TODOS los modulos premium: solo muestra el estado y como recuperarlo.
  */
-function LockedDashboard({ access }: { access: ClientAccess }) {
+function LockedDashboard({
+  access,
+  name,
+}: {
+  access: ClientAccess;
+  name: string;
+}) {
   const config =
     access.accessStatus === "Pausado"
       ? LOCKED_CONFIG.Pausado
@@ -237,23 +244,31 @@ function LockedDashboard({ access }: { access: ClientAccess }) {
       </p>
 
       <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
-        <button
-          type="button"
+        <a
+          href={whatsappUrl(
+            `Hola ${coachConfig.name}, soy ${name || "tu alumno"}. Quiero renovar mi acceso a la plataforma.`,
+          )}
+          target="_blank"
+          rel="noreferrer"
           className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg bg-gradient-to-b from-[#85ff73] to-[#65ff4f] px-6 text-sm font-black uppercase tracking-wide text-black shadow-[0_8px_30px_-8px_rgba(101,255,79,0.5)] transition duration-300 hover:-translate-y-0.5 hover:brightness-110 active:translate-y-0 active:scale-[0.98]"
         >
           <RefreshCw size={18} />
           Renovar acceso
-        </button>
-        <button
-          type="button"
+        </a>
+        <a
+          href={whatsappUrl(
+            `Hola ${coachConfig.name}, soy ${name || "tu alumno"}. Tengo una consulta sobre mi plan.`,
+          )}
+          target="_blank"
+          rel="noreferrer"
           className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg border border-white/15 bg-white/5 px-6 text-sm font-black uppercase tracking-wide text-white transition duration-300 hover:border-[#65ff4f]/50 hover:bg-[#65ff4f]/10"
         >
           <MessageCircle size={18} />
           Contactar coach
-        </button>
+        </a>
       </div>
       <p className="mt-4 text-xs text-zinc-600">
-        La renovación y el contacto se habilitarán próximamente.
+        Se abrirá WhatsApp para escribirle a tu coach.
       </p>
     </section>
   );
@@ -315,16 +330,19 @@ function ProgressView({ progress }: { progress: ClientProgress }) {
           <p className="mt-3 text-zinc-400">
             Check-in semanal para revisar adherencia, cargas y ajustes del plan.
           </p>
-          <button
-            type="button"
-            disabled
-            className="mt-6 inline-flex min-h-12 w-full cursor-not-allowed items-center justify-center gap-2 rounded-lg border border-white/10 bg-white/[0.04] px-5 text-sm font-black uppercase tracking-wide text-zinc-500"
+          <a
+            href={whatsappUrl(
+              `Hola ${coachConfig.name}, quiero coordinar mi próximo check-in.`,
+            )}
+            target="_blank"
+            rel="noreferrer"
+            className="mt-6 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-b from-[#85ff73] to-[#65ff4f] px-5 text-sm font-black uppercase tracking-wide text-black shadow-[0_8px_30px_-8px_rgba(101,255,79,0.5)] transition duration-300 hover:-translate-y-0.5 hover:brightness-110 active:translate-y-0 active:scale-[0.98]"
           >
             <MessageCircle size={18} />
-            Contacto pendiente
-          </button>
+            Contactar coach
+          </a>
           <p className="mt-2 text-center text-xs text-zinc-600">
-            El número del coach se agregará después.
+            Se abrirá WhatsApp con {coachConfig.name}.
           </p>
         </section>
       </div>

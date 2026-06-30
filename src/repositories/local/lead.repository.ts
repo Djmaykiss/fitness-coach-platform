@@ -74,4 +74,22 @@ export class LocalLeadRepository implements LeadRepository {
     this.write(leads);
     return resolveMock<Lead | null>(updated);
   }
+
+  updateLead(id: string, patch: Partial<Omit<Lead, "id">>) {
+    const leads = this.read();
+    const index = leads.findIndex((lead) => lead.id === id);
+    if (index === -1) return resolveMock<Lead | null>(null);
+    const updated: Lead = { ...leads[index], ...patch };
+    leads[index] = updated;
+    this.write(leads);
+    return resolveMock<Lead | null>(updated);
+  }
+
+  deleteLead(id: string) {
+    const leads = this.read();
+    const next = leads.filter((lead) => lead.id !== id);
+    const removed = next.length !== leads.length;
+    if (removed) this.write(next);
+    return resolveMock(removed);
+  }
 }

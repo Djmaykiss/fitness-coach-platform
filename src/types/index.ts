@@ -110,7 +110,7 @@ export type CreateClientInput = {
   evaluation?: LeadEvaluation;
 };
 
-/** Fila de cliente para la tabla del admin (cliente + datos derivados del progreso). */
+/** Fila de cliente para la tabla del admin (cliente + datos derivados). */
 export type AdminClientRow = {
   id: string;
   name: string;
@@ -120,6 +120,28 @@ export type AdminClientRow = {
   accessStatus: AccessStatus;
   accessExpiresAt: string | null;
   evaluation?: LeadEvaluation;
+  /** Email del usuario enlazado (para el buscador del admin). */
+  email: string;
+  /** Banderas derivadas para filtros del admin. */
+  hasProgram: boolean;
+  hasNutrition: boolean;
+  hasEvaluation: boolean;
+  /** Activo cuyo acceso vence en los proximos 7 dias. */
+  renewSoon: boolean;
+};
+
+/** Panel ejecutivo del admin (resumen del negocio). */
+export type ExecutiveStats = {
+  total: number;
+  activos: number;
+  vencidos: number;
+  pausados: number;
+  renuevanSemana: number;
+  sinPrograma: number;
+  sinNutricion: number;
+  sinEvaluacion: number;
+  leadsPendientes: number;
+  ingresosEstimados: number;
 };
 
 export type LeadStatus = "Nuevo" | "Contactado" | "Convertido" | "Descartado";

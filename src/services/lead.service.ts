@@ -13,6 +13,11 @@ export const leadService = {
   updateStatus: (id: string, status: LeadStatus) =>
     leadRepository.updateStatus(id, status),
 
+  updateLead: (id: string, patch: Partial<Omit<Lead, "id">>) =>
+    leadRepository.updateLead(id, patch),
+
+  deleteLead: (id: string) => leadRepository.deleteLead(id),
+
   /** Convierte un lead en alumno: crea el cliente (con su evaluacion si la tiene). */
   async convertToClient(lead: Lead) {
     const client = await clientRepository.createClient({

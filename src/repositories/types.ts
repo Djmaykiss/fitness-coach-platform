@@ -80,6 +80,8 @@ export interface LeadRepository {
   createLead(input: CreateLeadInput): Promise<Lead>;
   createEvaluationLead(input: CreateEvaluationLeadInput): Promise<Lead>;
   updateStatus(id: string, status: LeadStatus): Promise<Lead | null>;
+  updateLead(id: string, patch: Partial<Omit<Lead, "id">>): Promise<Lead | null>;
+  deleteLead(id: string): Promise<boolean>;
 }
 
 /** Onboarding pendiente: se guarda al terminar el wizard y se consume en el registro. */
@@ -100,6 +102,7 @@ export interface ProgressRepository {
 }
 
 export interface UserRepository {
+  getUsers(): Promise<User[]>;
   findByCredentials(credentials: Credentials): Promise<User | null>;
   findByEmail(email: string): Promise<User | null>;
   create(input: RegisterInput): Promise<User>;

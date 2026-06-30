@@ -3,14 +3,22 @@
 import { useEffect, useState } from "react";
 import {
   AlertTriangle,
+  CalendarClock,
+  CircleDollarSign,
+  ClipboardList,
+  Dumbbell,
   FileText,
-  KeyRound,
+  MessageCircle,
+  PauseCircle,
   Pencil,
   Plus,
-  SlidersHorizontal,
-  Target,
+  RefreshCw,
+  Salad,
+  Search,
   Trash2,
+  UserCheck,
   UserPlus,
+  Users,
 } from "lucide-react";
 import { StatCard } from "@/components/ui";
 import { AccessBadge } from "@/components/access-badge";
@@ -20,17 +28,43 @@ import { TrainingProgramsManager } from "@/components/admin/training-programs";
 import { NutritionPlansManager } from "@/components/admin/nutrition-plans";
 import { adminDashboardService } from "@/services/dashboard.service";
 import { leadService } from "@/services/lead.service";
+import { trainingService } from "@/services/training.service";
+import { nutritionService } from "@/services/nutrition.service";
+import { coachConfig, whatsappUrl } from "@/config/coachConfig";
 import { formatDate } from "@/lib/format";
 import type {
   AdminClientRow,
   ClientProgress,
-  DashboardStat,
+  ExecutiveStats,
   Lead,
   LeadStatus,
+  NutritionPlan,
   ProgramRow,
+  TrainingProgram,
 } from "@/types";
 
 const CLIENT_STATUSES = ["Activo", "Nuevo", "Revisión", "Inactivo"];
+
+type ClientFilter =
+  | "todos"
+  | "activos"
+  | "vencidos"
+  | "pausados"
+  | "sin-programa"
+  | "sin-nutricion"
+  | "sin-evaluacion"
+  | "renovacion";
+
+const CLIENT_FILTERS: { key: ClientFilter; label: string }[] = [
+  { key: "todos", label: "Todos" },
+  { key: "activos", label: "Activos" },
+  { key: "vencidos", label: "Vencidos" },
+  { key: "pausados", label: "Pausados" },
+  { key: "sin-programa", label: "Sin programa" },
+  { key: "sin-nutricion", label: "Sin nutrición" },
+  { key: "sin-evaluacion", label: "Sin evaluación" },
+  { key: "renovacion", label: "Renovación próxima" },
+];
 const PROGRAM_STATUSES = ["Activo", "Inactivo"];
 const PAYMENT_METHODS = [
   "PayPal",
@@ -51,13 +85,17 @@ type Editor =
   | { kind: "editClient"; client: AdminClientRow }
   | { kind: "deleteClient"; client: AdminClientRow }
   | { kind: "assign"; client: AdminClientRow }
+  | { kind: "assignTraining"; client: AdminClientRow }
+  | { kind: "assignNutrition"; client: AdminClientRow }
   | { kind: "progress"; client: AdminClientRow }
   | { kind: "access"; client: AdminClientRow }
+  | { kind: "editLead"; lead: Lead }
+  | { kind: "deleteLead"; lead: Lead }
   | { kind: "createProgram" }
   | null;
 
 export function AdminPanel() {
-  const [stats, setStats] = useState<DashboardStat[]>([]);
+  const [exec, setExec] = useState<ExecutiveStats | null>(null);
   const [clients, setClients] = useState<AdminClientRow[]>([]);
   const [leads, setLeads] = useState<Lead[]>([]);
   const [programs, setPrograms] = useState<ProgramRow[]>([]);
@@ -65,15 +103,18 @@ export function AdminPanel() {
   const [editor, setEditor] = useState<Editor>(null);
   const [leadDetail, setLeadDetail] = useState<Lead | null>(null);
   const [clientDetail, setClientDetail] = useState<AdminClientRow | null>(null);
+  const [clientQuery, setClientQuery] = useState("");
+  const [clientFilter, setClientFilter] = useState<ClientFilter>("todos");
+  const [leadQuery, setLeadQuery] = useState("");
 
   async function load() {
-    const [s, c, l, p] = await Promise.all([
-      adminDashboardService.getStats(),
+    const [e, c, l, p] = await Promise.all([
+      adminDashboardService.getExecutiveStats(),
       adminDashboardService.getClientRows(),
       leadService.getLeads(),
       adminDashboardService.getPrograms(),
     ]);
-    setStats(s);
+    setExec(e);
     setClients(c);
     setLeads(l);
     setPrograms(p);
@@ -101,17 +142,68 @@ export function AdminPanel() {
     await load();
   }
 
+  async function quickRenew(id: string) {
+    await adminDashboardService.renewAccess(id, "Efectivo");
+    await load();
+  }
+
+  async function quickPause(id: string) {
+    await adminDashboardService.pauseAccess(id);
+    await load();
+  }
+
   if (!loaded) {
     return <p className="text-zinc-400">Cargando datos del panel...</p>;
   }
 
+  const q = clientQuery.trim().toLowerCase();
+  const filteredClients = clients.filter((c) => {
+    const matchesQuery =
+      !q ||
+      c.name.toLowerCase().includes(q) ||
+      c.email.toLowerCase().includes(q);
+    const matchesFilter =
+      clientFilter === "todos" ||
+      (clientFilter === "activos" && c.accessStatus === "Activo") ||
+      (clientFilter === "vencidos" && c.accessStatus === "Vencido") ||
+      (clientFilter === "pausados" && c.accessStatus === "Pausado") ||
+      (clientFilter === "sin-programa" && !c.hasProgram) ||
+      (clientFilter === "sin-nutricion" && !c.hasNutrition) ||
+      (clientFilter === "sin-evaluacion" && !c.hasEvaluation) ||
+      (clientFilter === "renovacion" && c.renewSoon);
+    return matchesQuery && matchesFilter;
+  });
+
+  const lq = leadQuery.trim().toLowerCase();
+  const filteredLeads = leads.filter(
+    (l) =>
+      !lq ||
+      l.name.toLowerCase().includes(lq) ||
+      l.email.toLowerCase().includes(lq) ||
+      l.phone.toLowerCase().includes(lq),
+  );
+
   return (
     <>
-      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-        {stats.map((stat) => (
-          <StatCard key={stat.label} {...stat} />
-        ))}
-      </div>
+      {/* Panel ejecutivo */}
+      {exec ? (
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+          <StatCard label="Total alumnos" value={String(exec.total)} icon={Users} />
+          <StatCard label="Activos" value={String(exec.activos)} icon={UserCheck} />
+          <StatCard label="Vencidos" value={String(exec.vencidos)} icon={AlertTriangle} />
+          <StatCard label="Pausados" value={String(exec.pausados)} icon={PauseCircle} />
+          <StatCard label="Renuevan esta semana" value={String(exec.renuevanSemana)} icon={CalendarClock} />
+          <StatCard label="Sin programa" value={String(exec.sinPrograma)} icon={Dumbbell} />
+          <StatCard label="Sin nutrición" value={String(exec.sinNutricion)} icon={Salad} />
+          <StatCard label="Sin evaluación" value={String(exec.sinEvaluacion)} icon={ClipboardList} />
+          <StatCard label="Leads pendientes" value={String(exec.leadsPendientes)} icon={UserPlus} />
+          <StatCard
+            label="Ingresos estimados"
+            value={`$${exec.ingresosEstimados} ${coachConfig.currency}`}
+            icon={CircleDollarSign}
+          />
+        </div>
+      ) : null}
 
       {editor ? (
         <div className="mt-6">
@@ -156,73 +248,114 @@ export function AdminPanel() {
             </ActionButton>
           }
         />
+
+        {/* Buscador + filtros */}
+        <div className="border-b border-white/10 px-6 py-4">
+          <div className="relative">
+            <Search
+              size={16}
+              className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500"
+            />
+            <input
+              type="text"
+              value={clientQuery}
+              onChange={(e) => setClientQuery(e.target.value)}
+              placeholder="Buscar por nombre o email..."
+              className="h-11 w-full rounded-lg border border-white/10 bg-black/35 pl-10 pr-3 text-white outline-none transition placeholder:text-zinc-600 focus:border-[#65ff4f]"
+            />
+          </div>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {CLIENT_FILTERS.map((f) => (
+              <button
+                key={f.key}
+                type="button"
+                onClick={() => setClientFilter(f.key)}
+                className={`rounded-lg border px-3 py-1.5 text-xs font-bold transition ${
+                  clientFilter === f.key
+                    ? "border-[#65ff4f] bg-[#65ff4f]/10 text-[#65ff4f]"
+                    : "border-white/15 text-zinc-300 hover:border-[#65ff4f]/40"
+                }`}
+              >
+                {f.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[880px] border-collapse text-left text-sm">
+          <table className="w-full min-w-[920px] border-collapse text-left text-sm">
             <TableHead
-              columns={["Nombre", "Programa", "Acceso", "Vence", "Estado", "Progreso", ""]}
+              columns={["Nombre", "Acceso", "Vence", "Plan", "Progreso", ""]}
             />
             <tbody>
-              {clients.map((client) => (
-                <tr key={client.id} className="border-t border-white/10 transition-colors hover:bg-white/[0.03]">
-                  <td className="px-6 py-4 font-semibold text-white">
-                    {client.name}
-                  </td>
-                  <td className="px-6 py-4 text-zinc-300">{client.programa}</td>
-                  <td className="px-6 py-4">
-                    <AccessBadge status={client.accessStatus} />
-                  </td>
-                  <td className="px-6 py-4 text-zinc-400">
-                    {formatDate(client.accessExpiresAt)}
-                  </td>
-                  <td className="px-6 py-4">
-                    <Badge>{client.status}</Badge>
-                  </td>
-                  <td className="px-6 py-4 text-zinc-300">
-                    {client.progresoPct}%
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex flex-wrap justify-end gap-2">
-                      <RowButton
-                        onClick={() => setClientDetail(client)}
-                        icon={<FileText size={14} />}
-                      >
-                        Ficha
-                      </RowButton>
-                      <RowButton
-                        onClick={() => setEditor({ kind: "access", client })}
-                        icon={<KeyRound size={14} />}
-                      >
-                        Acceso
-                      </RowButton>
-                      <RowButton
-                        onClick={() => setEditor({ kind: "editClient", client })}
-                        icon={<Pencil size={14} />}
-                      >
-                        Editar
-                      </RowButton>
-                      <RowButton
-                        onClick={() => setEditor({ kind: "assign", client })}
-                        icon={<Target size={14} />}
-                      >
-                        Programa
-                      </RowButton>
-                      <RowButton
-                        onClick={() => setEditor({ kind: "progress", client })}
-                        icon={<SlidersHorizontal size={14} />}
-                      >
-                        Progreso
-                      </RowButton>
-                      <RowButton
-                        onClick={() => setEditor({ kind: "deleteClient", client })}
-                        icon={<Trash2 size={14} />}
-                        danger
-                      >
-                        Eliminar
-                      </RowButton>
-                    </div>
+              {filteredClients.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="px-6 py-8 text-center text-zinc-500">
+                    No hay alumnos que coincidan con la búsqueda o el filtro.
                   </td>
                 </tr>
-              ))}
+              ) : (
+                filteredClients.map((client) => (
+                  <tr key={client.id} className="border-t border-white/10 transition-colors hover:bg-white/[0.03]">
+                    <td className="px-6 py-4">
+                      <p className="font-semibold text-white">{client.name}</p>
+                      {client.email ? (
+                        <p className="text-xs text-zinc-500">{client.email}</p>
+                      ) : null}
+                    </td>
+                    <td className="px-6 py-4">
+                      <AccessBadge status={client.accessStatus} />
+                    </td>
+                    <td className="px-6 py-4 text-zinc-400">
+                      {formatDate(client.accessExpiresAt)}
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex flex-wrap gap-1.5 text-[11px] font-bold">
+                        <Tag on={client.hasProgram}>Entreno</Tag>
+                        <Tag on={client.hasNutrition}>Nutrición</Tag>
+                        <Tag on={client.hasEvaluation}>Evaluación</Tag>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 text-zinc-300">
+                      {client.progresoPct}%
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex flex-wrap justify-end gap-2">
+                        <RowButton onClick={() => setClientDetail(client)} icon={<FileText size={14} />}>
+                          Perfil
+                        </RowButton>
+                        <RowButton onClick={() => setEditor({ kind: "editClient", client })} icon={<Pencil size={14} />}>
+                          Editar
+                        </RowButton>
+                        <RowButton onClick={() => setEditor({ kind: "assignTraining", client })} icon={<Dumbbell size={14} />}>
+                          Entrenamiento
+                        </RowButton>
+                        <RowButton onClick={() => setEditor({ kind: "assignNutrition", client })} icon={<Salad size={14} />}>
+                          Nutrición
+                        </RowButton>
+                        <a
+                          href={whatsappUrl(`Hola ${coachConfig.name}, sobre el alumno ${client.name}.`)}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-flex items-center gap-1.5 rounded-lg border border-[#25D366]/40 px-3 py-1.5 text-xs font-bold text-[#25D366] transition hover:border-[#25D366]/70 hover:bg-[#25D366]/10"
+                        >
+                          <MessageCircle size={14} />
+                          WhatsApp
+                        </a>
+                        <RowButton onClick={() => quickRenew(client.id)} icon={<RefreshCw size={14} />}>
+                          Renovar
+                        </RowButton>
+                        <RowButton onClick={() => quickPause(client.id)} icon={<PauseCircle size={14} />}>
+                          Pausar
+                        </RowButton>
+                        <RowButton onClick={() => setEditor({ kind: "deleteClient", client })} icon={<Trash2 size={14} />} danger>
+                          Eliminar
+                        </RowButton>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
@@ -259,67 +392,109 @@ export function AdminPanel() {
       {/* Leads */}
       <section className="premium-card mt-6 overflow-hidden rounded-2xl">
         <SectionHeader title="Leads" />
+        <div className="border-b border-white/10 px-6 py-4">
+          <div className="relative">
+            <Search
+              size={16}
+              className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500"
+            />
+            <input
+              type="text"
+              value={leadQuery}
+              onChange={(e) => setLeadQuery(e.target.value)}
+              placeholder="Buscar lead por nombre, email o teléfono..."
+              className="h-11 w-full rounded-lg border border-white/10 bg-black/35 pl-10 pr-3 text-white outline-none transition placeholder:text-zinc-600 focus:border-[#65ff4f]"
+            />
+          </div>
+        </div>
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[900px] border-collapse text-left text-sm">
+          <table className="w-full min-w-[920px] border-collapse text-left text-sm">
             <TableHead
-              columns={["Nombre", "Teléfono", "Objetivo", "Fuente", "Estado", ""]}
+              columns={["Nombre", "Teléfono", "Objetivo", "Estado", ""]}
             />
             <tbody>
-              {leads.map((lead) => (
-                <tr key={lead.id} className="border-t border-white/10 transition-colors hover:bg-white/[0.03]">
-                  <td className="px-6 py-4">
-                    <p className="font-semibold text-white">{lead.name}</p>
-                    <p className="text-xs text-zinc-500">{lead.email}</p>
-                  </td>
-                  <td className="px-6 py-4 text-zinc-300">{lead.phone}</td>
-                  <td className="px-6 py-4 text-zinc-300">{lead.objective}</td>
-                  <td className="px-6 py-4 text-zinc-400">{lead.source}</td>
-                  <td className="px-6 py-4">
-                    <select
-                      value={lead.status}
-                      onChange={(event) =>
-                        changeLeadStatus(
-                          lead.id,
-                          event.target.value as LeadStatus,
-                        )
-                      }
-                      className="rounded-lg border border-white/15 bg-black/35 px-3 py-1.5 text-xs font-bold text-zinc-200 outline-none transition focus:border-[#65ff4f]"
-                    >
-                      {LEAD_STATUSES.map((status) => (
-                        <option
-                          key={status}
-                          value={status}
-                          className="bg-[#0a0d0b]"
-                        >
-                          {status}
-                        </option>
-                      ))}
-                    </select>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex flex-wrap justify-end gap-2">
-                      <RowButton
-                        onClick={() => setLeadDetail(lead)}
-                        icon={<FileText size={14} />}
-                      >
-                        Ficha
-                      </RowButton>
-                      <RowButton
-                        onClick={() => convertLead(lead)}
-                        icon={<UserPlus size={14} />}
-                        disabled={lead.status === "Convertido"}
-                      >
-                        Convertir
-                      </RowButton>
-                    </div>
+              {filteredLeads.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="px-6 py-8 text-center text-zinc-500">
+                    No hay leads que coincidan con la búsqueda.
                   </td>
                 </tr>
-              ))}
+              ) : (
+                filteredLeads.map((lead) => (
+                  <tr key={lead.id} className="border-t border-white/10 transition-colors hover:bg-white/[0.03]">
+                    <td className="px-6 py-4">
+                      <p className="font-semibold text-white">{lead.name}</p>
+                      <p className="text-xs text-zinc-500">{lead.email}</p>
+                    </td>
+                    <td className="px-6 py-4 text-zinc-300">{lead.phone}</td>
+                    <td className="px-6 py-4 text-zinc-300">{lead.objective}</td>
+                    <td className="px-6 py-4">
+                      <select
+                        value={lead.status}
+                        onChange={(event) =>
+                          changeLeadStatus(lead.id, event.target.value as LeadStatus)
+                        }
+                        className="rounded-lg border border-white/15 bg-black/35 px-3 py-1.5 text-xs font-bold text-zinc-200 outline-none transition focus:border-[#65ff4f]"
+                      >
+                        {LEAD_STATUSES.map((status) => (
+                          <option key={status} value={status} className="bg-[#0a0d0b]">
+                            {status}
+                          </option>
+                        ))}
+                      </select>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex flex-wrap justify-end gap-2">
+                        <RowButton onClick={() => setLeadDetail(lead)} icon={<FileText size={14} />}>
+                          Ficha
+                        </RowButton>
+                        <RowButton onClick={() => setEditor({ kind: "editLead", lead })} icon={<Pencil size={14} />}>
+                          Editar
+                        </RowButton>
+                        <a
+                          href={whatsappUrl(`Hola ${coachConfig.name}, sobre el lead ${lead.name} (${lead.phone || "sin teléfono"}).`)}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-flex items-center gap-1.5 rounded-lg border border-[#25D366]/40 px-3 py-1.5 text-xs font-bold text-[#25D366] transition hover:border-[#25D366]/70 hover:bg-[#25D366]/10"
+                        >
+                          <MessageCircle size={14} />
+                          WhatsApp
+                        </a>
+                        <RowButton
+                          onClick={() => convertLead(lead)}
+                          icon={<UserPlus size={14} />}
+                          disabled={lead.status === "Convertido"}
+                        >
+                          Convertir
+                        </RowButton>
+                        <RowButton onClick={() => setEditor({ kind: "deleteLead", lead })} icon={<Trash2 size={14} />} danger>
+                          Eliminar
+                        </RowButton>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
       </section>
     </>
+  );
+}
+
+/** Etiqueta de estado (verde si la condicion se cumple). */
+function Tag({ on, children }: { on: boolean; children: React.ReactNode }) {
+  return (
+    <span
+      className={`rounded-md px-2 py-0.5 ${
+        on
+          ? "bg-[#65ff4f]/10 text-[#65ff4f]"
+          : "bg-white/[0.04] text-zinc-600 line-through"
+      }`}
+    >
+      {children}
+    </span>
   );
 }
 
@@ -507,6 +682,54 @@ function EditorCard({
     );
   }
 
+  if (editor.kind === "assignTraining") {
+    return (
+      <FormShell title={`Entrenamiento: ${editor.client.name}`} onClose={onClose}>
+        <AssignTrainingForm
+          clientId={editor.client.id}
+          onCancel={onClose}
+          onDone={onDone}
+        />
+      </FormShell>
+    );
+  }
+
+  if (editor.kind === "assignNutrition") {
+    return (
+      <FormShell title={`Nutrición: ${editor.client.name}`} onClose={onClose}>
+        <AssignNutritionForm
+          clientId={editor.client.id}
+          onCancel={onClose}
+          onDone={onDone}
+        />
+      </FormShell>
+    );
+  }
+
+  if (editor.kind === "editLead") {
+    return (
+      <FormShell title={`Editar lead: ${editor.lead.name}`} onClose={onClose}>
+        <LeadForm
+          lead={editor.lead}
+          onCancel={onClose}
+          onDone={onDone}
+        />
+      </FormShell>
+    );
+  }
+
+  if (editor.kind === "deleteLead") {
+    return (
+      <FormShell title={`Eliminar lead: ${editor.lead.name}`} onClose={onClose}>
+        <DeleteLeadForm
+          lead={editor.lead}
+          onCancel={onClose}
+          onDone={onDone}
+        />
+      </FormShell>
+    );
+  }
+
   return (
     <FormShell title={`Progreso: ${editor.client.name}`} onClose={onClose}>
       <ProgressForm
@@ -518,6 +741,229 @@ function EditorCard({
         }}
       />
     </FormShell>
+  );
+}
+
+/* ---------- Asignar entrenamiento / nutricion (rapido desde la fila) ---------- */
+function AssignTrainingForm({
+  clientId,
+  onCancel,
+  onDone,
+}: {
+  clientId: string;
+  onCancel: () => void;
+  onDone: () => void | Promise<void>;
+}) {
+  const [programs, setPrograms] = useState<TrainingProgram[]>([]);
+  const [selected, setSelected] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    trainingService.getPrograms().then((p) => {
+      if (!active) return;
+      setPrograms(p);
+      setSelected(p[0]?.id ?? "");
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  if (programs.length === 0) {
+    return (
+      <div className="space-y-4">
+        <p className="text-sm text-zinc-400">
+          Aún no hay programas de entrenamiento. Créalos en su sección.
+        </p>
+        <button type="button" onClick={onCancel} className={secondaryBtn}>
+          Cerrar
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <form
+      onSubmit={async (e) => {
+        e.preventDefault();
+        if (!selected) return;
+        setSaving(true);
+        await trainingService.assignToClient(clientId, selected);
+        await onDone();
+      }}
+    >
+      <SelectField
+        label="Programa de entrenamiento"
+        value={selected}
+        onChange={setSelected}
+        options={programs.map((p) => p.id)}
+        labels={Object.fromEntries(programs.map((p) => [p.id, p.name]))}
+      />
+      <div className="mt-6 flex flex-wrap gap-3">
+        <button type="submit" disabled={saving} className={primaryBtn}>
+          {saving ? "Asignando..." : "Asignar programa"}
+        </button>
+        <button type="button" onClick={onCancel} className={secondaryBtn}>
+          Cancelar
+        </button>
+      </div>
+    </form>
+  );
+}
+
+function AssignNutritionForm({
+  clientId,
+  onCancel,
+  onDone,
+}: {
+  clientId: string;
+  onCancel: () => void;
+  onDone: () => void | Promise<void>;
+}) {
+  const [plans, setPlans] = useState<NutritionPlan[]>([]);
+  const [selected, setSelected] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    nutritionService.getPlans().then((p) => {
+      if (!active) return;
+      setPlans(p);
+      setSelected(p[0]?.id ?? "");
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  if (plans.length === 0) {
+    return (
+      <div className="space-y-4">
+        <p className="text-sm text-zinc-400">
+          Aún no hay planes de nutrición. Créalos en su sección.
+        </p>
+        <button type="button" onClick={onCancel} className={secondaryBtn}>
+          Cerrar
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <form
+      onSubmit={async (e) => {
+        e.preventDefault();
+        if (!selected) return;
+        setSaving(true);
+        await nutritionService.assignToClient(clientId, selected);
+        await onDone();
+      }}
+    >
+      <SelectField
+        label="Plan de nutrición"
+        value={selected}
+        onChange={setSelected}
+        options={plans.map((p) => p.id)}
+        labels={Object.fromEntries(plans.map((p) => [p.id, p.name]))}
+      />
+      <div className="mt-6 flex flex-wrap gap-3">
+        <button type="submit" disabled={saving} className={primaryBtn}>
+          {saving ? "Asignando..." : "Asignar plan"}
+        </button>
+        <button type="button" onClick={onCancel} className={secondaryBtn}>
+          Cancelar
+        </button>
+      </div>
+    </form>
+  );
+}
+
+/* ---------- Editar / eliminar lead ---------- */
+function LeadForm({
+  lead,
+  onCancel,
+  onDone,
+}: {
+  lead: Lead;
+  onCancel: () => void;
+  onDone: () => void | Promise<void>;
+}) {
+  const [name, setName] = useState(lead.name);
+  const [email, setEmail] = useState(lead.email);
+  const [phone, setPhone] = useState(lead.phone);
+  const [objective, setObjective] = useState(lead.objective);
+  const [message, setMessage] = useState(lead.message);
+  const [saving, setSaving] = useState(false);
+
+  return (
+    <Form
+      saving={saving}
+      onCancel={onCancel}
+      onSubmit={async (event) => {
+        event.preventDefault();
+        if (!name.trim()) return;
+        setSaving(true);
+        await leadService.updateLead(lead.id, {
+          name,
+          email,
+          phone,
+          objective,
+          message,
+        });
+        await onDone();
+      }}
+    >
+      <div className="grid gap-4 sm:grid-cols-2">
+        <TextField label="Nombre" value={name} onChange={setName} required />
+        <TextField label="Email" value={email} onChange={setEmail} />
+        <TextField label="Teléfono" value={phone} onChange={setPhone} />
+        <TextField label="Objetivo" value={objective} onChange={setObjective} />
+      </div>
+      <div className="mt-4">
+        <TextField label="Mensaje" value={message} onChange={setMessage} />
+      </div>
+    </Form>
+  );
+}
+
+function DeleteLeadForm({
+  lead,
+  onCancel,
+  onDone,
+}: {
+  lead: Lead;
+  onCancel: () => void;
+  onDone: () => void | Promise<void>;
+}) {
+  const [saving, setSaving] = useState(false);
+  return (
+    <div className="space-y-5">
+      <div className="rounded-xl border border-red-500/30 bg-red-500/[0.06] p-4 text-sm leading-6">
+        <p className="font-bold text-white">¿Eliminar el lead {lead.name}?</p>
+        <p className="mt-1 text-zinc-400">
+          Se quitará de la lista de leads. Esta acción no se puede deshacer.
+        </p>
+      </div>
+      <div className="flex flex-wrap gap-3">
+        <button
+          type="button"
+          disabled={saving}
+          className={dangerBtn}
+          onClick={async () => {
+            setSaving(true);
+            await leadService.deleteLead(lead.id);
+            await onDone();
+          }}
+        >
+          <Trash2 size={16} />
+          {saving ? "Eliminando..." : "Sí, eliminar lead"}
+        </button>
+        <button type="button" onClick={onCancel} className={secondaryBtn}>
+          Cancelar
+        </button>
+      </div>
+    </div>
   );
 }
 
@@ -1001,11 +1447,13 @@ function SelectField({
   value,
   onChange,
   options,
+  labels,
 }: {
   label: string;
   value: string;
   onChange: (value: string) => void;
   options: string[];
+  labels?: Record<string, string>;
 }) {
   return (
     <label className="block text-sm font-bold text-zinc-200">
@@ -1017,7 +1465,7 @@ function SelectField({
       >
         {options.map((option) => (
           <option key={option} value={option} className="bg-[#0a0d0b]">
-            {option}
+            {labels?.[option] ?? option}
           </option>
         ))}
       </select>

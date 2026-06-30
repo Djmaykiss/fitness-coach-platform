@@ -2,9 +2,13 @@ import {
   clientRepository,
   coachingRepository,
   leadRepository,
+  nutritionPlanRepository,
   programRepository,
   progressRepository,
+  trainingProgramRepository,
+  userRepository,
 } from "@/repositories";
+import { coachConfig } from "@/config/coachConfig";
 import { SCHEDULED_CALLS, starterClientProgress } from "@/data/dashboard";
 import type {
   AccessStatus,
@@ -13,11 +17,22 @@ import type {
   CreateClientInput,
   CreateProgramInput,
   DashboardStat,
+  ExecutiveStats,
   LeadEvaluation,
   ProgramRow,
 } from "@/types";
 
 const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
+const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
+
+/** True si el acceso (activo) vence dentro de los proximos 7 dias. */
+function expiresSoon(status: AccessStatus, expiresAt: string | null): boolean {
+  if (status !== "Activo" || !expiresAt) return false;
+  const t = new Date(expiresAt).getTime();
+  if (Number.isNaN(t)) return false;
+  const diff = t - Date.now();
+  return diff >= 0 && diff <= SEVEN_DAYS_MS;
+}
 
 export type ClientAccess = {
   accessStatus: AccessStatus;
@@ -53,24 +68,59 @@ export const clientDashboardService = {
 export const adminDashboardService = {
   getPrograms: () => programRepository.getProgramRows(),
 
-  /** Clientes con su programa y progreso derivados (para la tabla del admin). */
+  /** Clientes con su programa, progreso y banderas derivadas (tabla del admin). */
   async getClientRows(): Promise<AdminClientRow[]> {
     const clients = await clientRepository.getClients();
+    const users = await userRepository.getUsers();
+    const emailByUserId = new Map(users.map((u) => [u.id, u.email]));
     return Promise.all(
       clients.map(async (client) => {
-        const progress = await progressRepository.getForClient(client.id);
+        const [progress, trainingId, nutritionId] = await Promise.all([
+          progressRepository.getForClient(client.id),
+          trainingProgramRepository.getAssignment(client.id),
+          nutritionPlanRepository.getAssignment(client.id),
+        ]);
+        const accessStatus = client.accessStatus ?? "Vencido";
         return {
           id: client.id,
           name: client.name,
           status: client.status,
           programa: progress.programa,
           progresoPct: progress.progresoPct,
-          accessStatus: client.accessStatus ?? "Vencido",
+          accessStatus,
           accessExpiresAt: client.accessExpiresAt ?? null,
           evaluation: client.evaluation,
+          email: (client.userId && emailByUserId.get(client.userId)) || "",
+          hasProgram: Boolean(trainingId),
+          hasNutrition: Boolean(nutritionId),
+          hasEvaluation: Boolean(client.evaluation),
+          renewSoon: expiresSoon(accessStatus, client.accessExpiresAt ?? null),
         };
       }),
     );
+  },
+
+  /** Resumen ejecutivo del negocio para el panel del admin. */
+  async getExecutiveStats(): Promise<ExecutiveStats> {
+    const [rows, leads] = await Promise.all([
+      this.getClientRows(),
+      leadRepository.getLeads(),
+    ]);
+    const activos = rows.filter((r) => r.accessStatus === "Activo").length;
+    return {
+      total: rows.length,
+      activos,
+      vencidos: rows.filter((r) => r.accessStatus === "Vencido").length,
+      pausados: rows.filter((r) => r.accessStatus === "Pausado").length,
+      renuevanSemana: rows.filter((r) => r.renewSoon).length,
+      sinPrograma: rows.filter((r) => !r.hasProgram).length,
+      sinNutricion: rows.filter((r) => !r.hasNutrition).length,
+      sinEvaluacion: rows.filter((r) => !r.hasEvaluation).length,
+      leadsPendientes: leads.filter(
+        (l) => l.status === "Nuevo" || l.status === "Contactado",
+      ).length,
+      ingresosEstimados: activos * coachConfig.monthlyPrice,
+    };
   },
 
   /** Totales derivados de las colecciones persistidas (se actualizan solos). */
