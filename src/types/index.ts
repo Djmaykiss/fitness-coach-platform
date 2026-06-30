@@ -375,6 +375,10 @@ export type CoachingDashboard = {
   beforeAfter: BeforeAfter;
   photos: ProgressPhoto[];
   bodyMetrics: BodyMetrics;
+  /** Calendario: fechas (YYYY-MM-DD) marcadas como entrenadas / completadas 100%. */
+  calendar: { trained: Record<string, boolean>; full: Record<string, boolean> };
+  /** Estado de la rutina del dia (persistido por cliente). */
+  routineStatus: { started: boolean; completed: boolean };
 };
 
 /* ---------- Programas de entrenamiento (builder real, persistido) ---------- */

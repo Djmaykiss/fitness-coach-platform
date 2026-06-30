@@ -1,5 +1,6 @@
 import type {
   Benefit,
+  ChatMessage,
   ChecklistChecks,
   Client,
   ClientProgress,
@@ -216,6 +217,9 @@ export interface CoachingRepository {
     itemKey: string,
     done: boolean,
   ): Promise<ChecklistChecks>;
+  /** Mensajes del chat con el coach, persistidos por cliente. */
+  getChat(clientId: string): Promise<ChatMessage[]>;
+  addChatMessage(clientId: string, message: ChatMessage): Promise<ChatMessage[]>;
   /** Elimina fotos y checklists de un cliente (al borrar el alumno). */
   removeClient(clientId: string): Promise<void>;
 }

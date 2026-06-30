@@ -1,4 +1,4 @@
-import { progressPhotosSeed } from "@/data/coaching";
+import { chatDemo, progressPhotosSeed } from "@/data/coaching";
 import { resolveMock } from "@/repositories/async";
 import type { CoachingRepository } from "@/repositories/types";
 import {
@@ -7,6 +7,7 @@ import {
   writeRecord,
 } from "@/lib/local-store";
 import type {
+  ChatMessage,
   ChecklistChecks,
   CreateProgressPhoto,
   ProgressPhoto,
@@ -62,6 +63,26 @@ export class LocalCoachingRepository implements CoachingRepository {
     return resolveMock(updated);
   }
 
+  /* ---- Chat con el coach ---- */
+  private readChat(): Record<string, ChatMessage[]> {
+    // El cliente demo arranca con la conversacion de ejemplo.
+    return readRecord<ChatMessage[]>(STORAGE_KEYS.coachingChat, {
+      "c-demo": chatDemo,
+    });
+  }
+
+  getChat(clientId: string) {
+    return resolveMock(this.readChat()[clientId] ?? []);
+  }
+
+  addChatMessage(clientId: string, message: ChatMessage) {
+    const record = this.readChat();
+    const next = [...(record[clientId] ?? []), message];
+    record[clientId] = next;
+    writeRecord(STORAGE_KEYS.coachingChat, record);
+    return resolveMock(next);
+  }
+
   /* ---- Limpieza al eliminar un alumno ---- */
   removeClient(clientId: string) {
     const photos = this.readPhotos();
@@ -73,6 +94,11 @@ export class LocalCoachingRepository implements CoachingRepository {
     if (checks[clientId]) {
       delete checks[clientId];
       writeRecord(STORAGE_KEYS.checklists, checks);
+    }
+    const chat = this.readChat();
+    if (chat[clientId]) {
+      delete chat[clientId];
+      writeRecord(STORAGE_KEYS.coachingChat, chat);
     }
     return resolveMock<void>(undefined);
   }

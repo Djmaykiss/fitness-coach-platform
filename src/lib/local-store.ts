@@ -30,6 +30,7 @@ export const STORAGE_KEYS = {
   nutritionPlans: "coach-fitness:nutrition-plans",
   nutritionAssignments: "coach-fitness:nutrition-assignments",
   nutritionProgress: "coach-fitness:nutrition-progress",
+  coachingChat: "coach-fitness:chat",
 } as const;
 
 const isBrowser = () => typeof window !== "undefined";

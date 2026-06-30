@@ -2,6 +2,43 @@
 
 Todos los cambios relevantes del proyecto se registran en este archivo.
 
+## (en rama `feature/student-dashboard-functional-polish`, pendiente de merge)
+
+### Mejorado — Dashboard del alumno totalmente interactivo (todo en localStorage)
+- Header del alumno: en `/dashboard` se muestran solo el logo, el nombre real del
+  alumno y "Salir" (sin enlaces "Cliente"/"Admin"). El header del admin no cambia.
+- Objetivos de la semana, recordatorios y "Plan alimenticio" (demo): marcar/
+  desmarcar con porcentaje, persistido.
+- Calendario de entrenamiento: cada día se puede marcar (pendiente → entrenado →
+  100% → pendiente), guardado por fecha y reflejado visualmente.
+- Rutina del día: "Iniciar entrenamiento" → "En progreso" → "Marcar como
+  completado" (con opción de reiniciar), persistido.
+- Galería de progreso: el botón "Agregar" abre el formulario (fecha + nota) y
+  guarda el registro en la línea de tiempo.
+- Chat con el coach: enviar mensajes que se guardan localmente y se muestran en el
+  historial de la conversación.
+- Recursos: al hacer clic se abre un panel de detalle del recurso (sin descarga
+  real todavía).
+- Comparador Antes / Después: usa las fotos de progreso del alumno; si hay varias,
+  permite elegir la foto de antes y la de después; si no hay, mantiene el
+  placeholder elegante.
+- Logros: se desbloquean según acciones reales (primer entrenamiento, primera
+  semana, 5 kg perdidos, 30 días, objetivo alcanzado).
+- Historial: se construye automáticamente a partir de evaluación, asignaciones,
+  entrenamientos y comidas completadas, fotos y logros.
+- Gráficas: usan datos demo como fallback, con la arquitectura lista para datos
+  reales.
+
+### Técnico
+- `coachingService.getDashboard` deriva logros e historial de los datos reales
+  (workout-progress, nutrition-progress, fotos, progreso, evaluación) y compone el
+  estado de calendario/rutina/chat. Nuevo persistido de chat
+  (`coachingRepository.getChat/addChatMessage`, clave `coach-fitness:chat`).
+- `DashboardShell` admite `navName` (nombre en el header). Arquitectura
+  UI → services → repositories → localStorage intacta. Sin Supabase ni backend.
+- No se tocó landing ni onboarding; sin cambios de diseño general. Responsive
+  (móvil) verificado sin overflow.
+
 ## v1.2
 
 Version estable actual en `main` (módulo real de nutrición).

@@ -75,7 +75,8 @@ export default function ClientDashboardPage() {
             ? ""
             : "Tu programa, tu progreso, tu próxima llamada y tus tareas de la semana en un solo lugar."
         }
-        minimalNav={locked}
+        minimalNav
+        navName={realName}
       >
         {!accessLoaded ? (
           <p className="text-zinc-400">Cargando tu acceso...</p>

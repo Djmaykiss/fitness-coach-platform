@@ -119,8 +119,26 @@ export function PremiumDashboard({ userId }: { userId: string }) {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[1fr_0.8fr]">
-        <TrainingCalendar />
-        <TodayRoutineCard routine={data.routine} />
+        <TrainingCalendar
+          trained={data.calendar.trained}
+          full={data.calendar.full}
+          onSet={async (dateKey, status) => {
+            await coachingService.toggleCheck(clientId, "calendar-trained", dateKey, status === "trained");
+            await coachingService.toggleCheck(clientId, "calendar-full", dateKey, status === "full");
+            await load();
+          }}
+        />
+        <TodayRoutineCard
+          routine={data.routine}
+          status={data.routineStatus}
+          onStart={() => toggle("routine", "started", true)}
+          onComplete={() => toggle("routine", "completed", true)}
+          onReset={async () => {
+            await coachingService.toggleCheck(clientId, "routine", "started", false);
+            await coachingService.toggleCheck(clientId, "routine", "completed", false);
+            await load();
+          }}
+        />
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
@@ -137,7 +155,7 @@ export function PremiumDashboard({ userId }: { userId: string }) {
         />
       </div>
 
-      <BeforeAfter before={data.beforeAfter.before} after={data.beforeAfter.after} />
+      <BeforeAfter fallback={data.beforeAfter} photos={data.photos} />
 
       <ProgressGallery
         photos={data.photos}
@@ -153,7 +171,13 @@ export function PremiumDashboard({ userId }: { userId: string }) {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[1fr_0.8fr]">
-        <CoachChat initial={data.chat} />
+        <CoachChat
+          messages={data.chat}
+          onSend={async (text) => {
+            await coachingService.addChatMessage(clientId, text);
+            await load();
+          }}
+        />
         <Resources items={data.resources} />
       </div>
     </div>
@@ -565,7 +589,15 @@ function Nutrition({
 }
 
 /* 4. Calendario de entrenamiento */
-function TrainingCalendar() {
+function TrainingCalendar({
+  trained,
+  full,
+  onSet,
+}: {
+  trained: Record<string, boolean>;
+  full: Record<string, boolean>;
+  onSet: (dateKey: string, status: "pending" | "trained" | "full") => void;
+}) {
   const today = new Date();
   const year = today.getFullYear();
   const month = today.getMonth();
@@ -580,11 +612,21 @@ function TrainingCalendar() {
     ...Array.from({ length: daysInMonth }, (_, i) => i + 1),
   ];
 
-  function status(day: number): "trained" | "full" | "pending" {
-    if (day > today.getDate()) return "pending";
-    if (day % 9 === 0) return "full";
-    if (day % 3 === 0 || day % 4 === 0) return "trained";
+  const keyFor = (day: number) =>
+    `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+
+  function statusOf(day: number): "trained" | "full" | "pending" {
+    const k = keyFor(day);
+    if (full[k]) return "full";
+    if (trained[k]) return "trained";
     return "pending";
+  }
+
+  // Ciclo al tocar un día: pendiente -> entrenado -> 100% -> pendiente.
+  function cycle(day: number) {
+    const s = statusOf(day);
+    const next = s === "pending" ? "trained" : s === "trained" ? "full" : "pending";
+    onSet(keyFor(day), next);
   }
 
   return (
@@ -598,12 +640,15 @@ function TrainingCalendar() {
         ))}
         {cells.map((day, i) => {
           if (day === null) return <span key={`e-${i}`} />;
-          const s = status(day);
+          const s = statusOf(day);
           const isToday = day === today.getDate();
           return (
-            <div
+            <button
               key={day}
-              className={`flex aspect-square flex-col items-center justify-center rounded-lg border text-xs ${
+              type="button"
+              onClick={() => cycle(day)}
+              aria-label={`Día ${day}`}
+              className={`flex aspect-square flex-col items-center justify-center rounded-lg border text-xs transition hover:border-[#65ff4f]/50 ${
                 isToday
                   ? "border-[#65ff4f] text-white"
                   : "border-white/10 text-zinc-400"
@@ -619,7 +664,7 @@ function TrainingCalendar() {
                   <Circle size={9} className="text-zinc-600" />
                 )}
               </span>
-            </div>
+            </button>
           );
         })}
       </div>
@@ -634,14 +679,50 @@ function TrainingCalendar() {
           <Circle size={11} className="text-zinc-600" /> Pendiente
         </span>
       </div>
+      <p className="mt-2 text-xs text-zinc-600">
+        Toca un día para marcarlo como entrenado o completado al 100%.
+      </p>
     </SectionCard>
   );
 }
 
 /* 10. Rutina del día */
-function TodayRoutineCard({ routine }: { routine: TodayRoutine }) {
+function TodayRoutineCard({
+  routine,
+  status,
+  onStart,
+  onComplete,
+  onReset,
+}: {
+  routine: TodayRoutine;
+  status: { started: boolean; completed: boolean };
+  onStart: () => void;
+  onComplete: () => void;
+  onReset: () => void;
+}) {
+  const state = status.completed
+    ? "completed"
+    : status.started
+      ? "progress"
+      : "idle";
+
   return (
-    <SectionCard title="Rutina del día" eyebrow="Hoy" icon={Dumbbell}>
+    <SectionCard
+      title="Rutina del día"
+      eyebrow="Hoy"
+      icon={Dumbbell}
+      action={
+        state === "progress" ? (
+          <span className="rounded-lg bg-amber-400/15 px-3 py-1 text-xs font-black uppercase tracking-wide text-amber-300">
+            En progreso
+          </span>
+        ) : state === "completed" ? (
+          <span className="rounded-lg bg-[#65ff4f]/10 px-3 py-1 text-xs font-black uppercase tracking-wide text-[#65ff4f]">
+            Completado
+          </span>
+        ) : null
+      }
+    >
       <p className="text-2xl font-black">{routine.name}</p>
       <p className="mt-1 text-sm text-zinc-400">{routine.focus}</p>
       <div className="mt-5 grid grid-cols-3 gap-3">
@@ -649,22 +730,99 @@ function TodayRoutineCard({ routine }: { routine: TodayRoutine }) {
         <Tile label="Calorías" value={routine.calories} />
         <Tile label="Nivel" value={routine.level} />
       </div>
-      <button
-        type="button"
-        className="mt-5 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-lg bg-[#65ff4f] px-5 text-sm font-black uppercase tracking-wide text-black transition hover:bg-[#85ff73]"
-      >
-        <Play size={18} />
-        Iniciar entrenamiento
-      </button>
+
+      {state === "idle" ? (
+        <button
+          type="button"
+          onClick={onStart}
+          className="mt-5 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-b from-[#85ff73] to-[#65ff4f] px-5 text-sm font-black uppercase tracking-wide text-black shadow-[0_8px_30px_-8px_rgba(101,255,79,0.5)] transition duration-300 hover:-translate-y-0.5 hover:brightness-110 active:translate-y-0 active:scale-[0.98]"
+        >
+          <Play size={18} />
+          Iniciar entrenamiento
+        </button>
+      ) : null}
+
+      {state === "progress" ? (
+        <button
+          type="button"
+          onClick={onComplete}
+          className="mt-5 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-b from-[#85ff73] to-[#65ff4f] px-5 text-sm font-black uppercase tracking-wide text-black shadow-[0_8px_30px_-8px_rgba(101,255,79,0.5)] transition duration-300 hover:-translate-y-0.5 hover:brightness-110 active:translate-y-0 active:scale-[0.98]"
+        >
+          <CheckCircle2 size={18} />
+          Marcar como completado
+        </button>
+      ) : null}
+
+      {state === "completed" ? (
+        <div className="mt-5 flex items-center justify-between gap-3 rounded-lg border border-[#65ff4f]/30 bg-[#65ff4f]/[0.06] p-3">
+          <span className="inline-flex items-center gap-2 text-sm font-black text-[#65ff4f]">
+            <CheckCircle2 size={18} />
+            ¡Entrenamiento completado!
+          </span>
+          <button
+            type="button"
+            onClick={onReset}
+            className="text-xs font-bold text-zinc-400 transition hover:text-[#65ff4f]"
+          >
+            Reiniciar
+          </button>
+        </div>
+      ) : null}
     </SectionCard>
   );
 }
 
 /* 15. Comparador Antes / Después */
-function BeforeAfter({ before, after }: { before: string; after: string }) {
+function BeforeAfter({
+  fallback,
+  photos,
+}: {
+  fallback: { before: string; after: string };
+  photos: ProgressPhoto[];
+}) {
   const [pos, setPos] = useState(50);
+  const [beforeId, setBeforeId] = useState(photos[0]?.id ?? "");
+  const [afterId, setAfterId] = useState(photos[photos.length - 1]?.id ?? "");
+
+  const beforePhoto = photos.find((p) => p.id === beforeId);
+  const afterPhoto = photos.find((p) => p.id === afterId);
+  const before = beforePhoto?.front || fallback.before;
+  const after = afterPhoto?.front || fallback.after;
+
   return (
     <SectionCard title="Antes / Después" eyebrow="Comparador" icon={Sparkles}>
+      {photos.length >= 2 ? (
+        <div className="mb-4 grid grid-cols-2 gap-3">
+          <label className="block text-xs font-bold uppercase tracking-wide text-zinc-500">
+            Antes
+            <select
+              value={beforeId}
+              onChange={(e) => setBeforeId(e.target.value)}
+              className="mt-1 h-10 w-full rounded-lg border border-white/10 bg-black/35 px-2 text-sm text-white outline-none focus:border-[#65ff4f]"
+            >
+              {photos.map((p) => (
+                <option key={p.id} value={p.id} className="bg-[#0a0d0b]">
+                  {formatDate(p.date)}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="block text-xs font-bold uppercase tracking-wide text-zinc-500">
+            Después
+            <select
+              value={afterId}
+              onChange={(e) => setAfterId(e.target.value)}
+              className="mt-1 h-10 w-full rounded-lg border border-white/10 bg-black/35 px-2 text-sm text-white outline-none focus:border-[#65ff4f]"
+            >
+              {photos.map((p) => (
+                <option key={p.id} value={p.id} className="bg-[#0a0d0b]">
+                  {formatDate(p.date)}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+      ) : null}
       <div className="relative mx-auto aspect-[3/4] max-w-sm overflow-hidden rounded-2xl">
         <div className="transformation-tile absolute inset-0">
           <DemoImg src={before} label="Antes" textTone="text-zinc-300" />
@@ -904,18 +1062,19 @@ function Timeline({ events }: { events: HistoryEvent[] }) {
 }
 
 /* 12. Chat con el coach */
-function CoachChat({ initial }: { initial: ChatMessage[] }) {
-  const [messages, setMessages] = useState<ChatMessage[]>(initial);
+function CoachChat({
+  messages,
+  onSend,
+}: {
+  messages: ChatMessage[];
+  onSend: (text: string) => void;
+}) {
   const [text, setText] = useState("");
 
   function send() {
     const trimmed = text.trim();
     if (!trimmed) return;
-    const time = new Date().toLocaleTimeString("es-ES", {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-    setMessages((prev) => [...prev, { from: "alumno", text: trimmed, time }]);
+    onSend(trimmed);
     setText("");
   }
 
@@ -969,21 +1128,53 @@ function CoachChat({ initial }: { initial: ChatMessage[] }) {
 
 /* 13. Recursos */
 function Resources({ items }: { items: Resource[] }) {
+  const [selected, setSelected] = useState<Resource | null>(null);
+
   return (
     <SectionCard title="Recursos" eyebrow="Biblioteca" icon={Folder}>
       <ul className="space-y-2">
         {items.map((r) => (
-          <li
-            key={r.key}
-            className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.03] p-3"
-          >
-            <span className="inline-flex rounded-lg border border-[#65ff4f]/20 bg-[#65ff4f]/10 px-2 py-1 text-[11px] font-black uppercase text-[#65ff4f]">
-              {r.type}
-            </span>
-            <span className="text-sm font-semibold text-zinc-200">{r.label}</span>
+          <li key={r.key}>
+            <button
+              type="button"
+              onClick={() => setSelected(r)}
+              className="flex w-full items-center gap-3 rounded-xl border border-white/10 bg-white/[0.03] p-3 text-left transition hover:border-[#65ff4f]/40 hover:bg-white/[0.05]"
+            >
+              <span className="inline-flex rounded-lg border border-[#65ff4f]/20 bg-[#65ff4f]/10 px-2 py-1 text-[11px] font-black uppercase text-[#65ff4f]">
+                {r.type}
+              </span>
+              <span className="text-sm font-semibold text-zinc-200">{r.label}</span>
+            </button>
           </li>
         ))}
       </ul>
+
+      {selected ? (
+        <div className="mt-4 rounded-xl border border-[#65ff4f]/20 bg-white/[0.03] p-4">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="text-xs font-black uppercase tracking-wide text-[#65ff4f]">
+                {selected.type}
+              </p>
+              <h4 className="mt-1 text-lg font-black">{selected.label}</h4>
+            </div>
+            <button
+              type="button"
+              onClick={() => setSelected(null)}
+              className="text-sm font-bold text-zinc-500 hover:text-[#65ff4f]"
+            >
+              Cerrar
+            </button>
+          </div>
+          <p className="mt-3 text-sm leading-6 text-zinc-400">
+            Tu coach preparó este recurso como parte de tu plan. Aquí verás el
+            material de “{selected.label}”.
+          </p>
+          <p className="mt-3 text-xs text-zinc-600">
+            La descarga del archivo se habilitará próximamente.
+          </p>
+        </div>
+      ) : null}
     </SectionCard>
   );
 }

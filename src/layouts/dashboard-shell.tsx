@@ -8,6 +8,7 @@ export function DashboardShell({
   subtitle,
   eyebrow = "Área privada",
   minimalNav = false,
+  navName,
   children,
 }: {
   title: string;
@@ -15,6 +16,8 @@ export function DashboardShell({
   eyebrow?: string;
   /** Si es true, el header solo muestra el logo y "Salir" (sin Cliente/Admin). */
   minimalNav?: boolean;
+  /** Nombre real a mostrar junto a "Salir" (header del alumno). */
+  navName?: string;
   children: ReactNode;
 }) {
   return (
@@ -36,6 +39,11 @@ export function DashboardShell({
                   </Link>
                 </>
               )}
+              {navName ? (
+                <span className="max-w-[40vw] truncate text-zinc-200">
+                  {navName}
+                </span>
+              ) : null}
               <LogoutButton />
             </div>
           </div>
