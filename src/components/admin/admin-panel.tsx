@@ -30,7 +30,7 @@ import { adminDashboardService } from "@/services/dashboard.service";
 import { leadService } from "@/services/lead.service";
 import { trainingService } from "@/services/training.service";
 import { nutritionService } from "@/services/nutrition.service";
-import { coachConfig, whatsappUrl } from "@/config/coachConfig";
+import { coachConfig, whatsappTo, whatsappUrl } from "@/config/coachConfig";
 import { formatDate } from "@/lib/format";
 import type {
   AdminClientRow,
@@ -451,15 +451,7 @@ export function AdminPanel() {
                         <RowButton onClick={() => setEditor({ kind: "editLead", lead })} icon={<Pencil size={14} />}>
                           Editar
                         </RowButton>
-                        <a
-                          href={whatsappUrl(`Hola ${coachConfig.name}, sobre el lead ${lead.name} (${lead.phone || "sin teléfono"}).`)}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="inline-flex items-center gap-1.5 rounded-lg border border-[#25D366]/40 px-3 py-1.5 text-xs font-bold text-[#25D366] transition hover:border-[#25D366]/70 hover:bg-[#25D366]/10"
-                        >
-                          <MessageCircle size={14} />
-                          WhatsApp
-                        </a>
+                        <LeadWhatsApp lead={lead} />
                         <RowButton
                           onClick={() => convertLead(lead)}
                           icon={<UserPlus size={14} />}
@@ -480,6 +472,41 @@ export function AdminPanel() {
         </div>
       </section>
     </>
+  );
+}
+
+/**
+ * Boton WhatsApp del lead: abre wa.me AL NUMERO DEL LEAD con un mensaje del coach.
+ * Si el lead no tiene telefono valido, se muestra deshabilitado (no disponible).
+ */
+function LeadWhatsApp({ lead }: { lead: Lead }) {
+  const href = whatsappTo(
+    lead.phone,
+    `Hola ${lead.name}, soy ${coachConfig.name}, tu coach fitness. Vi tu solicitud y quería ayudarte con tu objetivo.`,
+  );
+
+  if (!href) {
+    return (
+      <span
+        className="inline-flex cursor-not-allowed items-center gap-1.5 rounded-lg border border-white/10 px-3 py-1.5 text-xs font-bold text-zinc-600"
+        title="Este lead no tiene teléfono"
+      >
+        <MessageCircle size={14} />
+        Sin teléfono
+      </span>
+    );
+  }
+
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noreferrer"
+      className="inline-flex items-center gap-1.5 rounded-lg border border-[#25D366]/40 px-3 py-1.5 text-xs font-bold text-[#25D366] transition hover:border-[#25D366]/70 hover:bg-[#25D366]/10"
+    >
+      <MessageCircle size={14} />
+      WhatsApp
+    </a>
   );
 }
 

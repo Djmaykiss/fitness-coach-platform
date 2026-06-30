@@ -19,7 +19,10 @@ Todos los cambios relevantes del proyecto se registran en este archivo.
 - Admin: acciones rápidas por alumno — Perfil, Editar, Entrenamiento (asignar),
   Nutrición (asignar), WhatsApp, Renovar, Pausar, Eliminar.
 - Admin: leads con buscador (nombre/email/teléfono), editar, eliminar, convertir y
-  WhatsApp.
+  WhatsApp. El WhatsApp del lead abre el número del PROPIO lead con un mensaje del
+  coach ("Hola {lead}, soy {coach}, tu coach fitness…"); si no tiene teléfono el
+  botón queda deshabilitado ("Sin teléfono"). Los demás botones (renovar/contactar/
+  ayuda/soporte) siguen abriendo el WhatsApp del coach.
 
 ### Técnico
 - Nuevos derivados/métodos: `adminDashboardService.getExecutiveStats`, banderas en
