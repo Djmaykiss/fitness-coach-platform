@@ -2,6 +2,28 @@
 
 Todos los cambios relevantes del proyecto se registran en este archivo.
 
+## (en rama `feature/nutrition-plans`, pendiente de merge)
+
+### Agregado — Módulo de nutrición (todo en localStorage)
+- Admin (`/admin`): nueva sección "Planes de nutrición" con CRUD completo: crear,
+  editar y eliminar plan (nombre, objetivo, calorías, proteínas, carbohidratos,
+  grasas, agua recomendada y notas del coach); crear días; agregar/quitar comidas
+  por día (nombre + alimentos); y asignar el plan a un alumno.
+- Alumno (`/dashboard`): nueva sección "Mi plan de nutrición" que muestra el plan
+  asignado con sus macros diarios, agua recomendada, las "comidas de hoy" y todos
+  los días, con checklist para marcar comidas completadas (progreso guardado en
+  `localStorage`).
+- Arquitectura intacta (UI → services → repositories → localStorage): tipos
+  `NutritionPlan`/`NutritionPlanDay`/`NutritionPlanMeal`/`AssignedNutrition`,
+  `nutritionService`, `LocalNutritionPlanRepository` y seed `src/data/nutrition.ts`
+  (plan demo "Recomposición 2200 kcal" asignado al alumno demo). Claves nuevas:
+  `nutrition-plans`, `nutrition-assignments`, `nutrition-progress`.
+
+### Sin cambios
+- Independiente de la sección demo "Nutrición" del dashboard premium (que sigue
+  igual). No se tocó landing ni onboarding, sin cambios de diseño general, sin
+  pagos, sin Supabase ni backend. Verificado responsive (móvil) sin overflow.
+
 ## v1.1
 
 Version estable actual en `main` (biblioteca profesional de ejercicios + programas

@@ -17,6 +17,7 @@ import { AccessBadge } from "@/components/access-badge";
 import { EvaluationDetails } from "@/components/evaluation-details";
 import { ExerciseLibraryManager } from "@/components/admin/exercise-library";
 import { TrainingProgramsManager } from "@/components/admin/training-programs";
+import { NutritionPlansManager } from "@/components/admin/nutrition-plans";
 import { adminDashboardService } from "@/services/dashboard.service";
 import { leadService } from "@/services/lead.service";
 import { formatDate } from "@/lib/format";
@@ -251,6 +252,9 @@ export function AdminPanel() {
 
       {/* Programas de entrenamiento (builder real) */}
       <TrainingProgramsManager />
+
+      {/* Planes de nutrición (módulo real) */}
+      <NutritionPlansManager />
 
       {/* Leads */}
       <section className="premium-card mt-6 overflow-hidden rounded-2xl">

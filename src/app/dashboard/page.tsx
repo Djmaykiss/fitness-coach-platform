@@ -18,6 +18,7 @@ import { RequireAuth } from "@/components/require-auth";
 import { AccessBadge } from "@/components/access-badge";
 import { EvaluationDetails } from "@/components/evaluation-details";
 import { TrainingProgramView } from "@/components/dashboard/training-program-view";
+import { NutritionPlanView } from "@/components/dashboard/nutrition-plan-view";
 import { PremiumDashboard } from "@/components/dashboard/premium-dashboard";
 import { StatCard } from "@/components/ui";
 import { useAuth } from "@/context/auth-context";
@@ -100,6 +101,7 @@ export default function ClientDashboardPage() {
               </section>
             ) : null}
             {user ? <TrainingProgramView userId={user.id} /> : null}
+            {user ? <NutritionPlanView userId={user.id} /> : null}
             {user ? <PremiumDashboard userId={user.id} /> : null}
           </>
         )}

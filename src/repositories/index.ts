@@ -7,6 +7,7 @@ import { LocalProgramRepository } from "@/repositories/local/program.repository"
 import { LocalProgressRepository } from "@/repositories/local/progress.repository";
 import { LocalTrainingProgramRepository } from "@/repositories/local/training-program.repository";
 import { LocalExerciseLibraryRepository } from "@/repositories/local/exercise-library.repository";
+import { LocalNutritionPlanRepository } from "@/repositories/local/nutrition-plan.repository";
 import { LocalPendingEvaluationRepository } from "@/repositories/local/pending-evaluation.repository";
 import { LocalCoachingRepository } from "@/repositories/local/coaching.repository";
 import { LocalUserRepository } from "@/repositories/local/user.repository";
@@ -17,6 +18,7 @@ import type {
   LeadRepository,
   PendingEvaluationRepository,
   ExerciseLibraryRepository,
+  NutritionPlanRepository,
   ProgramRepository,
   ProgressRepository,
   TestimonialRepository,
@@ -50,6 +52,8 @@ export const trainingProgramRepository: TrainingProgramRepository =
   new LocalTrainingProgramRepository();
 export const exerciseLibraryRepository: ExerciseLibraryRepository =
   new LocalExerciseLibraryRepository();
+export const nutritionPlanRepository: NutritionPlanRepository =
+  new LocalNutritionPlanRepository();
 export const pendingEvaluationRepository: PendingEvaluationRepository =
   new LocalPendingEvaluationRepository();
 export const coachingRepository: CoachingRepository =

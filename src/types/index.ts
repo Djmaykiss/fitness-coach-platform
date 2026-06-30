@@ -457,3 +457,54 @@ export type LibraryExercise = {
 };
 
 export type CreateLibraryExerciseInput = Omit<LibraryExercise, "id">;
+
+/* ---------- Planes de nutricion (modulo real, persistido) ---------- */
+
+/** Una comida dentro de un dia del plan (nombre + alimentos). */
+export type NutritionPlanMeal = {
+  id: string;
+  name: string;
+  description: string;
+};
+
+export type CreateNutritionPlanMeal = Omit<NutritionPlanMeal, "id">;
+
+/** Un dia del plan con sus comidas. */
+export type NutritionPlanDay = {
+  id: string;
+  name: string;
+  meals: NutritionPlanMeal[];
+};
+
+/** Plan nutricional completo (lo arma el coach en /admin). Macros = objetivo diario. */
+export type NutritionPlan = {
+  id: string;
+  name: string;
+  objective: string;
+  calories: string;
+  protein: string;
+  carbs: string;
+  fat: string;
+  water: string;
+  notes: string;
+  days: NutritionPlanDay[];
+};
+
+/** Datos editables del plan (sin id ni dias). */
+export type CreateNutritionPlanInput = {
+  name: string;
+  objective: string;
+  calories: string;
+  protein: string;
+  carbs: string;
+  fat: string;
+  water: string;
+  notes: string;
+};
+
+/** Resuelto para el alumno: plan asignado + ids de comidas completadas. */
+export type AssignedNutrition = {
+  clientId: string;
+  plan: NutritionPlan;
+  completedMealIds: string[];
+};

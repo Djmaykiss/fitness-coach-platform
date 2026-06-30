@@ -8,11 +8,14 @@ import type {
   CreateLeadInput,
   CreateProgramInput,
   CreateLibraryExerciseInput,
+  CreateNutritionPlanInput,
+  CreateNutritionPlanMeal,
   CreateProgressPhoto,
   CreateTrainingExercise,
   CreateTrainingProgramInput,
   Credentials,
   LibraryExercise,
+  NutritionPlan,
   Lead,
   LeadStatus,
   NavLink,
@@ -145,6 +148,43 @@ export interface TrainingProgramRepository {
     seriesIndex: number,
     done: boolean,
   ): Promise<Record<string, number[]>>;
+}
+
+/**
+ * Planes de nutricion (modulo real del coach). CRUD de planes + dias + comidas,
+ * asignacion a alumnos y progreso de comidas completadas. Todo en localStorage.
+ */
+export interface NutritionPlanRepository {
+  getPlans(): Promise<NutritionPlan[]>;
+  getPlan(id: string): Promise<NutritionPlan | null>;
+  createPlan(input: CreateNutritionPlanInput): Promise<NutritionPlan>;
+  updatePlan(
+    id: string,
+    patch: Partial<CreateNutritionPlanInput>,
+  ): Promise<NutritionPlan | null>;
+  deletePlan(id: string): Promise<boolean>;
+  addDay(planId: string, name: string): Promise<NutritionPlan | null>;
+  deleteDay(planId: string, dayId: string): Promise<NutritionPlan | null>;
+  addMeal(
+    planId: string,
+    dayId: string,
+    meal: CreateNutritionPlanMeal,
+  ): Promise<NutritionPlan | null>;
+  deleteMeal(
+    planId: string,
+    dayId: string,
+    mealId: string,
+  ): Promise<NutritionPlan | null>;
+  /** Asigna un plan a un alumno (clientId -> planId). */
+  assignToClient(clientId: string, planId: string): Promise<void>;
+  getAssignment(clientId: string): Promise<string | null>;
+  /** Ids de las comidas que el alumno marco como completadas. */
+  getMealProgress(clientId: string): Promise<string[]>;
+  setMealCompleted(
+    clientId: string,
+    mealId: string,
+    done: boolean,
+  ): Promise<string[]>;
 }
 
 /**
