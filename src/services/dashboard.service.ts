@@ -9,14 +9,13 @@ import {
   userRepository,
 } from "@/repositories";
 import { coachConfig } from "@/config/coachConfig";
-import { SCHEDULED_CALLS, starterClientProgress } from "@/data/dashboard";
+import { starterClientProgress } from "@/data/dashboard";
 import type {
   AccessStatus,
   AdminClientRow,
   ClientProgress,
   CreateClientInput,
   CreateProgramInput,
-  DashboardStat,
   ExecutiveStats,
   LeadEvaluation,
   ProgramRow,
@@ -121,21 +120,6 @@ export const adminDashboardService = {
       ).length,
       ingresosEstimados: activos * coachConfig.monthlyPrice,
     };
-  },
-
-  /** Totales derivados de las colecciones persistidas (se actualizan solos). */
-  async getStats(): Promise<DashboardStat[]> {
-    const [clients, leads, programs] = await Promise.all([
-      clientRepository.getClients(),
-      leadRepository.getLeads(),
-      programRepository.getProgramRows(),
-    ]);
-    return [
-      { label: "Total clientes", value: String(clients.length) },
-      { label: "Leads", value: String(leads.length) },
-      { label: "Programas", value: String(programs.length) },
-      { label: "Llamadas agendadas", value: SCHEDULED_CALLS },
-    ];
   },
 
   /* ---------- Operaciones (escritura) ---------- */
