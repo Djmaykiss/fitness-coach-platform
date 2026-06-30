@@ -2,7 +2,9 @@
 
 Todos los cambios relevantes del proyecto se registran en este archivo.
 
-## (en rama `feature/nutrition-plans`, pendiente de merge)
+## v1.2
+
+Version estable actual en `main` (módulo real de nutrición).
 
 ### Agregado — Módulo de nutrición (todo en localStorage)
 - Admin (`/admin`): nueva sección "Planes de nutrición" con CRUD completo: crear,
@@ -26,8 +28,8 @@ Todos los cambios relevantes del proyecto se registran en este archivo.
 
 ## v1.1
 
-Version estable actual en `main` (biblioteca profesional de ejercicios + programas
-que eligen ejercicios de la biblioteca).
+Version previa (biblioteca profesional de ejercicios + programas que eligen
+ejercicios de la biblioteca).
 
 ### Agregado — Biblioteca de ejercicios (todo en localStorage)
 - Admin (`/admin`): nueva "Biblioteca de ejercicios" con CRUD completo. Cada
