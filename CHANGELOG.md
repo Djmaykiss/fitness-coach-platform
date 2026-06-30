@@ -2,7 +2,9 @@
 
 Todos los cambios relevantes del proyecto se registran en este archivo.
 
-## (en rama `feature/student-dashboard-functional-polish`, pendiente de merge)
+## v1.3
+
+Version estable actual en `main` (dashboard del alumno totalmente interactivo).
 
 ### Mejorado — Dashboard del alumno totalmente interactivo (todo en localStorage)
 - Header del alumno: en `/dashboard` se muestran solo el logo, el nombre real del
@@ -41,7 +43,7 @@ Todos los cambios relevantes del proyecto se registran en este archivo.
 
 ## v1.2
 
-Version estable actual en `main` (módulo real de nutrición).
+Version previa (módulo real de nutrición).
 
 ### Agregado — Módulo de nutrición (todo en localStorage)
 - Admin (`/admin`): nueva sección "Planes de nutrición" con CRUD completo: crear,
