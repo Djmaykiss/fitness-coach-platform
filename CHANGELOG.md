@@ -2,7 +2,10 @@
 
 Todos los cambios relevantes del proyecto se registran en este archivo.
 
-## (en rama `feature/coach-admin-professional`, pendiente de merge)
+## v1.4
+
+Version estable actual en `main` (panel del coach profesional + contacto
+centralizado del coach).
 
 ### Agregado — Panel del coach profesional + contacto centralizado
 - Configuración global del coach en `src/config/coachConfig.ts` (nombre, teléfono,
@@ -34,7 +37,7 @@ Todos los cambios relevantes del proyecto se registran en este archivo.
 
 ## v1.3
 
-Version estable actual en `main` (dashboard del alumno totalmente interactivo).
+Version previa (dashboard del alumno totalmente interactivo).
 
 ### Mejorado — Dashboard del alumno totalmente interactivo (todo en localStorage)
 - Header del alumno: en `/dashboard` se muestran solo el logo, el nombre real del
