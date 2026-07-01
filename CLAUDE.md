@@ -153,6 +153,45 @@ Primer punto estable del proyecto. Esta version incluye:
 
 Base oficial congelada para iniciar la Fase 2. Ver `CHANGELOG.md`.
 
+## FILOSOFIA DEL PRODUCTO — el coach administra TODO el contenido (REGLA PERMANENTE)
+Esta es la direccion definitiva del proyecto y aplica a TODA nueva funcionalidad,
+version y decision, sin que el usuario tenga que recordarla. El objetivo es una
+plataforma SaaS profesional para entrenadores personales: NOSOTROS desarrollamos la
+plataforma (arquitectura, CRUD, paneles, permisos, UX, almacenamiento, servicios,
+repositorios, estadisticas); el COACH administra ABSOLUTAMENTE todo el contenido
+desde `/admin`; el ALUMNO solo CONSUME contenido y no administra nada.
+
+- REGLA DE ORO: antes de crear cualquier pantalla, modulo o funcionalidad, preguntar
+  primero "¿Este contenido deberia poder modificarlo el coach?" y "¿Como lo
+  administrara el coach?". Si el alumno lo ve, el coach debe poder gestionarlo.
+- Si la respuesta es SI, debe existir arquitectura para que el coach pueda: CREAR,
+  EDITAR, ELIMINAR, PUBLICAR, DESPUBLICAR (cuando aplique) y ASIGNAR a alumnos. Se
+  disena PRIMERO el panel del coach y despues la vista del alumno.
+- PROHIBIDO el contenido fijo/hardcodeado dentro de la app. Nada de textos, listas
+  ni catalogos definitivos incrustados en componentes.
+- Los SEEDS (`src/data/*`) solo sirven para DEMOSTRAR el funcionamiento (contenido
+  temporal). Todo seed debe poder reemplazarse/editarse desde el panel del coach.
+  Nunca son contenido definitivo.
+- ARQUITECTURA obligatoria de toda entidad de contenido: UI -> Service -> Repository
+  -> Storage (`localStorage` hoy), preparada para migrar a Supabase implementando
+  nuevos repositorios SIN reescribir la UI ni los servicios.
+- Contenido que el coach administrara (lista viva, no exhaustiva): ejercicios y
+  biblioteca de ejercicios; programas, rutinas, dias, series, repeticiones,
+  descansos; videos, gif, imagenes; cursos, modulos, lecciones, recursos
+  descargables; articulos, noticias, consejos, mensajes motivacionales, retos;
+  planes nutricionales, recetas; categorias, etiquetas, promociones; y CUALQUIER
+  contenido que vea el alumno.
+- Estado actual vs. regla (deuda a saldar en proximos incrementos, ya que la regla
+  aplica de aqui en adelante): YA cumplen (CRUD del coach): biblioteca de ejercicios,
+  programas de entrenamiento, planes de nutricion, alumnos, leads. AUN son seeds sin
+  panel del coach y deben migrarse a CRUD administrable: contenido de "Descubre"
+  (rutinas destacadas, categorias, articulos — `src/data/discover.ts`), secciones
+  demo del dashboard premium (logros/recursos/medidas/graficas base), recompensas/
+  mensajes del onboarding, y el contenido de marketing de la landing. Al tocar
+  cualquiera de estos, convertirlo en administrable en vez de dejar el seed fijo.
+- Al planificar cada version/incremento nuevo: pensar primero "¿como lo administra el
+  coach?" antes de construir la experiencia del alumno.
+
 ## Decision de alcance (etapa actual)
 Primera etapa sera local y basica, sin backend ni Supabase. Solo landing, login,
 dashboard cliente y dashboard admin. La persistencia es real pero local
@@ -262,6 +301,7 @@ contenido es estatico y no requiere persistencia).
 ## Flujo de trabajo y mantenimiento (OBLIGATORIO en cada tarea importante)
 Estas reglas son permanentes; aplicarlas automaticamente sin que el usuario las recuerde.
 
+0. FILOSOFIA PERMANENTE (ver seccion "FILOSOFIA DEL PRODUCTO" arriba): el coach administra TODO el contenido; el alumno solo consume. Antes de construir cualquier funcionalidad de contenido, disenar PRIMERO como lo administra el coach (CRUD + publicar/despublicar + asignar) via UI -> Service -> Repository -> Storage. Nada de contenido fijo; los seeds son temporales.
 1. Antes de empezar una funcionalidad, leer `CLAUDE.md` y `CHANGELOG.md` para entender el estado actual del proyecto.
 2. Registrar SIEMPRE en `CLAUDE.md` (y en `CHANGELOG.md` si corresponde) toda nueva regla de arquitectura, decision tecnica, convencion, modulo, cambio importante de flujo o version. El objetivo es poder retomar el proyecto meses despues sin perder contexto.
 3. Si una nueva implementacion contradice reglas o decisiones existentes, NOTIFICARLO al usuario antes de modificar el codigo.
