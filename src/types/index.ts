@@ -485,6 +485,36 @@ export type WorkoutResult = {
 
 export type CreateWorkoutResult = Omit<WorkoutResult, "id">;
 
+/* ---------- Seccion "Descubre" (contenido del alumno) ---------- */
+
+/** Rutina destacada del catalogo "Descubre" (contenido, no asignable todavia). */
+export type DiscoverRoutine = {
+  id: string;
+  name: string;
+  zone: string;
+  level: string;
+  duration: string;
+  minutes: string;
+  image: string;
+};
+
+/** Categoria por zona del cuerpo (se cruza con la biblioteca de ejercicios). */
+export type DiscoverCategory = {
+  key: string;
+  label: string;
+  muscleGroups: string[];
+  description: string;
+};
+
+/** Articulo / recurso educativo. */
+export type DiscoverArticle = {
+  id: string;
+  title: string;
+  category: string;
+  readTime: string;
+  summary: string;
+};
+
 /* ---------- Biblioteca de ejercicios (catalogo del coach) ---------- */
 
 /** Ficha completa de un ejercicio (catalogo reutilizable en los programas). */

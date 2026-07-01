@@ -1,4 +1,5 @@
 import { MockContentRepository } from "@/repositories/mock/content.repository";
+import { MockDiscoverRepository } from "@/repositories/mock/discover.repository";
 import { MockTestimonialRepository } from "@/repositories/mock/testimonial.repository";
 import { MockTransformationRepository } from "@/repositories/mock/transformation.repository";
 import { LocalClientRepository } from "@/repositories/local/client.repository";
@@ -15,6 +16,7 @@ import type {
   ClientRepository,
   CoachingRepository,
   ContentRepository,
+  DiscoverRepository,
   LeadRepository,
   PendingEvaluationRepository,
   ExerciseLibraryRepository,
@@ -44,6 +46,8 @@ export const testimonialRepository: TestimonialRepository =
 export const transformationRepository: TransformationRepository =
   new MockTransformationRepository();
 export const contentRepository: ContentRepository = new MockContentRepository();
+export const discoverRepository: DiscoverRepository =
+  new MockDiscoverRepository();
 export const clientRepository: ClientRepository = new LocalClientRepository();
 export const leadRepository: LeadRepository = new LocalLeadRepository();
 export const progressRepository: ProgressRepository =

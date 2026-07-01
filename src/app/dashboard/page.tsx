@@ -1,17 +1,21 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import {
   Activity,
   CheckCircle2,
+  Compass,
   Dumbbell,
   MessageCircle,
   PauseCircle,
   RefreshCw,
   ShieldAlert,
   ShieldCheck,
+  Sparkles,
   Target,
   Trophy,
+  UserRound,
 } from "lucide-react";
 import { DashboardShell } from "@/layouts/dashboard-shell";
 import { RequireAuth } from "@/components/require-auth";
@@ -88,6 +92,7 @@ export default function ClientDashboardPage() {
         ) : (
           <>
             {access ? <AccessNotice access={access} /> : null}
+            <QuickLinks />
             {progress ? (
               <ProgressView progress={progress} />
             ) : (
@@ -274,6 +279,34 @@ function LockedDashboard({
         Se abrirá WhatsApp para escribirle a tu coach.
       </p>
     </section>
+  );
+}
+
+/** Accesos rápidos del alumno (estilo app): mi plan, descubre, mi perfil. */
+function QuickLinks() {
+  const links = [
+    { href: "/plan", label: "Mi plan", icon: Sparkles },
+    { href: "/descubre", label: "Descubre", icon: Compass },
+    { href: "/perfil", label: "Mi perfil", icon: UserRound },
+  ];
+  return (
+    <div className="mb-6 grid grid-cols-3 gap-3">
+      {links.map((l) => {
+        const Icon = l.icon;
+        return (
+          <Link
+            key={l.href}
+            href={l.href}
+            className="premium-card card-hover flex flex-col items-center gap-2 rounded-2xl p-4 text-center"
+          >
+            <span className="inline-flex rounded-xl border border-[#65ff4f]/20 bg-[#65ff4f]/10 p-2.5 text-[#65ff4f]">
+              <Icon size={20} />
+            </span>
+            <span className="text-sm font-black">{l.label}</span>
+          </Link>
+        );
+      })}
+    </div>
   );
 }
 

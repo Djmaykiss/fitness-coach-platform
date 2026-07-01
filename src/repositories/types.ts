@@ -26,6 +26,9 @@ import type {
   ProgressPhoto,
   RegisterInput,
   CreateWorkoutResult,
+  DiscoverArticle,
+  DiscoverCategory,
+  DiscoverRoutine,
   Testimonial,
   TrainingProgram,
   Transformation,
@@ -63,6 +66,13 @@ export interface TransformationRepository {
 export interface ContentRepository {
   getBenefits(): Promise<Benefit[]>;
   getNavLinks(): Promise<NavLink[]>;
+}
+
+/** Contenido de la seccion "Descubre" del alumno (seeds estaticos). */
+export interface DiscoverRepository {
+  getRoutines(): Promise<DiscoverRoutine[]>;
+  getCategories(): Promise<DiscoverCategory[]>;
+  getArticles(): Promise<DiscoverArticle[]>;
 }
 
 export interface ClientRepository {

@@ -31,9 +31,22 @@ Todos los cambios relevantes del proyecto se registran en este archivo.
   backend. No se tocó landing ni onboarding. Verificado responsive (móvil 375px) sin
   overflow y desktop sin romper el diseño actual.
 
-### Pendiente en v1.5 (próximos incrementos)
-- Onboarding premium rediseñado, pantalla de predicción, pantalla "Obtener mi
-  plan" y sección "Descubre".
+### Incremento 2 — Descubre y "Obtener mi plan" (todo aditivo)
+- Nueva sección "Descubre" (`/descubre`) estilo app móvil con filas horizontales:
+  rutinas populares, categorías por zona (cuerpo completo, abdominales, pecho,
+  hombros/espalda, piernas) que muestran los ejercicios reales de la biblioteca, y
+  artículos/recursos educativos (seeds).
+- Nueva pantalla "Obtener mi plan" (`/plan`): resumen del plan recomendado, zona
+  principal, nivel, duración, calorías estimadas (informativas), vista previa de
+  semanas y de ejercicios, y botón "Entrar a mi plan" → dashboard (sin pagos).
+- Fila de accesos rápidos en el dashboard del alumno (Mi plan, Descubre, Mi perfil).
+- Nuevos: tipos `DiscoverRoutine`/`DiscoverCategory`/`DiscoverArticle`;
+  `discoverService` + `MockDiscoverRepository` + `src/data/discover.ts`;
+  `planService.getPlanForUser`. Sin Supabase ni backend; sin tocar landing ni
+  onboarding. Verificado responsive (móvil 375px) y desktop.
+
+### Pendiente en v1.5 (próximo incremento)
+- Onboarding premium rediseñado y pantalla de predicción personalizada.
 
 ## v1.4
 
