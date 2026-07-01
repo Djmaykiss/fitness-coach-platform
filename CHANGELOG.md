@@ -2,6 +2,39 @@
 
 Todos los cambios relevantes del proyecto se registran en este archivo.
 
+## (en rama `feature/student-mobile-premium-experience`, v1.5 en progreso, sin merge)
+
+### Incremento 1 — Entrenamiento y progreso (todo aditivo, no rompe v1.4)
+- Modo entrenamiento real en `/entrenar`: pantalla de preparación, contador 3-2-1,
+  ejercicio actual con imagen/GIF/video de la biblioteca, temporizador, pausar/
+  reanudar, anterior/siguiente, pantalla de descanso con "+20 s" y "omitir",
+  progreso "Ejercicio i/N" y resumen final (duración, ejercicios, calorías
+  estimadas informativas y sensación difícil/adecuado/fácil).
+- El resultado se guarda en `localStorage` (`workout-results`) y se refleja en el
+  historial y en los logros (el día queda marcado como completado).
+- Nuevo "Mi historial de entrenamientos" en el dashboard (solo si el acceso está
+  activo): racha, calendario mensual con minutos/calorías por día y lista de
+  sesiones — todo derivado de acciones reales.
+- Nueva pantalla "Mi perfil" (`/perfil`): nombre, peso actual/objetivo, IMC,
+  gráfica de peso, totales (entrenamientos, minutos, calorías) y contacto WhatsApp
+  del coach. El nombre del header del alumno enlaza a "Mi perfil".
+- Botón "Iniciar modo entrenamiento" en la rutina de hoy del alumno.
+
+### Técnico
+- Nuevos tipos `WorkoutResult`/`WorkoutFeeling`/`CreateWorkoutResult`; campos
+  opcionales en `LeadEvaluation` (`targetWeight`, `motivation`, `focusZone`,
+  `birthYear`, `injuries`, `reward`) sin romper datos previos.
+- `trainingService.getResultsForUser`/`saveResultForUser`,
+  `trainingProgramRepository.getWorkoutResults`/`addWorkoutResult`,
+  clave `workout-results`; helpers en `src/lib/workout.ts`; `DashboardShell.navHref`.
+- Arquitectura UI → services → repositories → localStorage intacta. Sin Supabase ni
+  backend. No se tocó landing ni onboarding. Verificado responsive (móvil 375px) sin
+  overflow y desktop sin romper el diseño actual.
+
+### Pendiente en v1.5 (próximos incrementos)
+- Onboarding premium rediseñado, pantalla de predicción, pantalla "Obtener mi
+  plan" y sección "Descubre".
+
 ## v1.4
 
 Version estable actual en `main` (panel del coach profesional + contacto

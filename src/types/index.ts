@@ -165,6 +165,14 @@ export type LeadEvaluation = {
   /* Datos personales extra (formulario de salud/nutricion) */
   address?: string;
 
+  /* Campos ampliados (onboarding premium v1.5); opcionales, no rompen datos previos. */
+  targetWeight?: string;
+  motivation?: string;
+  focusZone?: string;
+  birthYear?: string;
+  injuries?: string;
+  reward?: string;
+
   /* Antecedentes personales */
   hypertension?: string;
   hepatitis?: string;
@@ -458,6 +466,24 @@ export type AssignedTraining = {
   /** Series completadas por ejercicio: id de ejercicio (instancia) -> indices. */
   seriesProgress: Record<string, number[]>;
 };
+
+/** Sensacion del alumno al terminar una sesion de entrenamiento. */
+export type WorkoutFeeling = "dificil" | "adecuado" | "facil";
+
+/** Resultado de una sesion de entrenamiento completada (modo entrenamiento). */
+export type WorkoutResult = {
+  id: string;
+  date: string;
+  dayId: string;
+  dayName: string;
+  programName: string;
+  exercises: number;
+  durationSec: number;
+  caloriesEst: number;
+  feeling: WorkoutFeeling;
+};
+
+export type CreateWorkoutResult = Omit<WorkoutResult, "id">;
 
 /* ---------- Biblioteca de ejercicios (catalogo del coach) ---------- */
 

@@ -18,6 +18,7 @@ import { RequireAuth } from "@/components/require-auth";
 import { AccessBadge } from "@/components/access-badge";
 import { EvaluationDetails } from "@/components/evaluation-details";
 import { TrainingProgramView } from "@/components/dashboard/training-program-view";
+import { WorkoutHistory } from "@/components/dashboard/workout-history";
 import { NutritionPlanView } from "@/components/dashboard/nutrition-plan-view";
 import { PremiumDashboard } from "@/components/dashboard/premium-dashboard";
 import { StatCard } from "@/components/ui";
@@ -78,6 +79,7 @@ export default function ClientDashboardPage() {
         }
         minimalNav
         navName={realName}
+        navHref="/perfil"
       >
         {!accessLoaded ? (
           <p className="text-zinc-400">Cargando tu acceso...</p>
@@ -103,6 +105,7 @@ export default function ClientDashboardPage() {
               </section>
             ) : null}
             {user ? <TrainingProgramView userId={user.id} /> : null}
+            {user ? <WorkoutHistory userId={user.id} /> : null}
             {user ? <NutritionPlanView userId={user.id} /> : null}
             {user ? <PremiumDashboard userId={user.id} /> : null}
           </>

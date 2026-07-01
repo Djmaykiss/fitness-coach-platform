@@ -6,6 +6,8 @@ import type {
   AssignedTraining,
   CreateTrainingExercise,
   CreateTrainingProgramInput,
+  CreateWorkoutResult,
+  WorkoutResult,
 } from "@/types";
 
 /**
@@ -77,5 +79,20 @@ export const trainingService = {
       seriesIndex,
       done,
     );
+  },
+
+  /* ---- Modo entrenamiento: resultados de sesion ---- */
+  /** Sesiones completadas del alumno autenticado (mas recientes primero). */
+  async getResultsForUser(userId: string): Promise<WorkoutResult[]> {
+    const client = await clientRepository.findByUserId(userId);
+    if (!client) return [];
+    return trainingProgramRepository.getWorkoutResults(client.id);
+  },
+
+  /** Guarda el resultado de una sesion para el alumno autenticado. */
+  async saveResultForUser(userId: string, result: CreateWorkoutResult) {
+    const client = await clientRepository.findByUserId(userId);
+    if (!client) return null;
+    return trainingProgramRepository.addWorkoutResult(client.id, result);
   },
 };

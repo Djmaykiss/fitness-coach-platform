@@ -25,10 +25,12 @@ import type {
   ProgramRow,
   ProgressPhoto,
   RegisterInput,
+  CreateWorkoutResult,
   Testimonial,
   TrainingProgram,
   Transformation,
   User,
+  WorkoutResult,
 } from "@/types";
 
 /**
@@ -152,6 +154,12 @@ export interface TrainingProgramRepository {
     seriesIndex: number,
     done: boolean,
   ): Promise<Record<string, number[]>>;
+  /** Sesiones de entrenamiento completadas (modo entrenamiento), por cliente. */
+  getWorkoutResults(clientId: string): Promise<WorkoutResult[]>;
+  addWorkoutResult(
+    clientId: string,
+    result: CreateWorkoutResult,
+  ): Promise<WorkoutResult>;
 }
 
 /**

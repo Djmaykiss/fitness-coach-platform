@@ -9,6 +9,7 @@ export function DashboardShell({
   eyebrow = "Área privada",
   minimalNav = false,
   navName,
+  navHref,
   children,
 }: {
   title: string;
@@ -18,6 +19,8 @@ export function DashboardShell({
   minimalNav?: boolean;
   /** Nombre real a mostrar junto a "Salir" (header del alumno). */
   navName?: string;
+  /** Si se indica, el nombre del header enlaza a esta ruta (p. ej. "/perfil"). */
+  navHref?: string;
   children: ReactNode;
 }) {
   return (
@@ -40,9 +43,18 @@ export function DashboardShell({
                 </>
               )}
               {navName ? (
-                <span className="max-w-[40vw] truncate text-zinc-200">
-                  {navName}
-                </span>
+                navHref ? (
+                  <Link
+                    href={navHref}
+                    className="max-w-[40vw] truncate text-zinc-200 hover:text-[#65ff4f]"
+                  >
+                    {navName}
+                  </Link>
+                ) : (
+                  <span className="max-w-[40vw] truncate text-zinc-200">
+                    {navName}
+                  </span>
+                )
               ) : null}
               <LogoutButton />
             </div>

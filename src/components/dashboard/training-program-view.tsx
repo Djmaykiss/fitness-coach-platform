@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import {
   CalendarDays,
@@ -125,9 +126,18 @@ export function TrainingProgramView({ userId }: { userId: string }) {
 
       {focusDay ? (
         <div className="premium-card rounded-2xl border border-[#65ff4f]/30 p-6">
-          <div className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.2em] text-[#65ff4f]">
-            <Flame size={16} />
-            Rutina de hoy
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.2em] text-[#65ff4f]">
+              <Flame size={16} />
+              Rutina de hoy
+            </div>
+            <Link
+              href={`/entrenar?day=${focusDay.id}`}
+              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-gradient-to-b from-[#85ff73] to-[#65ff4f] px-5 text-sm font-black uppercase tracking-wide text-black shadow-[0_8px_30px_-8px_rgba(101,255,79,0.5)] transition duration-300 hover:-translate-y-0.5 hover:brightness-110 active:translate-y-0 active:scale-[0.98]"
+            >
+              <Play size={16} />
+              Iniciar modo entrenamiento
+            </Link>
           </div>
           <DayBlock
             day={focusDay}

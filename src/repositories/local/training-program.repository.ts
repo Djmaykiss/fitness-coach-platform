@@ -14,7 +14,9 @@ import {
 import type {
   CreateTrainingExercise,
   CreateTrainingProgramInput,
+  CreateWorkoutResult,
   TrainingProgram,
+  WorkoutResult,
 } from "@/types";
 
 function id(prefix: string): string {
@@ -208,5 +210,22 @@ export class LocalTrainingProgramRepository
     record[clientId] = forClient;
     writeRecord(STORAGE_KEYS.exerciseProgress, record);
     return resolveMock(forClient);
+  }
+
+  /* ---- Resultados de sesiones (modo entrenamiento) ---- */
+  private readResults(): Record<string, WorkoutResult[]> {
+    return readRecord<WorkoutResult[]>(STORAGE_KEYS.workoutResults, {});
+  }
+
+  getWorkoutResults(clientId: string) {
+    return resolveMock(this.readResults()[clientId] ?? []);
+  }
+
+  addWorkoutResult(clientId: string, result: CreateWorkoutResult) {
+    const record = this.readResults();
+    const created: WorkoutResult = { ...result, id: id("wr") };
+    record[clientId] = [created, ...(record[clientId] ?? [])];
+    writeRecord(STORAGE_KEYS.workoutResults, record);
+    return resolveMock(created);
   }
 }
