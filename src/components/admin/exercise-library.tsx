@@ -232,8 +232,14 @@ function ExerciseForm({
       <div className="grid gap-3 sm:grid-cols-3">
         <Text label="Imagen (URL)" value={v.image} onChange={(x) => set("image", x)} placeholder="https://..." />
         <Text label="GIF (URL)" value={v.gif} onChange={(x) => set("gif", x)} placeholder="https://..." />
-        <Text label="Video YouTube (URL)" value={v.video} onChange={(x) => set("video", x)} placeholder="https://youtube.com/..." />
+        <Text label="Video YouTube (URL)" value={v.video} onChange={(x) => set("video", x)} placeholder="https://youtu.be/…" />
       </div>
+      <p className="mt-2 text-xs text-zinc-500">
+        El video puede ser público o <span className="text-zinc-300">no listado</span>{" "}
+        de YouTube; el alumno lo verá embebido con el botón “Ver demostración” en la
+        ficha y en el modo entrenamiento. (Los videos privados no se pueden reproducir
+        fuera de tu cuenta.)
+      </p>
 
       <Legend>Contenido técnico</Legend>
       <Area label="Descripción" value={v.description} onChange={(x) => set("description", x)} />

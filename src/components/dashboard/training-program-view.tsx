@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { trainingService } from "@/services/training.service";
 import { exerciseLibraryService } from "@/services/exercise-library.service";
+import { ExerciseVideo } from "@/components/exercise-video";
 import type {
   AssignedTraining,
   LibraryExercise,
@@ -307,15 +308,7 @@ function ExerciseCard({
             />
           </div>
           {detail?.video ? (
-            <a
-              href={detail.video}
-              target="_blank"
-              rel="noreferrer"
-              className="mt-3 inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-[#65ff4f]/40 px-5 text-sm font-black uppercase tracking-wide text-[#65ff4f] transition duration-300 hover:bg-[#65ff4f]/10"
-            >
-              <Play size={16} />
-              Ver demostración
-            </a>
+            <ExerciseVideo url={detail.video} title={exercise.name} />
           ) : null}
 
           {/* Datos */}

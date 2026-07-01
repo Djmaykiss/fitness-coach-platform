@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { RequireAuth } from "@/components/require-auth";
 import { LogoutButton } from "@/components/logout-button";
+import { ExerciseVideo } from "@/components/exercise-video";
 import { useAuth } from "@/context/auth-context";
 import { trainingService } from "@/services/training.service";
 import { exerciseLibraryService } from "@/services/exercise-library.service";
@@ -465,14 +466,7 @@ function Session({
         </div>
 
         {detail?.video ? (
-          <a
-            href={detail.video}
-            target="_blank"
-            rel="noreferrer"
-            className="mt-4 block text-center text-sm font-bold text-[#65ff4f] hover:underline"
-          >
-            Ver demostración del ejercicio
-          </a>
+          <ExerciseVideo url={detail.video} title={current.name} variant="link" />
         ) : null}
       </div>
     </Shell>

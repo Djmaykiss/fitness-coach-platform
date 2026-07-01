@@ -91,6 +91,29 @@ Todos los cambios relevantes del proyecto se registran en este archivo.
   backend. Verificado `npm run lint` + `npm run build` y responsive (móvil 375px sin
   overflow; pestañas del CMS desplazables) y desktop.
 
+### Incremento 5 — Video embebido del ejercicio + auditoría del flujo completo
+- Se auditó de punta a punta el flujo de ejercicios y programas y se confirmó que
+  ya funcionaba al 100% (nada eliminado, solo una mejora segura):
+  - El coach administra ejercicios en `/admin` con ficha completa: agregar, editar,
+    eliminar, descripción, imagen, GIF, enlace de YouTube (público o no listado),
+    técnica, errores comunes, consejos, músculos, equipo, dificultad, tiempo y
+    descanso recomendados.
+  - El coach arma programas ELIGIENDO ejercicios de la biblioteca y los asigna a
+    alumnos; el alumno los ve en su dashboard y en el modo entrenamiento.
+- Mejora (aditiva): el video de YouTube del ejercicio ahora se REPRODUCE EMBEBIDO
+  dentro de la ficha del alumno y del modo entrenamiento (antes solo abría el enlace
+  en otra pestaña). Botón "Ver demostración" que despliega el reproductor 16:9 con
+  enlace "Abrir en YouTube" de respaldo. Soporta enlaces no listados; los enlaces que
+  no son de YouTube conservan el comportamiento de abrir en pestaña nueva.
+- Nuevos: `src/lib/youtube.ts` (`youtubeEmbedUrl`) y `src/components/exercise-video.tsx`
+  (`ExerciseVideo`, reutilizado por la ficha y `/entrenar`). Aclaración en el
+  formulario de la biblioteca sobre videos públicos/no listados/privados.
+- Verificado end-to-end: crear ejercicio con foto + video + descripción, editarlo,
+  eliminarlo, agregarlo a un programa, asignar el programa a un alumno, el alumno lo
+  ve en dashboard y en modo entrenamiento, y el video abre embebido (`/embed/ID`).
+  `npm run lint` + `npm run build` OK; móvil 375px sin overflow. Sin Supabase ni
+  backend.
+
 ### Pendiente en v1.5 (próximo incremento)
 - Onboarding premium rediseñado y pantalla de predicción personalizada, que
   consumirán el contenido administrado por el coach (parte 2 del incremento 4).
