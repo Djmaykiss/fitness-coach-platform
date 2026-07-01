@@ -26,6 +26,7 @@ import { EvaluationDetails } from "@/components/evaluation-details";
 import { ExerciseLibraryManager } from "@/components/admin/exercise-library";
 import { TrainingProgramsManager } from "@/components/admin/training-programs";
 import { NutritionPlansManager } from "@/components/admin/nutrition-plans";
+import { DiscoverManager } from "@/components/admin/discover-manager";
 import { adminDashboardService } from "@/services/dashboard.service";
 import { leadService } from "@/services/lead.service";
 import { trainingService } from "@/services/training.service";
@@ -388,6 +389,9 @@ export function AdminPanel() {
 
       {/* Planes de nutrición (módulo real) */}
       <NutritionPlansManager />
+
+      {/* Descubre (CMS de contenido del alumno) */}
+      <DiscoverManager />
 
       {/* Leads */}
       <section className="premium-card mt-6 overflow-hidden rounded-2xl">

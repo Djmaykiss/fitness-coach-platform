@@ -2,12 +2,15 @@
 
 import { useEffect, useState } from "react";
 import {
+  Activity,
   BookOpen,
   Dumbbell,
   Flame,
   ImageIcon,
   Layers,
+  Target,
   Timer,
+  Zap,
 } from "lucide-react";
 import { DashboardShell } from "@/layouts/dashboard-shell";
 import { RequireAuth } from "@/components/require-auth";
@@ -20,6 +23,19 @@ import type {
   DiscoverRoutine,
   LibraryExercise,
 } from "@/types";
+
+/** Icono de categoria por nombre (el coach elige el icono desde el panel). */
+const CATEGORY_ICONS: Record<string, React.ReactNode> = {
+  dumbbell: <Dumbbell size={18} />,
+  flame: <Flame size={18} />,
+  activity: <Activity size={18} />,
+  target: <Target size={18} />,
+  zap: <Zap size={18} />,
+};
+
+function categoryIcon(icon: string) {
+  return CATEGORY_ICONS[icon] ?? <Dumbbell size={18} />;
+}
 
 export default function DiscoverPage() {
   return (
@@ -44,9 +60,9 @@ function Discover() {
   useEffect(() => {
     let active = true;
     Promise.all([
-      discoverService.getRoutines(),
-      discoverService.getCategories(),
-      discoverService.getArticles(),
+      discoverService.getPublishedRoutines(),
+      discoverService.getPublishedCategories(),
+      discoverService.getPublishedArticles(),
       exerciseLibraryService.getExercises(),
     ]).then(([r, c, a, lib]) => {
       if (!active) return;
@@ -82,9 +98,14 @@ function Discover() {
               <Media src={r.image} alt={r.name} />
               <div className="p-4">
                 <span className="text-xs font-black uppercase tracking-wide text-[#65ff4f]">
-                  {r.zone}
+                  {r.category}
                 </span>
                 <h3 className="mt-1 text-lg font-black">{r.name}</h3>
+                {r.description ? (
+                  <p className="mt-1 text-xs leading-5 text-zinc-400">
+                    {r.description}
+                  </p>
+                ) : null}
                 <div className="mt-3 flex flex-wrap gap-2 text-[11px] font-bold">
                   <Chip>{r.level}</Chip>
                   <Chip>
@@ -103,10 +124,10 @@ function Discover() {
         <Row>
           {categories.map((c) => {
             const count = exercisesFor(c).length;
-            const active = openCat?.key === c.key;
+            const active = openCat?.id === c.id;
             return (
               <button
-                key={c.key}
+                key={c.id}
                 type="button"
                 onClick={() => setOpenCat(active ? null : c)}
                 className={`w-52 shrink-0 snap-start rounded-2xl border p-5 text-left transition ${
@@ -116,7 +137,7 @@ function Discover() {
                 }`}
               >
                 <span className="inline-flex rounded-xl border border-[#65ff4f]/20 bg-[#65ff4f]/10 p-2 text-[#65ff4f]">
-                  <Dumbbell size={18} />
+                  {categoryIcon(c.icon)}
                 </span>
                 <h3 className="mt-3 font-black">{c.label}</h3>
                 <p className="mt-1 text-xs text-zinc-400">{c.description}</p>
@@ -176,7 +197,9 @@ function Discover() {
                 {a.category} · {a.readTime}
               </span>
               <h3 className="mt-2 font-black leading-snug">{a.title}</h3>
-              <p className="mt-2 text-sm leading-6 text-zinc-400">{a.summary}</p>
+              <p className="mt-2 line-clamp-3 text-sm leading-6 text-zinc-400">
+                {a.content}
+              </p>
             </button>
           ))}
         </Row>
@@ -198,11 +221,11 @@ function Discover() {
                 Cerrar
               </button>
             </div>
-            <p className="mt-3 text-sm leading-6 text-zinc-300">
-              {openArticle.summary}
+            <p className="mt-3 whitespace-pre-line text-sm leading-6 text-zinc-300">
+              {openArticle.content}
             </p>
             <p className="mt-3 text-xs text-zinc-600">
-              Contenido educativo de tu coach. La versión completa llegará pronto.
+              Contenido educativo de tu coach.
             </p>
           </div>
         ) : null}

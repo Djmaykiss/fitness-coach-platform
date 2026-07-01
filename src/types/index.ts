@@ -485,26 +485,34 @@ export type WorkoutResult = {
 
 export type CreateWorkoutResult = Omit<WorkoutResult, "id">;
 
-/* ---------- Seccion "Descubre" (contenido del alumno) ---------- */
+/* ---------- Seccion "Descubre" (CMS administrado por el coach) ---------- */
 
-/** Rutina destacada del catalogo "Descubre" (contenido, no asignable todavia). */
+/** Rutina destacada del catalogo "Descubre" (la administra el coach en /admin). */
 export type DiscoverRoutine = {
   id: string;
   name: string;
-  zone: string;
+  category: string;
   level: string;
   duration: string;
   minutes: string;
+  description: string;
   image: string;
+  published: boolean;
 };
 
-/** Categoria por zona del cuerpo (se cruza con la biblioteca de ejercicios). */
+export type CreateDiscoverRoutine = Omit<DiscoverRoutine, "id" | "published">;
+
+/** Categoria por zona (se cruza con la biblioteca por `muscleGroups`). */
 export type DiscoverCategory = {
-  key: string;
+  id: string;
   label: string;
-  muscleGroups: string[];
   description: string;
+  icon: string;
+  muscleGroups: string[];
+  published: boolean;
 };
+
+export type CreateDiscoverCategory = Omit<DiscoverCategory, "id" | "published">;
 
 /** Articulo / recurso educativo. */
 export type DiscoverArticle = {
@@ -512,8 +520,12 @@ export type DiscoverArticle = {
   title: string;
   category: string;
   readTime: string;
-  summary: string;
+  content: string;
+  image: string;
+  published: boolean;
 };
+
+export type CreateDiscoverArticle = Omit<DiscoverArticle, "id" | "published">;
 
 /* ---------- Biblioteca de ejercicios (catalogo del coach) ---------- */
 

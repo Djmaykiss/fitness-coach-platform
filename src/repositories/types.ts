@@ -25,6 +25,9 @@ import type {
   ProgramRow,
   ProgressPhoto,
   RegisterInput,
+  CreateDiscoverArticle,
+  CreateDiscoverCategory,
+  CreateDiscoverRoutine,
   CreateWorkoutResult,
   DiscoverArticle,
   DiscoverCategory,
@@ -68,11 +71,37 @@ export interface ContentRepository {
   getNavLinks(): Promise<NavLink[]>;
 }
 
-/** Contenido de la seccion "Descubre" del alumno (seeds estaticos). */
+/**
+ * CMS de la seccion "Descubre": el coach administra rutinas destacadas, categorias
+ * y articulos (CRUD + publicar/despublicar). Persistido en localStorage.
+ */
 export interface DiscoverRepository {
   getRoutines(): Promise<DiscoverRoutine[]>;
+  createRoutine(input: CreateDiscoverRoutine): Promise<DiscoverRoutine>;
+  updateRoutine(
+    id: string,
+    patch: Partial<CreateDiscoverRoutine>,
+  ): Promise<DiscoverRoutine | null>;
+  deleteRoutine(id: string): Promise<boolean>;
+  setRoutinePublished(id: string, published: boolean): Promise<DiscoverRoutine | null>;
+
   getCategories(): Promise<DiscoverCategory[]>;
+  createCategory(input: CreateDiscoverCategory): Promise<DiscoverCategory>;
+  updateCategory(
+    id: string,
+    patch: Partial<CreateDiscoverCategory>,
+  ): Promise<DiscoverCategory | null>;
+  deleteCategory(id: string): Promise<boolean>;
+  setCategoryPublished(id: string, published: boolean): Promise<DiscoverCategory | null>;
+
   getArticles(): Promise<DiscoverArticle[]>;
+  createArticle(input: CreateDiscoverArticle): Promise<DiscoverArticle>;
+  updateArticle(
+    id: string,
+    patch: Partial<CreateDiscoverArticle>,
+  ): Promise<DiscoverArticle | null>;
+  deleteArticle(id: string): Promise<boolean>;
+  setArticlePublished(id: string, published: boolean): Promise<DiscoverArticle | null>;
 }
 
 export interface ClientRepository {

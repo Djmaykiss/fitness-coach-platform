@@ -45,6 +45,31 @@ Todos los cambios relevantes del proyecto se registran en este archivo.
   `planService.getPlanForUser`. Sin Supabase ni backend; sin tocar landing ni
   onboarding. Verificado responsive (móvil 375px) y desktop.
 
+### Incremento 3 — CMS de "Descubre" administrado por el coach
+- El contenido de "Descubre" dejó de ser fijo (seed `Mock*`) y ahora lo administra
+  el coach por completo desde `/admin`, persistido en `localStorage` (primera
+  aplicación de la regla permanente: el coach administra TODO el contenido).
+- Nuevo módulo CMS en `/admin` (`discover-manager.tsx`) con pestañas
+  Rutinas / Categorías / Artículos. Cada entidad soporta Crear, Editar, Eliminar y
+  Publicar/Despublicar:
+  - Rutinas destacadas: título, categoría, nivel, duración, minutos, descripción,
+    imagen (opcional).
+  - Categorías: nombre, descripción, icono y grupos musculares relacionados (se
+    cruzan con la biblioteca para contar ejercicios reales).
+  - Artículos/recursos: título, categoría, tiempo de lectura, contenido, imagen
+    (opcional).
+- La página `/descubre` del alumno ahora consume SOLO el contenido publicado
+  (`discoverService.getPublishedRoutines/Categories/Articles`); lo despublicado
+  desaparece para el alumno sin borrarse.
+- Capas: tipos `DiscoverRoutine`/`DiscoverCategory`/`DiscoverArticle` +
+  `CreateDiscover*` (con `published`); `discoverService` (getters de publicados +
+  CRUD del coach) → `LocalDiscoverRepository` (reemplaza a `MockDiscoverRepository`,
+  eliminado) → `localStorage` (claves `discover-routines/categories/articles`). Los
+  seeds de `src/data/discover.ts` quedan solo como demo inicial.
+- Sin funciones nuevas para el alumno, sin cambio de diseño general, sin Supabase ni
+  backend. Verificado `npm run lint` + `npm run build` y responsive (móvil 375px sin
+  overflow; barra de pestañas del CMS desplazable en móvil) y desktop.
+
 ### Pendiente en v1.5 (próximo incremento)
 - Onboarding premium rediseñado y pantalla de predicción personalizada.
 
