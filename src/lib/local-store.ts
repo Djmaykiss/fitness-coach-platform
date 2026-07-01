@@ -35,6 +35,9 @@ export const STORAGE_KEYS = {
   discoverRoutines: "coach-fitness:discover-routines",
   discoverCategories: "coach-fitness:discover-categories",
   discoverArticles: "coach-fitness:discover-articles",
+  onboardingMessages: "coach-fitness:onboarding-messages",
+  onboardingRewards: "coach-fitness:onboarding-rewards",
+  onboardingPredictions: "coach-fitness:onboarding-predictions",
 } as const;
 
 const isBrowser = () => typeof window !== "undefined";

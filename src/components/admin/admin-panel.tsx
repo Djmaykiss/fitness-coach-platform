@@ -27,6 +27,7 @@ import { ExerciseLibraryManager } from "@/components/admin/exercise-library";
 import { TrainingProgramsManager } from "@/components/admin/training-programs";
 import { NutritionPlansManager } from "@/components/admin/nutrition-plans";
 import { DiscoverManager } from "@/components/admin/discover-manager";
+import { OnboardingContentManager } from "@/components/admin/onboarding-content-manager";
 import { adminDashboardService } from "@/services/dashboard.service";
 import { leadService } from "@/services/lead.service";
 import { trainingService } from "@/services/training.service";
@@ -392,6 +393,9 @@ export function AdminPanel() {
 
       {/* Descubre (CMS de contenido del alumno) */}
       <DiscoverManager />
+
+      {/* Onboarding (CMS de mensajes, recompensas y predicción) */}
+      <OnboardingContentManager />
 
       {/* Leads */}
       <section className="premium-card mt-6 overflow-hidden rounded-2xl">

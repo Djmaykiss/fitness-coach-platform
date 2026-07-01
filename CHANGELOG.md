@@ -70,8 +70,30 @@ Todos los cambios relevantes del proyecto se registran en este archivo.
   backend. Verificado `npm run lint` + `npm run build` y responsive (móvil 375px sin
   overflow; barra de pestañas del CMS desplazable en móvil) y desktop.
 
+### Incremento 4 (parte 1) — Panel del coach para el contenido del onboarding
+- Siguiendo la regla permanente (el coach administra TODO el contenido), se
+  construyó PRIMERO el panel del coach, antes de tocar la vista del alumno.
+- Nuevo módulo CMS en `/admin` (`onboarding-content-manager.tsx`) con pestañas
+  Mensajes / Recompensas / Predicción. Cada entidad soporta Crear, Editar, Eliminar
+  y Publicar/Despublicar:
+  - Mensajes motivacionales: mensaje + segmento (objetivo del onboarding o General).
+  - Recompensas: título, descripción e icono.
+  - Textos de predicción: objetivo, título, horizonte y texto.
+- El contenido se sirve solo-publicado para el onboarding/predicción
+  (`onboardingContentService.getPublishedMessages/Rewards/Predictions`); el coach
+  administra todo. Persistido en `localStorage`.
+- Capas espejo de Descubre: tipos `OnboardingMessage`/`OnboardingReward`/
+  `OnboardingPrediction` + `CreateOnboarding*`; `onboardingContentService` →
+  `LocalOnboardingContentRepository` → `localStorage` (claves
+  `onboarding-messages/rewards/predictions`). Seeds solo como demo inicial.
+- Aún NO se tocó el onboarding, la landing ni la vista del alumno (la conexión del
+  onboarding premium y la pantalla de predicción es la parte 2). Sin Supabase ni
+  backend. Verificado `npm run lint` + `npm run build` y responsive (móvil 375px sin
+  overflow; pestañas del CMS desplazables) y desktop.
+
 ### Pendiente en v1.5 (próximo incremento)
-- Onboarding premium rediseñado y pantalla de predicción personalizada.
+- Onboarding premium rediseñado y pantalla de predicción personalizada, que
+  consumirán el contenido administrado por el coach (parte 2 del incremento 4).
 
 ## v1.4
 

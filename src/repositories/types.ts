@@ -28,10 +28,16 @@ import type {
   CreateDiscoverArticle,
   CreateDiscoverCategory,
   CreateDiscoverRoutine,
+  CreateOnboardingMessage,
+  CreateOnboardingPrediction,
+  CreateOnboardingReward,
   CreateWorkoutResult,
   DiscoverArticle,
   DiscoverCategory,
   DiscoverRoutine,
+  OnboardingMessage,
+  OnboardingPrediction,
+  OnboardingReward,
   Testimonial,
   TrainingProgram,
   Transformation,
@@ -102,6 +108,51 @@ export interface DiscoverRepository {
   ): Promise<DiscoverArticle | null>;
   deleteArticle(id: string): Promise<boolean>;
   setArticlePublished(id: string, published: boolean): Promise<DiscoverArticle | null>;
+}
+
+/**
+ * CMS del contenido del onboarding: el coach administra mensajes motivacionales,
+ * recompensas y textos de prediccion (CRUD + publicar/despublicar). Persistido en
+ * localStorage. El onboarding y la pantalla de prediccion consumen solo lo publicado.
+ */
+export interface OnboardingContentRepository {
+  getMessages(): Promise<OnboardingMessage[]>;
+  createMessage(input: CreateOnboardingMessage): Promise<OnboardingMessage>;
+  updateMessage(
+    id: string,
+    patch: Partial<CreateOnboardingMessage>,
+  ): Promise<OnboardingMessage | null>;
+  deleteMessage(id: string): Promise<boolean>;
+  setMessagePublished(
+    id: string,
+    published: boolean,
+  ): Promise<OnboardingMessage | null>;
+
+  getRewards(): Promise<OnboardingReward[]>;
+  createReward(input: CreateOnboardingReward): Promise<OnboardingReward>;
+  updateReward(
+    id: string,
+    patch: Partial<CreateOnboardingReward>,
+  ): Promise<OnboardingReward | null>;
+  deleteReward(id: string): Promise<boolean>;
+  setRewardPublished(
+    id: string,
+    published: boolean,
+  ): Promise<OnboardingReward | null>;
+
+  getPredictions(): Promise<OnboardingPrediction[]>;
+  createPrediction(
+    input: CreateOnboardingPrediction,
+  ): Promise<OnboardingPrediction>;
+  updatePrediction(
+    id: string,
+    patch: Partial<CreateOnboardingPrediction>,
+  ): Promise<OnboardingPrediction | null>;
+  deletePrediction(id: string): Promise<boolean>;
+  setPredictionPublished(
+    id: string,
+    published: boolean,
+  ): Promise<OnboardingPrediction | null>;
 }
 
 export interface ClientRepository {

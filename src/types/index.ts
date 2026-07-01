@@ -527,6 +527,53 @@ export type DiscoverArticle = {
 
 export type CreateDiscoverArticle = Omit<DiscoverArticle, "id" | "published">;
 
+/* ---------- Contenido del onboarding (CMS administrado por el coach) ---------- */
+
+/**
+ * Mensaje motivacional que el onboarding puede mostrar durante la evaluacion.
+ * `category` permite segmentarlo (p. ej. objetivo del alumno o "General").
+ */
+export type OnboardingMessage = {
+  id: string;
+  message: string;
+  category: string;
+  published: boolean;
+};
+
+export type CreateOnboardingMessage = Omit<OnboardingMessage, "id" | "published">;
+
+/**
+ * Recompensa / incentivo que el alumno ve al terminar el onboarding
+ * (p. ej. "7 días de prueba", "Plan personalizado").
+ */
+export type OnboardingReward = {
+  id: string;
+  title: string;
+  description: string;
+  icon: string;
+  published: boolean;
+};
+
+export type CreateOnboardingReward = Omit<OnboardingReward, "id" | "published">;
+
+/**
+ * Texto de prediccion que compone la pantalla de prediccion segun el objetivo del
+ * alumno. `objective` la vincula a un objetivo; `timeframe` es el horizonte estimado.
+ */
+export type OnboardingPrediction = {
+  id: string;
+  objective: string;
+  title: string;
+  body: string;
+  timeframe: string;
+  published: boolean;
+};
+
+export type CreateOnboardingPrediction = Omit<
+  OnboardingPrediction,
+  "id" | "published"
+>;
+
 /* ---------- Biblioteca de ejercicios (catalogo del coach) ---------- */
 
 /** Ficha completa de un ejercicio (catalogo reutilizable en los programas). */
