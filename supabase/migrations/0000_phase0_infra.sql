@@ -82,8 +82,12 @@ begin
     v_after  := to_jsonb(new);
   end if;
 
-  v_org    := nullif(coalesce(v_after, v_before) ->> 'organization_id', '')::uuid;
   v_record := nullif(coalesce(v_after, v_before) ->> 'id', '')::uuid;
+  -- organization_id de la fila; si la tabla auditada ES organizations, se usa su id.
+  v_org := coalesce(
+    nullif(coalesce(v_after, v_before) ->> 'organization_id', '')::uuid,
+    case when tg_table_name = 'organizations' then v_record end
+  );
 
   -- IP / user-agent best-effort (nunca deben romper la escritura).
   begin
