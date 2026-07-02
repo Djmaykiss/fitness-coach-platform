@@ -68,7 +68,7 @@ create policy "avatars read" on storage.objects
       or exists (
         select 1
         from public.memberships m
-        where m.profile_id = public.storage_org(name)
+        where m.profile_id::text = (storage.foldername(name))[1]  -- 1a carpeta = profile_id del dueño
           and public.is_org_staff(m.organization_id)
       )
     )
