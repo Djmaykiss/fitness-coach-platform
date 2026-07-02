@@ -39,6 +39,8 @@ export const STORAGE_KEYS = {
   onboardingRewards: "coach-fitness:onboarding-rewards",
   onboardingPredictions: "coach-fitness:onboarding-predictions",
   settings: "coach-fitness:settings",
+  crm: "coach-fitness:crm",
+  notificationsRead: "coach-fitness:notifications-read",
 } as const;
 
 const isBrowser = () => typeof window !== "undefined";

@@ -30,6 +30,8 @@ import { DiscoverManager } from "@/components/admin/discover-manager";
 import { OnboardingContentManager } from "@/components/admin/onboarding-content-manager";
 import { CoachOverviewPanel } from "@/components/admin/coach-overview";
 import { BusinessSettingsManager } from "@/components/admin/business-settings";
+import { CrmPipeline } from "@/components/admin/crm-pipeline";
+import { NotificationsCenter } from "@/components/admin/notifications-center";
 import { useToast } from "@/context/toast-context";
 import { adminDashboardService } from "@/services/dashboard.service";
 import { leadService } from "@/services/lead.service";
@@ -197,6 +199,12 @@ export function AdminPanel() {
     <>
       {/* Panel principal del coach (overview con métricas reales) */}
       <CoachOverviewPanel />
+
+      {/* Centro de notificaciones */}
+      <NotificationsCenter />
+
+      {/* CRM · Pipeline (leads + alumnos por etapa) */}
+      <CrmPipeline />
 
       {/* Panel ejecutivo (brechas operativas por atender) */}
       {exec ? (

@@ -1,6 +1,8 @@
 import type {
   Benefit,
   BusinessSettings,
+  CrmRecord,
+  CrmStage,
   ChatMessage,
   ChecklistChecks,
   Client,
@@ -163,6 +165,28 @@ export interface OnboardingContentRepository {
 export interface SettingsRepository {
   get(): Promise<BusinessSettings>;
   save(patch: Partial<BusinessSettings>): Promise<BusinessSettings>;
+}
+
+/**
+ * Metadatos CRM por entidad (etapa manual, notas, proxima accion, seguimiento e
+ * historial). Persistidos aparte para no tocar los modelos de lead/cliente.
+ */
+export interface CrmRepository {
+  getRecords(): Promise<CrmRecord[]>;
+  getRecord(entityId: string): Promise<CrmRecord | null>;
+  upsert(entityId: string, patch: Partial<Omit<CrmRecord, "entityId">>): Promise<CrmRecord>;
+  /** Cambia la etapa y agrega la entrada al historial. */
+  setStage(entityId: string, stage: CrmStage): Promise<CrmRecord>;
+}
+
+/**
+ * Estado "leido" de las notificaciones (las notificaciones se DERIVAN de datos
+ * reales; aqui solo se guarda que ids ya vio el coach).
+ */
+export interface NotificationsRepository {
+  getReadIds(): Promise<string[]>;
+  markRead(id: string): Promise<string[]>;
+  markAllRead(ids: string[]): Promise<string[]>;
 }
 
 export interface ClientRepository {

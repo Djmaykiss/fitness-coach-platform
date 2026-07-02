@@ -19,26 +19,36 @@ import {
   UserPlus,
   Users,
   Video,
+  Workflow,
 } from "lucide-react";
+import { Bell } from "lucide-react";
 import { adminDashboardService } from "@/services/dashboard.service";
+import { notificationsService } from "@/services/notifications.service";
 import { useSettings } from "@/context/settings-context";
 import { AccessBadge } from "@/components/access-badge";
 import { formatDate } from "@/lib/format";
-import type { CoachOverview } from "@/types";
+import type { CoachNotification, CoachOverview } from "@/types";
 
 export function CoachOverviewPanel() {
   const { settings } = useSettings();
   const [data, setData] = useState<CoachOverview | null>(null);
+  const [notifications, setNotifications] = useState<CoachNotification[]>([]);
 
   useEffect(() => {
     let active = true;
     adminDashboardService.getCoachOverview().then((d) => {
       if (active) setData(d);
     });
+    notificationsService.getAll().then((n) => {
+      if (active) setNotifications(n);
+    });
     return () => {
       active = false;
     };
   }, []);
+
+  const unread = notifications.filter((n) => !n.read).length;
+  const latestNotifications = notifications.slice(0, 3);
 
   if (!data) {
     return <OverviewSkeleton />;
@@ -68,15 +78,47 @@ export function CoachOverviewPanel() {
               ) : null}
             </div>
           </div>
-          <div className="rounded-xl border border-[#65ff4f]/25 bg-[#65ff4f]/[0.06] px-5 py-3 text-right">
-            <p className="text-xs font-bold uppercase tracking-wide text-zinc-400">
-              Ingresos estimados / mes
-            </p>
-            <p className="text-2xl font-black text-[#65ff4f]">
-              {money(data.ingresosEstimados)}
-            </p>
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => scrollToHeading("Notificaciones")}
+              className="relative inline-flex h-12 w-12 items-center justify-center rounded-xl border border-white/10 bg-white/[0.03] text-zinc-300 transition hover:border-[#65ff4f]/50 hover:text-[#65ff4f]"
+              aria-label={`Notificaciones${unread ? `, ${unread} sin leer` : ""}`}
+            >
+              <Bell size={20} />
+              {unread > 0 ? (
+                <span className="absolute -right-1.5 -top-1.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-black text-white">
+                  {unread}
+                </span>
+              ) : null}
+            </button>
+            <div className="rounded-xl border border-[#65ff4f]/25 bg-[#65ff4f]/[0.06] px-5 py-3 text-right">
+              <p className="text-xs font-bold uppercase tracking-wide text-zinc-400">
+                Ingresos estimados / mes
+              </p>
+              <p className="text-2xl font-black text-[#65ff4f]">
+                {money(data.ingresosEstimados)}
+              </p>
+            </div>
           </div>
         </div>
+
+        {latestNotifications.length > 0 ? (
+          <div className="mt-5 border-t border-white/10 pt-4">
+            <p className="mb-2 flex items-center gap-2 text-xs font-black uppercase tracking-[0.2em] text-[#65ff4f]">
+              <Bell size={14} />
+              Últimas notificaciones
+            </p>
+            <ul className="space-y-1.5">
+              {latestNotifications.map((n) => (
+                <li key={n.id} className="flex items-center gap-2 text-sm text-zinc-300">
+                  <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${n.read ? "bg-zinc-600" : "bg-[#65ff4f]"}`} />
+                  <span className="truncate">{n.text}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
       </div>
 
       {/* Accesos rápidos */}
@@ -209,6 +251,8 @@ const QUICK_LINKS = [
   { label: "Ejercicios", match: "Biblioteca de ejercicios", icon: Dumbbell },
   { label: "Programas", match: "Programas de entrenamiento", icon: ListChecks },
   { label: "Nutrición", match: "Planes de nutrición", icon: Salad },
+  { label: "Notificaciones", match: "Notificaciones", icon: Bell },
+  { label: "CRM", match: "CRM", icon: Workflow },
   { label: "Descubre", match: "Descubre", icon: BookOpen },
   { label: "Onboarding", match: "Onboarding", icon: Sparkles },
   { label: "Configuración", match: "Configuración del negocio", icon: Settings2 },

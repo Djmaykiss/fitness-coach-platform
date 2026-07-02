@@ -2,6 +2,8 @@ import { MockContentRepository } from "@/repositories/mock/content.repository";
 import { LocalDiscoverRepository } from "@/repositories/local/discover.repository";
 import { LocalOnboardingContentRepository } from "@/repositories/local/onboarding-content.repository";
 import { LocalSettingsRepository } from "@/repositories/local/settings.repository";
+import { LocalCrmRepository } from "@/repositories/local/crm.repository";
+import { LocalNotificationsRepository } from "@/repositories/local/notifications.repository";
 import { MockTestimonialRepository } from "@/repositories/mock/testimonial.repository";
 import { MockTransformationRepository } from "@/repositories/mock/transformation.repository";
 import { LocalClientRepository } from "@/repositories/local/client.repository";
@@ -23,6 +25,8 @@ import type {
   OnboardingContentRepository,
   PendingEvaluationRepository,
   SettingsRepository,
+  CrmRepository,
+  NotificationsRepository,
   ExerciseLibraryRepository,
   NutritionPlanRepository,
   ProgramRepository,
@@ -56,6 +60,9 @@ export const onboardingContentRepository: OnboardingContentRepository =
   new LocalOnboardingContentRepository();
 export const settingsRepository: SettingsRepository =
   new LocalSettingsRepository();
+export const crmRepository: CrmRepository = new LocalCrmRepository();
+export const notificationsRepository: NotificationsRepository =
+  new LocalNotificationsRepository();
 export const clientRepository: ClientRepository = new LocalClientRepository();
 export const leadRepository: LeadRepository = new LocalLeadRepository();
 export const progressRepository: ProgressRepository =

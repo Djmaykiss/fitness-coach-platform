@@ -177,11 +177,35 @@ Todos los cambios relevantes del proyecto se registran en este archivo.
   `npm run lint` + `npm run build` OK; verificado en vivo (overview con datos reales,
   guardar configuración → nombre actualizado en vivo, URL inválida bloqueada).
 
+### Incremento 9 — CRM pipeline + Centro de notificaciones
+- CRM Pipeline (`/admin`): vista tipo kanban con 9 etapas (Lead, Nuevo alumno,
+  Evaluación pendiente, Evaluación completada, Programa asignado, Entrenando,
+  Suspendido, Finalizado, Renovado). La etapa se deriva de datos reales o se fija a
+  mano (con historial). Cada tarjeta tiene: badge por etapa, contador por columna,
+  buscador, filtros por etapa, cambiar etapa, notas internas, próxima acción, fecha
+  de seguimiento, WhatsApp rápido, convertir lead (transfiere notas) e historial de
+  movimientos.
+- Centro de notificaciones (`/admin`): notificaciones derivadas de datos reales
+  (nuevo lead, alumno registrado, entrenamiento completado, días sin entrenar,
+  programa asignado/finalizado, acceso por vencer/vencido, evaluación completada, sin
+  programa, sin nutrición). Permite ver todas, marcar leída / todas leídas, filtrar
+  por tipo y por prioridad, y muestra el contador de no leídas. El overview del coach
+  muestra el contador (campana con badge) y las últimas notificaciones.
+- Arquitectura: `crmService` → `LocalCrmRepository` (clave `crm`) y
+  `notificationsService` → `LocalNotificationsRepository` (clave `notifications-read`,
+  solo estado leído; las notificaciones se derivan con ids deterministas). Nada
+  eliminado; todo aditivo.
+- Verificado: 13 notificaciones derivadas (marcar una 13→12, marcar todas → 0 +
+  toast); pipeline con 9 columnas y contadores; guardar notas/próxima acción/
+  seguimiento; cambiar etapa mueve de columna + registra historial; convertir lead
+  crea alumno y marca el lead como Convertido. `npm run lint` + `npm run build` OK,
+  responsive 320 sin overflow (kanban con scroll horizontal), consola limpia.
+
 ### Pendiente / próximos bloques (para completar el SaaS)
 - Biblioteca de ejercicios multi-media (imágenes múltiples, PDF, contraindicaciones,
   notas privadas), constructor de programas por semanas + duplicar/mover/drag&drop,
-  gestor nutricional avanzado (recetas, suplementos, horarios, PDF), CRM tipo
-  pipeline, centro de notificaciones, reportes PDF y exportaciones.
+  gestor nutricional avanzado (recetas, suplementos, horarios, PDF), reportes PDF y
+  exportaciones.
 - Evaluar el merge a `main` como v1.5 estable y crear el tag `v1.5`.
 
 ## v1.4

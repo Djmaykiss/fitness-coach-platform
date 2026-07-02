@@ -721,3 +721,76 @@ export type CoachOverview = {
   /** Serie de entrenamientos por dia (ultimos 14 dias) para la grafica. */
   entrenamientosSerie: { label: string; value: number }[];
 };
+
+/* ---------- CRM pipeline (administra el coach) ---------- */
+
+/** Etapas del pipeline comercial/operativo del coach. */
+export type CrmStage =
+  | "Lead"
+  | "Nuevo alumno"
+  | "Evaluación pendiente"
+  | "Evaluación completada"
+  | "Programa asignado"
+  | "Entrenando"
+  | "Suspendido"
+  | "Finalizado"
+  | "Renovado";
+
+/** Un movimiento en el historial del pipeline. */
+export type CrmHistoryEntry = { stage: CrmStage; date: string };
+
+/**
+ * Metadatos CRM por entidad (lead o alumno), persistidos aparte para no tocar los
+ * modelos existentes. `stage` es un override manual; si no existe, se deriva.
+ */
+export type CrmRecord = {
+  entityId: string;
+  stage?: CrmStage;
+  notes: string;
+  nextAction: string;
+  followUpDate: string;
+  history: CrmHistoryEntry[];
+};
+
+/** Item compuesto del pipeline para la UI (entidad + metadatos + etapa resuelta). */
+export type CrmItem = {
+  id: string;
+  entityType: "lead" | "client";
+  name: string;
+  email: string;
+  phone: string;
+  objective: string;
+  stage: CrmStage;
+  accessStatus: AccessStatus | null;
+  notes: string;
+  nextAction: string;
+  followUpDate: string;
+  history: CrmHistoryEntry[];
+  hasProgram: boolean;
+  hasEvaluation: boolean;
+  createdAt: string;
+};
+
+/* ---------- Centro de notificaciones del coach (derivadas) ---------- */
+
+export type NotificationType =
+  | "lead"
+  | "client"
+  | "workout"
+  | "inactivity"
+  | "program"
+  | "access"
+  | "evaluation"
+  | "gap";
+
+export type NotificationPriority = "alta" | "media" | "baja";
+
+/** Notificacion del coach (derivada de datos reales; el estado leido se persiste). */
+export type CoachNotification = {
+  id: string;
+  type: NotificationType;
+  priority: NotificationPriority;
+  text: string;
+  date: string;
+  read: boolean;
+};
