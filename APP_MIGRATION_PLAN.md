@@ -5,7 +5,20 @@
 > el **orden, dependencias, checklist, rollback, pruebas y criterios de cierre** de
 > cada bloque de migración de repositorios.
 >
-> Estado: **PLAN APROBADO — sin código todavía.** La app sigue 100% en `localStorage`.
+> Estado: **Bloque 0 COMPLETADO** (fundaciones). La app sigue 100% en `localStorage`
+> (flag `local` por defecto). Bloques 1–11 pendientes.
+
+## Progreso
+
+- **Bloque 0 — Fundaciones (HECHO):** instalado `@supabase/supabase-js` (^2.110);
+  `src/lib/supabase.ts` (cliente lazy: no rompe sin credenciales); `src/repositories/
+  backend.ts` (flag `NEXT_PUBLIC_DATA_BACKEND` + override `NEXT_PUBLIC_SUPABASE_REPOS`
+  + `pickRepository`); `src/repositories/supabase/{mappers,query}.ts` + `README.md`;
+  `src/repositories/index.ts` cablea los 13 repos migrables con `pickRepository(...)`
+  (sin factoría Supabase aún → SIEMPRE `Local`, comportamiento idéntico). Verificado:
+  lint + build limpios, login/admin/CRM/biblioteca funcionan con `localStorage`, sin
+  errores de consola, Supabase no se instancia. Sin migrar ningún repo, sin tocar
+  UI/services/auth.
 
 ## Principios (no negociables)
 
