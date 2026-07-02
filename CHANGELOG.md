@@ -2,7 +2,18 @@
 
 Todos los cambios relevantes del proyecto se registran en este archivo.
 
-## (en rama `feature/student-mobile-premium-experience`, v1.5 en progreso, sin merge)
+## v1.5 (Estable - main, tag `v1.5`)
+
+Versión estable actual en `main`. Convierte la plataforma en un SaaS profesional
+para entrenadores: experiencia premium del alumno (modo entrenamiento, historial,
+perfil, Descubre, plan y onboarding con predicción), el coach administra TODO el
+contenido (CMS de Descubre y de Onboarding, biblioteca de ejercicios con video
+embebido, programas con duplicar/mover, nutrición), dashboard del coach con métricas
+reales, configuración del negocio (white-label), CRM tipo pipeline, centro de
+notificaciones y exportaciones imprimibles. Toasts y validaciones globales,
+responsive 320–1440. Todo en `localStorage`, sin backend ni Supabase; arquitectura
+UI → services → repositories → localStorage intacta y lista para migrar cambiando el
+repositorio. Detalle por incrementos abajo.
 
 ### Incremento 1 — Entrenamiento y progreso (todo aditivo, no rompe v1.4)
 - Modo entrenamiento real en `/entrenar`: pantalla de preparación, contador 3-2-1,

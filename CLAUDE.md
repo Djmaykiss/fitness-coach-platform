@@ -1,6 +1,23 @@
 # Coach Fitness MVP
 
-# Version 1.4 (Estable - main)
+# Version 1.5 (Estable - main)
+Version estable actual en `main` (tag `v1.5`). Convierte la plataforma en un SaaS
+profesional para entrenadores, TODO ADITIVO sobre v1.4 (nada eliminado). Incluye:
+experiencia premium del alumno (modo entrenamiento en `/entrenar`, historial, "Mi
+perfil", "Descubre", "Obtener mi plan" y onboarding de 12 pasos con pantalla de
+prediccion); el COACH administra TODO el contenido desde `/admin` (CMS de "Descubre"
+y de Onboarding, biblioteca de ejercicios con video de YouTube embebido, programas
+con duplicar dia / mover-duplicar-eliminar ejercicio, planes de nutricion); dashboard
+del coach con metricas reales derivadas; configuracion del negocio administrable
+(white-label: marca, contacto, redes, legales, colores, precio) que se refleja en
+vivo; CRM tipo pipeline de 9 etapas; centro de notificaciones derivadas; y
+exportaciones imprimibles (perfil, programa, nutricion) via `window.print`. Ademas:
+sistema global de toasts, validaciones de formularios y responsive verificado
+320-1440. Sin backend ni Supabase; arquitectura UI -> services -> repositories ->
+localStorage intacta y lista para migrar cambiando solo los repositorios. Ver
+`CHANGELOG.md` (incrementos 1-10) y las "Decisiones tecnicas" de esta seccion.
+
+# Version 1.4 (Congelada)
 Version estable actual en `main`. Incluye todo lo de v1.3 mas el panel del coach
 profesional y el contacto centralizado: configuracion global del coach en
 `src/config/coachConfig.ts` (nombre "Cristian Valdez", telefono, WhatsApp, precio
