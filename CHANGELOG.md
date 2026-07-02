@@ -134,8 +134,31 @@ Todos los cambios relevantes del proyecto se registran en este archivo.
   registro → dashboard con `targetWeight` guardado. `npm run lint` + `npm run build`
   OK; móvil 375px sin overflow. Sin Supabase ni backend.
 
-### Pendiente en v1.5 (próximo incremento)
-- Pulido final de v1.5 y evaluación de merge a `main` como nueva versión estable.
+### Incremento 7 — Auditoría final v1.5 RC (profesionalización + validaciones + responsive)
+- Pase de "release candidate": endurece la plataforma para entregar a un coach real.
+  Todo aditivo o mejora segura; no se eliminó ninguna funcionalidad.
+- Toasts globales (`ToastProvider`): notificaciones de éxito/error en todas las
+  acciones del coach — biblioteca de ejercicios, programas, nutrición, Descubre,
+  Onboarding — y en el panel (crear/eliminar alumno, renovar/pausar acceso,
+  convertir/editar/eliminar lead) y en registro/login. Autocierre, animación suave y
+  respeto de `prefers-reduced-motion`.
+- Validaciones (`src/lib/validation.ts`): email válido en onboarding, registro,
+  login y edición de lead; enlace de video válido (YouTube o URL) con error inline en
+  la biblioteca de ejercicios; series (entero positivo) y repeticiones (número o
+  rango, ej. 8-12) con error inline en el builder de programas; inputs numéricos del
+  onboarding sin valores negativos; el paso 2 exige peso y estatura mayores que 0.
+- Responsive: se corrigió el overflow horizontal a 320px en el wizard de onboarding
+  y en el dashboard del alumno (grids que ahora encogen + red de seguridad
+  `overflow-x-clip` en el contenedor de contenido). Verificado sin overflow en
+  320 / 360 / 375 / 390 / 414 / 768 / 1024 / 1280 / 1440 en landing, admin, dashboard,
+  descubre, perfil, plan y entrenar.
+- Sin Supabase ni backend. `npm run lint` + `npm run build` OK. Flujos verificados en
+  vivo (toast al crear, video inválido bloqueado, email inválido bloquea continuar,
+  contenido despublicado invisible para el alumno).
+
+### Pendiente / próximos pasos
+- Evaluar el merge de `feature/student-mobile-premium-experience` a `main` como
+  v1.5 estable y crear el tag `v1.5`.
 
 ## v1.4
 

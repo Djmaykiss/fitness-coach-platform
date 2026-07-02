@@ -33,6 +33,7 @@ import type { LucideProps } from "lucide-react";
 import { onboardingService } from "@/services/onboarding.service";
 import { onboardingContentService } from "@/services/onboarding-content.service";
 import { formatDate } from "@/lib/format";
+import { isValidEmail } from "@/lib/validation";
 import type {
   OnboardingMessage,
   OnboardingPrediction,
@@ -227,13 +228,15 @@ export function OnboardingWizard() {
       case 1:
         return Boolean(
           data.name.trim() &&
-            data.email.trim() &&
+            isValidEmail(data.email) &&
             data.phone.trim() &&
-            data.age &&
+            Number(data.age) > 0 &&
             data.sex,
         );
       case 2:
-        return Boolean(data.weight && data.height);
+        return Boolean(
+          Number(data.weight) > 0 && Number(data.height) > 0,
+        );
       case 3:
         return Boolean(data.bodyType);
       case 4:
@@ -309,7 +312,7 @@ export function OnboardingWizard() {
   }
 
   return (
-    <div className="premium-card mx-auto max-w-3xl rounded-3xl p-6 sm:p-8">
+    <div className="premium-card mx-auto max-w-3xl rounded-3xl p-4 sm:p-8">
       {/* Barra de progreso */}
       <div>
         <div className="mb-2 flex items-center justify-between text-xs font-bold uppercase tracking-wide text-zinc-500">
@@ -343,7 +346,7 @@ export function OnboardingWizard() {
         <button
           type="button"
           onClick={() => setStep((s) => Math.max(1, s - 1))}
-          className={`inline-flex min-h-12 items-center justify-center gap-2 rounded-lg border border-white/15 px-5 text-sm font-bold text-zinc-300 transition hover:border-[#65ff4f]/50 hover:text-[#65ff4f] ${
+          className={`inline-flex min-h-12 items-center justify-center gap-2 rounded-lg border border-white/15 px-4 text-sm font-bold text-zinc-300 transition hover:border-[#65ff4f]/50 hover:text-[#65ff4f] sm:px-5 ${
             step === 1 ? "invisible" : ""
           }`}
         >
@@ -356,7 +359,7 @@ export function OnboardingWizard() {
             type="button"
             onClick={() => setStep((s) => Math.min(TOTAL_STEPS, s + 1))}
             disabled={!canContinue}
-            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg bg-gradient-to-b from-[#85ff73] to-[#65ff4f] px-6 text-sm font-black uppercase tracking-wide text-black shadow-[0_8px_30px_-8px_rgba(101,255,79,0.5)] transition duration-300 hover:-translate-y-0.5 hover:brightness-110 active:translate-y-0 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0"
+            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg bg-gradient-to-b from-[#85ff73] to-[#65ff4f] px-5 text-sm font-black uppercase tracking-wide text-black shadow-[0_8px_30px_-8px_rgba(101,255,79,0.5)] transition duration-300 hover:-translate-y-0.5 hover:brightness-110 active:translate-y-0 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0 sm:px-6"
           >
             Siguiente
             <ArrowRight size={18} />
@@ -366,7 +369,7 @@ export function OnboardingWizard() {
             type="button"
             onClick={submit}
             disabled={submitting}
-            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg bg-gradient-to-b from-[#85ff73] to-[#65ff4f] px-6 text-sm font-black uppercase tracking-wide text-black shadow-[0_8px_30px_-8px_rgba(101,255,79,0.5)] transition duration-300 hover:-translate-y-0.5 hover:brightness-110 active:translate-y-0 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0"
+            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg bg-gradient-to-b from-[#85ff73] to-[#65ff4f] px-5 text-sm font-black uppercase tracking-wide text-black shadow-[0_8px_30px_-8px_rgba(101,255,79,0.5)] transition duration-300 hover:-translate-y-0.5 hover:brightness-110 active:translate-y-0 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0 sm:px-6"
           >
             {submitting ? "Guardando..." : "Quiero comenzar"}
             <ArrowRight size={18} />
@@ -435,6 +438,11 @@ function Step({
             placeholder="Años"
           />
         </div>
+        {data.email.trim() && !isValidEmail(data.email) ? (
+          <p className="mt-2 text-sm font-semibold text-red-300">
+            Ingresa un email válido (ejemplo: nombre@correo.com).
+          </p>
+        ) : null}
         <p className="mt-5 text-sm font-bold text-zinc-200">Sexo</p>
         <Pills options={SEXES} value={data.sex} onChange={(v) => set("sex", v)} />
       </div>
@@ -1065,6 +1073,8 @@ function TextField({
         value={value}
         onChange={(event) => onChange(event.target.value)}
         placeholder={placeholder}
+        min={type === "number" ? "0" : undefined}
+        inputMode={type === "number" ? "numeric" : undefined}
         className="mt-2 h-12 w-full rounded-lg border border-white/10 bg-black/35 px-4 text-white outline-none transition duration-300 placeholder:text-zinc-600 hover:border-white/20 focus:border-[#65ff4f] focus:bg-black/50 focus:shadow-[0_0_0_3px_rgba(101,255,79,0.12)]"
       />
     </label>

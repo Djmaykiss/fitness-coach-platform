@@ -14,6 +14,8 @@ import {
 import { trainingService } from "@/services/training.service";
 import { exerciseLibraryService } from "@/services/exercise-library.service";
 import { adminDashboardService } from "@/services/dashboard.service";
+import { useToast } from "@/context/toast-context";
+import { isPositiveInt } from "@/lib/validation";
 import type {
   AdminClientRow,
   CreateTrainingProgramInput,
@@ -53,6 +55,7 @@ type Panel =
   | null;
 
 export function TrainingProgramsManager() {
+  const toast = useToast();
   const [programs, setPrograms] = useState<TrainingProgram[]>([]);
   const [clients, setClients] = useState<AdminClientRow[]>([]);
   const [library, setLibrary] = useState<LibraryExercise[]>([]);
@@ -105,9 +108,14 @@ export function TrainingProgramsManager() {
                 title="Nuevo programa de entrenamiento"
                 onCancel={() => setPanel(null)}
                 onSubmit={async (values) => {
-                  await trainingService.createProgram(values);
-                  setPanel(null);
-                  await load();
+                  try {
+                    await trainingService.createProgram(values);
+                    setPanel(null);
+                    await load();
+                    toast.success("Programa creado.");
+                  } catch {
+                    toast.error("No se pudo crear el programa.");
+                  }
                 }}
               />
             ) : null}
@@ -118,9 +126,14 @@ export function TrainingProgramsManager() {
                 initial={panel.program}
                 onCancel={() => setPanel(null)}
                 onSubmit={async (values) => {
-                  await trainingService.updateProgram(panel.program.id, values);
-                  setPanel(null);
-                  await load();
+                  try {
+                    await trainingService.updateProgram(panel.program.id, values);
+                    setPanel(null);
+                    await load();
+                    toast.success("Cambios guardados.");
+                  } catch {
+                    toast.error("No se pudieron guardar los cambios.");
+                  }
                 }}
               />
             ) : null}
@@ -134,6 +147,7 @@ export function TrainingProgramsManager() {
                   await trainingService.assignToClient(clientId, panel.program.id);
                   setPanel(null);
                   await load();
+                  toast.success("Programa asignado al alumno.");
                 }}
               />
             ) : null}
@@ -146,6 +160,7 @@ export function TrainingProgramsManager() {
                   await trainingService.deleteProgram(panel.program.id);
                   setPanel(null);
                   await load();
+                  toast.success("Programa eliminado.");
                 }}
               />
             ) : null}
@@ -416,6 +431,7 @@ function DayCard({
   const [reps, setReps] = useState("");
   const [rest, setRest] = useState("");
   const [notes, setNotes] = useState("");
+  const [err, setErr] = useState<string | null>(null);
 
   return (
     <div className="rounded-xl border border-white/10 bg-black/20 p-4">
@@ -490,6 +506,16 @@ function DayCard({
             e.preventDefault();
             const picked = library.find((l) => l.id === exerciseId);
             if (!picked) return;
+            if (!isPositiveInt(sets)) {
+              setErr("Las series deben ser un número entero positivo.");
+              return;
+            }
+            // Reps: permite un número o un rango (ej. "10" o "8-12"); sin negativos.
+            if (reps.trim() && !/^\d+\s*(-\s*\d+)?$/.test(reps.trim())) {
+              setErr("Las repeticiones deben ser un número o un rango (ej. 8-12).");
+              return;
+            }
+            setErr(null);
             await trainingService.addExercise(programId, day.id, {
               exerciseId: picked.id,
               name: picked.name,
@@ -520,7 +546,7 @@ function DayCard({
               </option>
             ))}
           </select>
-          <input className={inputClass} value={sets} onChange={(e) => setSets(e.target.value)} placeholder="Series" />
+          <input type="number" min="1" className={inputClass} value={sets} onChange={(e) => setSets(e.target.value)} placeholder="Series" />
           <input className={inputClass} value={reps} onChange={(e) => setReps(e.target.value)} placeholder="Reps" />
           <input className={inputClass} value={rest} onChange={(e) => setRest(e.target.value)} placeholder="Descanso" />
           <input className={inputClass} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Notas" />
@@ -528,6 +554,11 @@ function DayCard({
             <Plus size={16} />
             Añadir
           </button>
+          {err ? (
+            <p className="text-sm font-semibold text-red-300 sm:col-span-full">
+              {err}
+            </p>
+          ) : null}
         </form>
       )}
     </div>

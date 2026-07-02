@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { nutritionService } from "@/services/nutrition.service";
 import { adminDashboardService } from "@/services/dashboard.service";
+import { useToast } from "@/context/toast-context";
 import type {
   AdminClientRow,
   CreateNutritionPlanInput,
@@ -51,6 +52,7 @@ type Panel =
   | null;
 
 export function NutritionPlansManager() {
+  const toast = useToast();
   const [plans, setPlans] = useState<NutritionPlan[]>([]);
   const [clients, setClients] = useState<AdminClientRow[]>([]);
   const [loaded, setLoaded] = useState(false);
@@ -98,9 +100,14 @@ export function NutritionPlansManager() {
                 title="Nuevo plan nutricional"
                 onCancel={() => setPanel(null)}
                 onSubmit={async (values) => {
-                  await nutritionService.createPlan(values);
-                  setPanel(null);
-                  await load();
+                  try {
+                    await nutritionService.createPlan(values);
+                    setPanel(null);
+                    await load();
+                    toast.success("Plan nutricional creado.");
+                  } catch {
+                    toast.error("No se pudo crear el plan.");
+                  }
                 }}
               />
             ) : null}
@@ -110,9 +117,14 @@ export function NutritionPlansManager() {
                 initial={panel.plan}
                 onCancel={() => setPanel(null)}
                 onSubmit={async (values) => {
-                  await nutritionService.updatePlan(panel.plan.id, values);
-                  setPanel(null);
-                  await load();
+                  try {
+                    await nutritionService.updatePlan(panel.plan.id, values);
+                    setPanel(null);
+                    await load();
+                    toast.success("Cambios guardados.");
+                  } catch {
+                    toast.error("No se pudieron guardar los cambios.");
+                  }
                 }}
               />
             ) : null}
@@ -125,6 +137,7 @@ export function NutritionPlansManager() {
                   await nutritionService.assignToClient(clientId, panel.plan.id);
                   setPanel(null);
                   await load();
+                  toast.success("Plan asignado al alumno.");
                 }}
               />
             ) : null}
@@ -136,6 +149,7 @@ export function NutritionPlansManager() {
                   await nutritionService.deletePlan(panel.plan.id);
                   setPanel(null);
                   await load();
+                  toast.success("Plan eliminado.");
                 }}
               />
             ) : null}

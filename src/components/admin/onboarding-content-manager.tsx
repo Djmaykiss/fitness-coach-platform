@@ -13,6 +13,7 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { onboardingContentService } from "@/services/onboarding-content.service";
+import { useToast } from "@/context/toast-context";
 import type {
   CreateOnboardingMessage,
   CreateOnboardingPrediction,
@@ -119,6 +120,7 @@ type MessagePanel =
   | null;
 
 function MessagesSection() {
+  const toast = useToast();
   const [items, setItems] = useState<OnboardingMessage[]>([]);
   const [loaded, setLoaded] = useState(false);
   const [panel, setPanel] = useState<MessagePanel>(null);
@@ -151,6 +153,7 @@ function MessagesSection() {
                 await onboardingContentService.createMessage(values);
                 setPanel(null);
                 await load();
+                toast.success("Mensaje creado.");
               }}
             />
           ) : null}
@@ -163,6 +166,7 @@ function MessagesSection() {
                 await onboardingContentService.updateMessage(panel.item.id, values);
                 setPanel(null);
                 await load();
+                toast.success("Cambios guardados.");
               }}
             />
           ) : null}
@@ -174,6 +178,7 @@ function MessagesSection() {
                 await onboardingContentService.deleteMessage(panel.item.id);
                 setPanel(null);
                 await load();
+                toast.success("Mensaje eliminado.");
               }}
             />
           ) : null}
@@ -198,6 +203,7 @@ function MessagesSection() {
                 onTogglePublish={async () => {
                   await onboardingContentService.setMessagePublished(m.id, !m.published);
                   await load();
+                  toast.success(m.published ? "Mensaje despublicado." : "Mensaje publicado.");
                 }}
                 onEdit={() => setPanel({ kind: "edit", item: m })}
                 onDelete={() => setPanel({ kind: "delete", item: m })}
@@ -257,6 +263,7 @@ type RewardPanel =
   | null;
 
 function RewardsSection() {
+  const toast = useToast();
   const [items, setItems] = useState<OnboardingReward[]>([]);
   const [loaded, setLoaded] = useState(false);
   const [panel, setPanel] = useState<RewardPanel>(null);
@@ -289,6 +296,7 @@ function RewardsSection() {
                 await onboardingContentService.createReward(values);
                 setPanel(null);
                 await load();
+                toast.success("Recompensa creada.");
               }}
             />
           ) : null}
@@ -301,6 +309,7 @@ function RewardsSection() {
                 await onboardingContentService.updateReward(panel.item.id, values);
                 setPanel(null);
                 await load();
+                toast.success("Cambios guardados.");
               }}
             />
           ) : null}
@@ -312,6 +321,7 @@ function RewardsSection() {
                 await onboardingContentService.deleteReward(panel.item.id);
                 setPanel(null);
                 await load();
+                toast.success("Recompensa eliminada.");
               }}
             />
           ) : null}
@@ -339,6 +349,7 @@ function RewardsSection() {
                 onTogglePublish={async () => {
                   await onboardingContentService.setRewardPublished(r.id, !r.published);
                   await load();
+                  toast.success(r.published ? "Recompensa despublicada." : "Recompensa publicada.");
                 }}
                 onEdit={() => setPanel({ kind: "edit", item: r })}
                 onDelete={() => setPanel({ kind: "delete", item: r })}
@@ -415,6 +426,7 @@ type PredictionPanel =
   | null;
 
 function PredictionsSection() {
+  const toast = useToast();
   const [items, setItems] = useState<OnboardingPrediction[]>([]);
   const [loaded, setLoaded] = useState(false);
   const [panel, setPanel] = useState<PredictionPanel>(null);
@@ -447,6 +459,7 @@ function PredictionsSection() {
                 await onboardingContentService.createPrediction(values);
                 setPanel(null);
                 await load();
+                toast.success("Predicción creada.");
               }}
             />
           ) : null}
@@ -459,6 +472,7 @@ function PredictionsSection() {
                 await onboardingContentService.updatePrediction(panel.item.id, values);
                 setPanel(null);
                 await load();
+                toast.success("Cambios guardados.");
               }}
             />
           ) : null}
@@ -470,6 +484,7 @@ function PredictionsSection() {
                 await onboardingContentService.deletePrediction(panel.item.id);
                 setPanel(null);
                 await load();
+                toast.success("Predicción eliminada.");
               }}
             />
           ) : null}
@@ -500,6 +515,7 @@ function PredictionsSection() {
                 onTogglePublish={async () => {
                   await onboardingContentService.setPredictionPublished(p.id, !p.published);
                   await load();
+                  toast.success(p.published ? "Predicción despublicada." : "Predicción publicada.");
                 }}
                 onEdit={() => setPanel({ kind: "edit", item: p })}
                 onDelete={() => setPanel({ kind: "delete", item: p })}

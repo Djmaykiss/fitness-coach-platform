@@ -5,7 +5,9 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ArrowRight, ClipboardCheck, LockKeyhole } from "lucide-react";
 import { useAuth } from "@/context/auth-context";
+import { useToast } from "@/context/toast-context";
 import { onboardingService } from "@/services/onboarding.service";
+import { isValidEmail } from "@/lib/validation";
 import type { AuthUser } from "@/types";
 
 type AuthFormProps = {
@@ -15,6 +17,7 @@ type AuthFormProps = {
 export function AuthForm({ mode }: AuthFormProps) {
   const router = useRouter();
   const { login, register } = useAuth();
+  const toast = useToast();
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -53,8 +56,15 @@ export function AuthForm({ mode }: AuthFormProps) {
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
+    if (!isValidEmail(email)) {
+      setMessage("Ingresa un email válido.");
+      toast.error("Ingresa un email válido.");
+      return;
+    }
+
     if (!isLogin && password !== confirmPassword) {
       setMessage("Las contraseñas no coinciden.");
+      toast.error("Las contraseñas no coinciden.");
       return;
     }
 
@@ -69,9 +79,11 @@ export function AuthForm({ mode }: AuthFormProps) {
 
     if (!result.ok) {
       setMessage(result.error);
+      toast.error(result.error);
       return;
     }
 
+    toast.success(isLogin ? "Sesión iniciada." : "Cuenta creada.");
     setMessage(
       isLogin
         ? "Sesión iniciada. Redirigiendo..."

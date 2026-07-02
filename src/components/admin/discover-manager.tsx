@@ -13,6 +13,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { discoverService } from "@/services/discover.service";
+import { useToast } from "@/context/toast-context";
 import type {
   CreateDiscoverArticle,
   CreateDiscoverCategory,
@@ -108,6 +109,7 @@ type RoutinePanel =
   | null;
 
 function RoutinesSection() {
+  const toast = useToast();
   const [items, setItems] = useState<DiscoverRoutine[]>([]);
   const [loaded, setLoaded] = useState(false);
   const [panel, setPanel] = useState<RoutinePanel>(null);
@@ -140,6 +142,7 @@ function RoutinesSection() {
                 await discoverService.createRoutine(values);
                 setPanel(null);
                 await load();
+                toast.success("Rutina creada.");
               }}
             />
           ) : null}
@@ -152,6 +155,7 @@ function RoutinesSection() {
                 await discoverService.updateRoutine(panel.item.id, values);
                 setPanel(null);
                 await load();
+                toast.success("Cambios guardados.");
               }}
             />
           ) : null}
@@ -163,6 +167,7 @@ function RoutinesSection() {
                 await discoverService.deleteRoutine(panel.item.id);
                 setPanel(null);
                 await load();
+                toast.success("Rutina eliminada.");
               }}
             />
           ) : null}
@@ -195,6 +200,7 @@ function RoutinesSection() {
                 onTogglePublish={async () => {
                   await discoverService.setRoutinePublished(r.id, !r.published);
                   await load();
+                  toast.success(r.published ? "Rutina despublicada." : "Rutina publicada.");
                 }}
                 onEdit={() => setPanel({ kind: "edit", item: r })}
                 onDelete={() => setPanel({ kind: "delete", item: r })}
@@ -279,6 +285,7 @@ type CategoryPanel =
   | null;
 
 function CategoriesSection() {
+  const toast = useToast();
   const [items, setItems] = useState<DiscoverCategory[]>([]);
   const [loaded, setLoaded] = useState(false);
   const [panel, setPanel] = useState<CategoryPanel>(null);
@@ -311,6 +318,7 @@ function CategoriesSection() {
                 await discoverService.createCategory(values);
                 setPanel(null);
                 await load();
+                toast.success("Categoría creada.");
               }}
             />
           ) : null}
@@ -323,6 +331,7 @@ function CategoriesSection() {
                 await discoverService.updateCategory(panel.item.id, values);
                 setPanel(null);
                 await load();
+                toast.success("Cambios guardados.");
               }}
             />
           ) : null}
@@ -334,6 +343,7 @@ function CategoriesSection() {
                 await discoverService.deleteCategory(panel.item.id);
                 setPanel(null);
                 await load();
+                toast.success("Categoría eliminada.");
               }}
             />
           ) : null}
@@ -364,6 +374,7 @@ function CategoriesSection() {
                 onTogglePublish={async () => {
                   await discoverService.setCategoryPublished(c.id, !c.published);
                   await load();
+                  toast.success(c.published ? "Categoría despublicada." : "Categoría publicada.");
                 }}
                 onEdit={() => setPanel({ kind: "edit", item: c })}
                 onDelete={() => setPanel({ kind: "delete", item: c })}
@@ -455,6 +466,7 @@ type ArticlePanel =
   | null;
 
 function ArticlesSection() {
+  const toast = useToast();
   const [items, setItems] = useState<DiscoverArticle[]>([]);
   const [loaded, setLoaded] = useState(false);
   const [panel, setPanel] = useState<ArticlePanel>(null);
@@ -487,6 +499,7 @@ function ArticlesSection() {
                 await discoverService.createArticle(values);
                 setPanel(null);
                 await load();
+                toast.success("Artículo creado.");
               }}
             />
           ) : null}
@@ -499,6 +512,7 @@ function ArticlesSection() {
                 await discoverService.updateArticle(panel.item.id, values);
                 setPanel(null);
                 await load();
+                toast.success("Cambios guardados.");
               }}
             />
           ) : null}
@@ -510,6 +524,7 @@ function ArticlesSection() {
                 await discoverService.deleteArticle(panel.item.id);
                 setPanel(null);
                 await load();
+                toast.success("Artículo eliminado.");
               }}
             />
           ) : null}
@@ -542,6 +557,7 @@ function ArticlesSection() {
                 onTogglePublish={async () => {
                   await discoverService.setArticlePublished(a.id, !a.published);
                   await load();
+                  toast.success(a.published ? "Artículo despublicado." : "Artículo publicado.");
                 }}
                 onEdit={() => setPanel({ kind: "edit", item: a })}
                 onDelete={() => setPanel({ kind: "delete", item: a })}

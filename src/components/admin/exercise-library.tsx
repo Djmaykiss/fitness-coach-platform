@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { Dumbbell, Pencil, Plus, Trash2 } from "lucide-react";
 import { exerciseLibraryService } from "@/services/exercise-library.service";
+import { useToast } from "@/context/toast-context";
+import { isBlank, isValidVideoOrEmpty } from "@/lib/validation";
 import type { CreateLibraryExerciseInput, LibraryExercise } from "@/types";
 
 const DIFFICULTIES = ["Principiante", "Intermedio", "Avanzado"];
@@ -27,6 +29,7 @@ type Panel =
   | null;
 
 export function ExerciseLibraryManager() {
+  const toast = useToast();
   const [exercises, setExercises] = useState<LibraryExercise[]>([]);
   const [loaded, setLoaded] = useState(false);
   const [panel, setPanel] = useState<Panel>(null);
@@ -68,9 +71,14 @@ export function ExerciseLibraryManager() {
                 title="Nuevo ejercicio"
                 onCancel={() => setPanel(null)}
                 onSubmit={async (values) => {
-                  await exerciseLibraryService.createExercise(values);
-                  setPanel(null);
-                  await load();
+                  try {
+                    await exerciseLibraryService.createExercise(values);
+                    setPanel(null);
+                    await load();
+                    toast.success("Ejercicio creado.");
+                  } catch {
+                    toast.error("No se pudo crear el ejercicio.");
+                  }
                 }}
               />
             ) : null}
@@ -80,12 +88,17 @@ export function ExerciseLibraryManager() {
                 initial={panel.exercise}
                 onCancel={() => setPanel(null)}
                 onSubmit={async (values) => {
-                  await exerciseLibraryService.updateExercise(
-                    panel.exercise.id,
-                    values,
-                  );
-                  setPanel(null);
-                  await load();
+                  try {
+                    await exerciseLibraryService.updateExercise(
+                      panel.exercise.id,
+                      values,
+                    );
+                    setPanel(null);
+                    await load();
+                    toast.success("Cambios guardados.");
+                  } catch {
+                    toast.error("No se pudieron guardar los cambios.");
+                  }
                 }}
               />
             ) : null}
@@ -97,6 +110,7 @@ export function ExerciseLibraryManager() {
                   await exerciseLibraryService.deleteExercise(panel.exercise.id);
                   setPanel(null);
                   await load();
+                  toast.success("Ejercicio eliminado.");
                 }}
               />
             ) : null}
@@ -190,6 +204,7 @@ function ExerciseForm({
     recommendedRest: initial?.recommendedRest ?? "",
   });
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const set = <K extends keyof CreateLibraryExerciseInput>(
     key: K,
     value: CreateLibraryExerciseInput[K],
@@ -199,7 +214,15 @@ function ExerciseForm({
     <form
       onSubmit={async (e) => {
         e.preventDefault();
-        if (!v.name.trim()) return;
+        if (isBlank(v.name)) {
+          setError("El nombre del ejercicio es obligatorio.");
+          return;
+        }
+        if (!isValidVideoOrEmpty(v.video)) {
+          setError("El enlace de video no es válido. Usa una URL de YouTube o déjalo vacío.");
+          return;
+        }
+        setError(null);
         setSaving(true);
         await onSubmit(v);
       }}
@@ -257,6 +280,11 @@ function ExerciseForm({
         <Text label="Descanso recomendado" value={v.recommendedRest} onChange={(x) => set("recommendedRest", x)} placeholder="Ej: 90 s" />
       </div>
 
+      {error ? (
+        <p className="mt-4 rounded-lg border border-red-500/40 bg-red-500/[0.08] px-3 py-2 text-sm font-semibold text-red-300">
+          {error}
+        </p>
+      ) : null}
       <div className="mt-6 flex flex-wrap gap-3">
         <button type="submit" disabled={saving} className={primaryBtn}>
           {saving ? "Guardando..." : "Guardar ejercicio"}

@@ -95,19 +95,19 @@ export function PremiumDashboard({ userId }: { userId: string }) {
 
       <TransformationBar percent={data.transformationPct} />
 
-      <div className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
+      <div className="grid gap-6 [&>*]:min-w-0 lg:grid-cols-[1.2fr_0.8fr]">
         <GoalCard goal={data.goal} percent={data.transformationPct} />
         <NextCheckIn checkIn={data.checkIn} />
       </div>
 
       <ProgressCharts metrics={data.metrics} />
 
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-6 [&>*]:min-w-0 lg:grid-cols-2">
         <Measurements items={data.measurements} />
         <BodyMetricsCard metrics={data.bodyMetrics} />
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-6 [&>*]:min-w-0 lg:grid-cols-2">
         <Compliance data={data.compliance} />
         <Checklist
           title="Objetivos de la semana"
@@ -118,7 +118,7 @@ export function PremiumDashboard({ userId }: { userId: string }) {
         />
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-[1fr_0.8fr]">
+      <div className="grid gap-6 [&>*]:min-w-0 lg:grid-cols-[1fr_0.8fr]">
         <TrainingCalendar
           trained={data.calendar.trained}
           full={data.calendar.full}
@@ -141,7 +141,7 @@ export function PremiumDashboard({ userId }: { userId: string }) {
         />
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-6 [&>*]:min-w-0 lg:grid-cols-2">
         <Nutrition
           state={data.nutrition}
           onToggle={(key, done) => toggle("nutrition", key, done)}
@@ -165,12 +165,12 @@ export function PremiumDashboard({ userId }: { userId: string }) {
         }}
       />
 
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-6 [&>*]:min-w-0 lg:grid-cols-2">
         <Achievements items={data.achievements} />
         <Timeline events={data.history} />
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-[1fr_0.8fr]">
+      <div className="grid gap-6 [&>*]:min-w-0 lg:grid-cols-[1fr_0.8fr]">
         <CoachChat
           messages={data.chat}
           onSend={async (text) => {

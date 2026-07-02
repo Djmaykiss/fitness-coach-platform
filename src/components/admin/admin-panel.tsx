@@ -28,12 +28,14 @@ import { TrainingProgramsManager } from "@/components/admin/training-programs";
 import { NutritionPlansManager } from "@/components/admin/nutrition-plans";
 import { DiscoverManager } from "@/components/admin/discover-manager";
 import { OnboardingContentManager } from "@/components/admin/onboarding-content-manager";
+import { useToast } from "@/context/toast-context";
 import { adminDashboardService } from "@/services/dashboard.service";
 import { leadService } from "@/services/lead.service";
 import { trainingService } from "@/services/training.service";
 import { nutritionService } from "@/services/nutrition.service";
 import { coachConfig, whatsappTo, whatsappUrl } from "@/config/coachConfig";
 import { formatDate } from "@/lib/format";
+import { isValidEmail } from "@/lib/validation";
 import type {
   AdminClientRow,
   ClientProgress,
@@ -97,6 +99,7 @@ type Editor =
   | null;
 
 export function AdminPanel() {
+  const toast = useToast();
   const [exec, setExec] = useState<ExecutiveStats | null>(null);
   const [clients, setClients] = useState<AdminClientRow[]>([]);
   const [leads, setLeads] = useState<Lead[]>([]);
@@ -142,16 +145,19 @@ export function AdminPanel() {
   async function convertLead(lead: Lead) {
     await leadService.convertToClient(lead);
     await load();
+    toast.success(`${lead.name} ahora es alumno.`);
   }
 
   async function quickRenew(id: string) {
     await adminDashboardService.renewAccess(id, "Efectivo");
     await load();
+    toast.success("Acceso renovado 30 días.");
   }
 
   async function quickPause(id: string) {
     await adminDashboardService.pauseAccess(id);
     await load();
+    toast.info("Acceso del alumno pausado.");
   }
 
   if (!loaded) {
@@ -633,6 +639,7 @@ function EditorCard({
   onClose: () => void;
   onDone: () => void | Promise<void>;
 }) {
+  const toast = useToast();
   if (editor.kind === "createClient") {
     return (
       <FormShell title="Nuevo cliente" onClose={onClose}>
@@ -641,6 +648,7 @@ function EditorCard({
           onSubmit={async (values) => {
             await adminDashboardService.createClient(values);
             await onDone();
+            toast.success("Alumno creado.");
           }}
         />
       </FormShell>
@@ -685,6 +693,7 @@ function EditorCard({
           onConfirm={async () => {
             await adminDashboardService.deleteClient(editor.client.id);
             await onDone();
+            toast.success("Alumno eliminado.");
           }}
         />
       </FormShell>
@@ -924,6 +933,7 @@ function LeadForm({
   onCancel: () => void;
   onDone: () => void | Promise<void>;
 }) {
+  const toast = useToast();
   const [name, setName] = useState(lead.name);
   const [email, setEmail] = useState(lead.email);
   const [phone, setPhone] = useState(lead.phone);
@@ -938,6 +948,10 @@ function LeadForm({
       onSubmit={async (event) => {
         event.preventDefault();
         if (!name.trim()) return;
+        if (email.trim() && !isValidEmail(email)) {
+          toast.error("El email del lead no es válido.");
+          return;
+        }
         setSaving(true);
         await leadService.updateLead(lead.id, {
           name,
@@ -947,6 +961,7 @@ function LeadForm({
           message,
         });
         await onDone();
+        toast.success("Lead actualizado.");
       }}
     >
       <div className="grid gap-4 sm:grid-cols-2">
@@ -971,6 +986,7 @@ function DeleteLeadForm({
   onCancel: () => void;
   onDone: () => void | Promise<void>;
 }) {
+  const toast = useToast();
   const [saving, setSaving] = useState(false);
   return (
     <div className="space-y-5">
@@ -989,6 +1005,7 @@ function DeleteLeadForm({
             setSaving(true);
             await leadService.deleteLead(lead.id);
             await onDone();
+            toast.success("Lead eliminado.");
           }}
         >
           <Trash2 size={16} />

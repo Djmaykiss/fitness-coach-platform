@@ -61,7 +61,7 @@ export function DashboardShell({
           </div>
         </nav>
 
-        <section className="mx-auto w-full max-w-7xl flex-1 px-5 py-10 sm:px-8">
+        <section className="mx-auto w-full max-w-7xl flex-1 overflow-x-clip px-5 py-10 sm:px-8">
           <div className="mb-8">
             <p className="text-sm font-black uppercase tracking-[0.24em] text-[#65ff4f]">
               {eyebrow}
