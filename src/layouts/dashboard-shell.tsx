@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { LogoutButton } from "@/components/logout-button";
+import { BrandLink } from "@/components/brand-link";
 import { MiniFooter } from "@/components/ui";
 
 export function DashboardShell({
@@ -28,10 +29,8 @@ export function DashboardShell({
       <div className="hero-grid flex flex-1 flex-col">
         <nav className="sticky top-0 z-30 border-b border-white/10 bg-black/50 px-5 py-4 backdrop-blur-xl sm:px-8">
           <div className="mx-auto flex max-w-7xl items-center justify-between gap-4">
-            <Link href="/" className="font-black uppercase tracking-wide">
-              Coach <span className="text-[#65ff4f]">Fitness</span>
-            </Link>
-            <div className="flex items-center gap-3 text-sm font-bold text-zinc-300 sm:gap-4">
+            <BrandLink />
+            <div className="flex shrink-0 items-center gap-3 text-sm font-bold text-zinc-300 sm:gap-4">
               {minimalNav ? null : (
                 <>
                   <Link href="/dashboard" className="hover:text-[#65ff4f]">

@@ -1,5 +1,6 @@
 import type {
   Benefit,
+  BusinessSettings,
   ChatMessage,
   ChecklistChecks,
   Client,
@@ -153,6 +154,15 @@ export interface OnboardingContentRepository {
     id: string,
     published: boolean,
   ): Promise<OnboardingPrediction | null>;
+}
+
+/**
+ * Configuracion del negocio (white-label). Registro unico editable por el coach;
+ * al migrar a base de datos solo cambia esta implementacion.
+ */
+export interface SettingsRepository {
+  get(): Promise<BusinessSettings>;
+  save(patch: Partial<BusinessSettings>): Promise<BusinessSettings>;
 }
 
 export interface ClientRepository {

@@ -28,6 +28,8 @@ import { TrainingProgramsManager } from "@/components/admin/training-programs";
 import { NutritionPlansManager } from "@/components/admin/nutrition-plans";
 import { DiscoverManager } from "@/components/admin/discover-manager";
 import { OnboardingContentManager } from "@/components/admin/onboarding-content-manager";
+import { CoachOverviewPanel } from "@/components/admin/coach-overview";
+import { BusinessSettingsManager } from "@/components/admin/business-settings";
 import { useToast } from "@/context/toast-context";
 import { adminDashboardService } from "@/services/dashboard.service";
 import { leadService } from "@/services/lead.service";
@@ -193,9 +195,12 @@ export function AdminPanel() {
 
   return (
     <>
-      {/* Panel ejecutivo */}
+      {/* Panel principal del coach (overview con métricas reales) */}
+      <CoachOverviewPanel />
+
+      {/* Panel ejecutivo (brechas operativas por atender) */}
       {exec ? (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
           <StatCard label="Total alumnos" value={String(exec.total)} icon={Users} />
           <StatCard label="Activos" value={String(exec.activos)} icon={UserCheck} />
           <StatCard label="Vencidos" value={String(exec.vencidos)} icon={AlertTriangle} />
@@ -485,6 +490,9 @@ export function AdminPanel() {
           </table>
         </div>
       </section>
+
+      {/* Configuración del negocio (white-label) */}
+      <BusinessSettingsManager />
     </>
   );
 }

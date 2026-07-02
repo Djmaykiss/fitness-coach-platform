@@ -649,3 +649,75 @@ export type AssignedNutrition = {
   plan: NutritionPlan;
   completedMealIds: string[];
 };
+
+/* ---------- Configuracion del negocio (white-label, administra el coach) ---------- */
+
+/**
+ * Identidad y contacto del negocio del coach. Es la fuente editable que reemplaza
+ * a los valores fijos de `coachConfig` (que quedan solo como defaults). Persistida
+ * en localStorage; preparada para migrar cambiando el repositorio.
+ */
+export type BusinessSettings = {
+  /** Marca */
+  businessName: string;
+  tagline: string;
+  description: string;
+  logoUrl: string;
+  /** Contacto */
+  phone: string;
+  /** Solo digitos, formato internacional para wa.me. */
+  whatsapp: string;
+  email: string;
+  address: string;
+  schedule: string;
+  /** Redes sociales (URLs completas; vacio = oculto) */
+  instagram: string;
+  facebook: string;
+  tiktok: string;
+  youtube: string;
+  /** Legales */
+  policies: string;
+  terms: string;
+  /** Marca visual (preparado para theming; se guarda aunque la paleta base se mantenga) */
+  primaryColor: string;
+  secondaryColor: string;
+  /** Negocio */
+  monthlyPrice: number;
+  currency: string;
+};
+
+/* ---------- Overview del coach (panel principal, metricas derivadas) ---------- */
+
+/** Una entrada de actividad reciente del negocio (derivada de datos reales). */
+export type ActivityItem = {
+  id: string;
+  kind: "workout" | "lead" | "renewal" | "client";
+  text: string;
+  date: string;
+};
+
+/** Resumen completo del negocio para el dashboard del coach. */
+export type CoachOverview = {
+  alumnosActivos: number;
+  alumnosSuspendidos: number;
+  alumnosVencidos: number;
+  alumnosTotal: number;
+  programas: number;
+  rutinasPublicadas: number;
+  rutinasBorrador: number;
+  ejercicios: number;
+  ejerciciosConVideo: number;
+  articulosPublicados: number;
+  entrenamientosHoy: number;
+  entrenamientosSemana: number;
+  entrenamientosMes: number;
+  progresoPromedio: number;
+  metaPesoPromedio: number;
+  imcPromedio: number;
+  ingresosEstimados: number;
+  proximasRenovaciones: { id: string; name: string; date: string | null }[];
+  ultimosAlumnos: { id: string; name: string; accessStatus: AccessStatus }[];
+  actividadReciente: ActivityItem[];
+  /** Serie de entrenamientos por dia (ultimos 14 dias) para la grafica. */
+  entrenamientosSerie: { label: string; value: number }[];
+};

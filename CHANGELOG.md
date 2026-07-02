@@ -156,9 +156,33 @@ Todos los cambios relevantes del proyecto se registran en este archivo.
   vivo (toast al crear, video inválido bloqueado, email inválido bloquea continuar,
   contenido despublicado invisible para el alumno).
 
-### Pendiente / próximos pasos
-- Evaluar el merge de `feature/student-mobile-premium-experience` a `main` como
-  v1.5 estable y crear el tag `v1.5`.
+### Incremento 8 — SaaS profesional: dashboard del coach + configuración del negocio
+- Dashboard del coach (nuevo panel principal en `/admin`) con métricas reales
+  derivadas: alumnos activos/suspendidos/vencidos/total, programas, rutinas
+  publicadas, artículos, ejercicios (y con video), entrenamientos hoy/semana/mes,
+  progreso promedio, meta de peso promedio, IMC promedio, ingresos estimados,
+  próximas renovaciones, últimos alumnos, actividad reciente y una gráfica de
+  entrenamientos de los últimos 14 días. Incluye accesos rápidos a cada sección.
+- Configuración del negocio (white-label) administrable por el coach: nombre,
+  eslogan, descripción, logo, teléfono, WhatsApp, correo, dirección, horario,
+  Instagram/Facebook/TikTok/YouTube, políticas, términos, colores de marca, precio
+  mensual y moneda. Persistido en `localStorage` (arquitectura
+  UI → settingsService → repository → storage). El nombre del negocio se refleja en
+  vivo en el encabezado de toda la app (`SettingsProvider` + `BrandLink`).
+- Validaciones (email, URLs) y toasts en el editor de configuración. Los valores por
+  defecto salen de `coachConfig`, que se conserva como fallback (nada eliminado).
+- Nota: los colores de marca se guardan y se exponen como variables CSS; la interfaz
+  mantiene la paleta neon actual (el theming global completo queda como follow-up).
+- Responsive verificado 320–1440 (se ajustó el encabezado para marcas largas).
+  `npm run lint` + `npm run build` OK; verificado en vivo (overview con datos reales,
+  guardar configuración → nombre actualizado en vivo, URL inválida bloqueada).
+
+### Pendiente / próximos bloques (para completar el SaaS)
+- Biblioteca de ejercicios multi-media (imágenes múltiples, PDF, contraindicaciones,
+  notas privadas), constructor de programas por semanas + duplicar/mover/drag&drop,
+  gestor nutricional avanzado (recetas, suplementos, horarios, PDF), CRM tipo
+  pipeline, centro de notificaciones, reportes PDF y exportaciones.
+- Evaluar el merge a `main` como v1.5 estable y crear el tag `v1.5`.
 
 ## v1.4
 

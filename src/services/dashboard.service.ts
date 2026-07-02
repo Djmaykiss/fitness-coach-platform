@@ -1,19 +1,23 @@
 import {
   clientRepository,
   coachingRepository,
+  discoverRepository,
+  exerciseLibraryRepository,
   leadRepository,
   nutritionPlanRepository,
   programRepository,
   progressRepository,
+  settingsRepository,
   trainingProgramRepository,
   userRepository,
 } from "@/repositories";
-import { coachConfig } from "@/config/coachConfig";
 import { starterClientProgress } from "@/data/dashboard";
 import type {
   AccessStatus,
   AdminClientRow,
+  ActivityItem,
   ClientProgress,
+  CoachOverview,
   CreateClientInput,
   CreateProgramInput,
   ExecutiveStats,
@@ -118,7 +122,137 @@ export const adminDashboardService = {
       leadsPendientes: leads.filter(
         (l) => l.status === "Nuevo" || l.status === "Contactado",
       ).length,
-      ingresosEstimados: activos * coachConfig.monthlyPrice,
+      ingresosEstimados: activos * (await settingsRepository.get()).monthlyPrice,
+    };
+  },
+
+  /**
+   * Overview completo del negocio para el dashboard del coach: metricas derivadas
+   * de datos reales (alumnos, programas, biblioteca, Descubre, entrenamientos,
+   * evaluaciones), proximas renovaciones, ultimos alumnos y actividad reciente.
+   */
+  async getCoachOverview(): Promise<CoachOverview> {
+    const [rows, clients, leads, programs, exercises, routines, articles, settings] =
+      await Promise.all([
+        this.getClientRows(),
+        clientRepository.getClients(),
+        leadRepository.getLeads(),
+        trainingProgramRepository.getPrograms(),
+        exerciseLibraryRepository.getExercises(),
+        discoverRepository.getRoutines(),
+        discoverRepository.getArticles(),
+        settingsRepository.get(),
+      ]);
+
+    const activos = rows.filter((r) => r.accessStatus === "Activo").length;
+    const nameById = new Map(rows.map((r) => [r.id, r.name]));
+
+    // Entrenamientos agregados de todos los alumnos (modo entrenamiento).
+    const resultsByClient = await Promise.all(
+      clients.map((c) => trainingProgramRepository.getWorkoutResults(c.id)),
+    );
+    const allResults = resultsByClient.flat();
+
+    const now = new Date();
+    const startOfToday = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate(),
+    ).getTime();
+    const weekAgo = now.getTime() - 7 * 24 * 60 * 60 * 1000;
+    const monthAgo = now.getTime() - 30 * 24 * 60 * 60 * 1000;
+    const time = (iso: string) => new Date(iso).getTime();
+
+    const entrenamientosHoy = allResults.filter((r) => time(r.date) >= startOfToday).length;
+    const entrenamientosSemana = allResults.filter((r) => time(r.date) >= weekAgo).length;
+    const entrenamientosMes = allResults.filter((r) => time(r.date) >= monthAgo).length;
+
+    // Serie ultimos 14 dias.
+    const entrenamientosSerie = Array.from({ length: 14 }, (_, i) => {
+      const day = new Date(startOfToday - (13 - i) * 24 * 60 * 60 * 1000);
+      const start = day.getTime();
+      const end = start + 24 * 60 * 60 * 1000;
+      const value = allResults.filter((r) => {
+        const t = time(r.date);
+        return t >= start && t < end;
+      }).length;
+      return { label: `${day.getDate()}`, value };
+    });
+
+    // Progreso promedio.
+    const progresoPromedio = rows.length
+      ? Math.round(rows.reduce((sum, r) => sum + (r.progresoPct || 0), 0) / rows.length)
+      : 0;
+
+    // Meta de peso e IMC promedio (de evaluaciones con datos numericos).
+    const weightGoals: number[] = [];
+    const imcs: number[] = [];
+    for (const c of clients) {
+      const e = c.evaluation;
+      if (!e) continue;
+      const w = Number(e.weight);
+      const target = Number(e.targetWeight);
+      const h = Number(e.height) / 100;
+      if (Number.isFinite(w) && Number.isFinite(target) && w > 0 && target > 0) {
+        weightGoals.push(w - target);
+      }
+      if (Number.isFinite(w) && Number.isFinite(h) && w > 0 && h > 0) {
+        imcs.push(w / (h * h));
+      }
+    }
+    const avg = (arr: number[]) =>
+      arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0;
+    const metaPesoPromedio = Math.round(avg(weightGoals) * 10) / 10;
+    const imcPromedio = Math.round(avg(imcs) * 10) / 10;
+
+    // Actividad reciente: entrenamientos + leads recientes.
+    const activityFromWorkouts: ActivityItem[] = resultsByClient.flatMap(
+      (results, i) =>
+        results.map((r) => ({
+          id: `w-${r.id}`,
+          kind: "workout" as const,
+          text: `${nameById.get(clients[i].id) ?? "Alumno"} completó ${r.dayName}`,
+          date: r.date,
+        })),
+    );
+    const activityFromLeads: ActivityItem[] = leads.map((l) => ({
+      id: `l-${l.id}`,
+      kind: "lead" as const,
+      text: `Nuevo lead: ${l.name}${l.objective ? ` (${l.objective})` : ""}`,
+      date: l.createdAt,
+    }));
+    const actividadReciente = [...activityFromWorkouts, ...activityFromLeads]
+      .sort((a, b) => time(b.date) - time(a.date))
+      .slice(0, 8);
+
+    return {
+      alumnosActivos: activos,
+      alumnosSuspendidos: rows.filter((r) => r.accessStatus === "Pausado").length,
+      alumnosVencidos: rows.filter((r) => r.accessStatus === "Vencido").length,
+      alumnosTotal: rows.length,
+      programas: programs.length,
+      rutinasPublicadas: routines.filter((r) => r.published).length,
+      rutinasBorrador: routines.filter((r) => !r.published).length,
+      ejercicios: exercises.length,
+      ejerciciosConVideo: exercises.filter((e) => e.video?.trim()).length,
+      articulosPublicados: articles.filter((a) => a.published).length,
+      entrenamientosHoy,
+      entrenamientosSemana,
+      entrenamientosMes,
+      progresoPromedio,
+      metaPesoPromedio,
+      imcPromedio,
+      ingresosEstimados: activos * settings.monthlyPrice,
+      proximasRenovaciones: rows
+        .filter((r) => r.renewSoon)
+        .map((r) => ({ id: r.id, name: r.name, date: r.accessExpiresAt }))
+        .slice(0, 6),
+      ultimosAlumnos: [...rows]
+        .reverse()
+        .slice(0, 6)
+        .map((r) => ({ id: r.id, name: r.name, accessStatus: r.accessStatus })),
+      actividadReciente,
+      entrenamientosSerie,
     };
   },
 
