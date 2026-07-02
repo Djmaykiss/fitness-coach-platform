@@ -250,6 +250,8 @@ export interface TrainingProgramRepository {
   deleteProgram(id: string): Promise<boolean>;
   addDay(programId: string, name: string): Promise<TrainingProgram | null>;
   deleteDay(programId: string, dayId: string): Promise<TrainingProgram | null>;
+  /** Duplica un dia con sus ejercicios (nuevos ids) justo despues del original. */
+  duplicateDay(programId: string, dayId: string): Promise<TrainingProgram | null>;
   addExercise(
     programId: string,
     dayId: string,
@@ -259,6 +261,19 @@ export interface TrainingProgramRepository {
     programId: string,
     dayId: string,
     exerciseId: string,
+  ): Promise<TrainingProgram | null>;
+  /** Duplica un ejercicio (nuevo id) justo despues del original en el mismo dia. */
+  duplicateExercise(
+    programId: string,
+    dayId: string,
+    exerciseId: string,
+  ): Promise<TrainingProgram | null>;
+  /** Mueve un ejercicio una posicion arriba o abajo dentro de su dia. */
+  moveExercise(
+    programId: string,
+    dayId: string,
+    exerciseId: string,
+    direction: "up" | "down",
   ): Promise<TrainingProgram | null>;
   /** Asigna un programa a un alumno (clientId -> programId). */
   assignToClient(clientId: string, programId: string): Promise<void>;

@@ -27,6 +27,8 @@ export const trainingService = {
     trainingProgramRepository.addDay(programId, name),
   deleteDay: (programId: string, dayId: string) =>
     trainingProgramRepository.deleteDay(programId, dayId),
+  duplicateDay: (programId: string, dayId: string) =>
+    trainingProgramRepository.duplicateDay(programId, dayId),
   addExercise: (
     programId: string,
     dayId: string,
@@ -34,6 +36,20 @@ export const trainingService = {
   ) => trainingProgramRepository.addExercise(programId, dayId, exercise),
   deleteExercise: (programId: string, dayId: string, exerciseId: string) =>
     trainingProgramRepository.deleteExercise(programId, dayId, exerciseId),
+  duplicateExercise: (programId: string, dayId: string, exerciseId: string) =>
+    trainingProgramRepository.duplicateExercise(programId, dayId, exerciseId),
+  moveExercise: (
+    programId: string,
+    dayId: string,
+    exerciseId: string,
+    direction: "up" | "down",
+  ) =>
+    trainingProgramRepository.moveExercise(
+      programId,
+      dayId,
+      exerciseId,
+      direction,
+    ),
 
   /* ---- Admin: asignacion ---- */
   assignToClient: (clientId: string, programId: string) =>

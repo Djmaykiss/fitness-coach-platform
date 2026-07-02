@@ -111,6 +111,25 @@ export class LocalTrainingProgramRepository
     );
   }
 
+  duplicateDay(programId: string, dayId: string) {
+    return resolveMock(
+      this.mutate(programId, (p) => {
+        const index = p.days.findIndex((d) => d.id === dayId);
+        if (index === -1) return p;
+        const source = p.days[index];
+        const copy = {
+          ...source,
+          id: id("day"),
+          name: `${source.name} (copia)`,
+          exercises: source.exercises.map((e) => ({ ...e, id: id("ex") })),
+        };
+        const days = [...p.days];
+        days.splice(index + 1, 0, copy);
+        return { ...p, days };
+      }),
+    );
+  }
+
   addExercise(
     programId: string,
     dayId: string,
@@ -140,6 +159,48 @@ export class LocalTrainingProgramRepository
             ? { ...d, exercises: d.exercises.filter((e) => e.id !== exerciseId) }
             : d,
         ),
+      })),
+    );
+  }
+
+  duplicateExercise(programId: string, dayId: string, exerciseId: string) {
+    return resolveMock(
+      this.mutate(programId, (p) => ({
+        ...p,
+        days: p.days.map((d) => {
+          if (d.id !== dayId) return d;
+          const index = d.exercises.findIndex((e) => e.id === exerciseId);
+          if (index === -1) return d;
+          const copy = { ...d.exercises[index], id: id("ex") };
+          const exercises = [...d.exercises];
+          exercises.splice(index + 1, 0, copy);
+          return { ...d, exercises };
+        }),
+      })),
+    );
+  }
+
+  moveExercise(
+    programId: string,
+    dayId: string,
+    exerciseId: string,
+    direction: "up" | "down",
+  ) {
+    return resolveMock(
+      this.mutate(programId, (p) => ({
+        ...p,
+        days: p.days.map((d) => {
+          if (d.id !== dayId) return d;
+          const index = d.exercises.findIndex((e) => e.id === exerciseId);
+          const target = direction === "up" ? index - 1 : index + 1;
+          if (index === -1 || target < 0 || target >= d.exercises.length) return d;
+          const exercises = [...d.exercises];
+          [exercises[index], exercises[target]] = [
+            exercises[target],
+            exercises[index],
+          ];
+          return { ...d, exercises };
+        }),
       })),
     );
   }

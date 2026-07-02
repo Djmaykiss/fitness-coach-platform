@@ -3,6 +3,9 @@
 import { useEffect, useState } from "react";
 import {
   CalendarPlus,
+  ChevronDown,
+  ChevronUp,
+  Copy,
   Dumbbell,
   ListPlus,
   Pencil,
@@ -15,7 +18,10 @@ import { trainingService } from "@/services/training.service";
 import { exerciseLibraryService } from "@/services/exercise-library.service";
 import { adminDashboardService } from "@/services/dashboard.service";
 import { useToast } from "@/context/toast-context";
+import { useSettings } from "@/context/settings-context";
 import { isPositiveInt } from "@/lib/validation";
+import { printProgram } from "@/lib/print";
+import { Printer } from "lucide-react";
 import type {
   AdminClientRow,
   CreateTrainingProgramInput,
@@ -56,6 +62,7 @@ type Panel =
 
 export function TrainingProgramsManager() {
   const toast = useToast();
+  const { settings } = useSettings();
   const [programs, setPrograms] = useState<TrainingProgram[]>([]);
   const [clients, setClients] = useState<AdminClientRow[]>([]);
   const [library, setLibrary] = useState<LibraryExercise[]>([]);
@@ -220,6 +227,14 @@ export function TrainingProgramsManager() {
                   >
                     <UserCheck size={14} />
                     Asignar
+                  </button>
+                  <button
+                    type="button"
+                    className={rowBtn}
+                    onClick={() => printProgram(program, settings.businessName)}
+                  >
+                    <Printer size={14} />
+                    Imprimir
                   </button>
                   <button
                     type="button"
@@ -426,6 +441,7 @@ function DayCard({
   library: LibraryExercise[];
   onChange: () => Promise<void>;
 }) {
+  const toast = useToast();
   const [exerciseId, setExerciseId] = useState("");
   const [sets, setSets] = useState("");
   const [reps, setReps] = useState("");
@@ -433,24 +449,41 @@ function DayCard({
   const [notes, setNotes] = useState("");
   const [err, setErr] = useState<string | null>(null);
 
+  const lastIndex = day.exercises.length - 1;
+
   return (
     <div className="rounded-xl border border-white/10 bg-black/20 p-4">
-      <div className="flex items-center justify-between gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="flex items-center gap-2 font-black">
           <Dumbbell size={16} className="text-[#65ff4f]" />
           {day.name}
         </p>
-        <button
-          type="button"
-          className={rowBtnDanger}
-          onClick={async () => {
-            await trainingService.deleteDay(programId, day.id);
-            await onChange();
-          }}
-        >
-          <Trash2 size={14} />
-          Quitar día
-        </button>
+        <div className="flex flex-wrap gap-2">
+          <button
+            type="button"
+            className={rowBtn}
+            onClick={async () => {
+              await trainingService.duplicateDay(programId, day.id);
+              await onChange();
+              toast.success("Día duplicado.");
+            }}
+          >
+            <Copy size={14} />
+            Duplicar día
+          </button>
+          <button
+            type="button"
+            className={rowBtnDanger}
+            onClick={async () => {
+              await trainingService.deleteDay(programId, day.id);
+              await onChange();
+              toast.success("Día eliminado.");
+            }}
+          >
+            <Trash2 size={14} />
+            Quitar día
+          </button>
+        </div>
       </div>
 
       {day.exercises.length > 0 ? (
@@ -467,25 +500,57 @@ function DayCard({
               </tr>
             </thead>
             <tbody>
-              {day.exercises.map((ex) => (
+              {day.exercises.map((ex, i) => (
                 <tr key={ex.id} className="border-t border-white/10">
                   <td className="py-2 pr-3 font-semibold text-white">{ex.name}</td>
                   <td className="py-2 pr-3 text-zinc-300">{ex.sets || "—"}</td>
                   <td className="py-2 pr-3 text-zinc-300">{ex.reps || "—"}</td>
                   <td className="py-2 pr-3 text-zinc-300">{ex.rest || "—"}</td>
                   <td className="py-2 pr-3 text-zinc-400">{ex.notes || "—"}</td>
-                  <td className="py-2 text-right">
-                    <button
-                      type="button"
-                      className="text-zinc-500 transition hover:text-red-400"
-                      aria-label="Quitar ejercicio"
-                      onClick={async () => {
-                        await trainingService.deleteExercise(programId, day.id, ex.id);
-                        await onChange();
-                      }}
-                    >
-                      <Trash2 size={15} />
-                    </button>
+                  <td className="py-2">
+                    <div className="flex items-center justify-end gap-1">
+                      <IconAction
+                        label="Subir ejercicio"
+                        disabled={i === 0}
+                        onClick={async () => {
+                          await trainingService.moveExercise(programId, day.id, ex.id, "up");
+                          await onChange();
+                        }}
+                      >
+                        <ChevronUp size={15} />
+                      </IconAction>
+                      <IconAction
+                        label="Bajar ejercicio"
+                        disabled={i === lastIndex}
+                        onClick={async () => {
+                          await trainingService.moveExercise(programId, day.id, ex.id, "down");
+                          await onChange();
+                        }}
+                      >
+                        <ChevronDown size={15} />
+                      </IconAction>
+                      <IconAction
+                        label="Duplicar ejercicio"
+                        onClick={async () => {
+                          await trainingService.duplicateExercise(programId, day.id, ex.id);
+                          await onChange();
+                          toast.success("Ejercicio duplicado.");
+                        }}
+                      >
+                        <Copy size={14} />
+                      </IconAction>
+                      <IconAction
+                        label="Quitar ejercicio"
+                        danger
+                        onClick={async () => {
+                          await trainingService.deleteExercise(programId, day.id, ex.id);
+                          await onChange();
+                          toast.success("Ejercicio eliminado.");
+                        }}
+                      >
+                        <Trash2 size={15} />
+                      </IconAction>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -664,6 +729,38 @@ function DeleteConfirm({
         </button>
       </div>
     </div>
+  );
+}
+
+/* ---------- Acciones de icono por ejercicio ---------- */
+function IconAction({
+  label,
+  onClick,
+  disabled = false,
+  danger = false,
+  children,
+}: {
+  label: string;
+  onClick: () => void;
+  disabled?: boolean;
+  danger?: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      aria-label={label}
+      title={label}
+      className={`inline-flex h-8 w-8 items-center justify-center rounded-lg border border-white/10 transition disabled:cursor-not-allowed disabled:opacity-30 ${
+        danger
+          ? "text-zinc-500 hover:border-red-500/50 hover:text-red-400"
+          : "text-zinc-400 hover:border-[#65ff4f]/50 hover:text-[#65ff4f]"
+      }`}
+    >
+      {children}
+    </button>
   );
 }
 

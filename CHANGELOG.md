@@ -201,11 +201,26 @@ Todos los cambios relevantes del proyecto se registran en este archivo.
   crea alumno y marca el lead como Convertido. `npm run lint` + `npm run build` OK,
   responsive 320 sin overflow (kanban con scroll horizontal), consola limpia.
 
-### Pendiente / próximos bloques (para completar el SaaS)
+### Incremento 10 — Builder de programas (duplicar/mover) + exportaciones imprimibles
+- Builder de programas: el coach ahora puede **duplicar un día** (copia con ids
+  nuevos), **mover un ejercicio arriba/abajo**, **duplicar un ejercicio** y
+  **eliminarlo**, con confirmación por toast. Todo en `localStorage` (nuevos métodos
+  `duplicateDay`/`duplicateExercise`/`moveExercise` en repository → service → UI).
+- Exportaciones imprimibles (sin PDF real todavía): botones **Imprimir / Exportar**
+  para el **perfil del alumno**, el **programa** y el **plan de nutrición**. Abren una
+  vista imprimible (`window.print`) con el nombre del negocio y los datos formateados.
+- No se cambió el diseño general. `src/lib/print.ts` es autocontenido; el documento
+  imprimible es una ventana aparte.
+- Verificado: mover/duplicar/eliminar ejercicio y duplicar día (ids únicos, orden
+  correcto, subir/bajar deshabilitados en extremos); impresión de programa, nutrición
+  y perfil (con y sin evaluación). `npm run lint` + `npm run build` OK, responsive 320
+  sin overflow, consola limpia.
+
+### Pendiente / próximos bloques (no bloquean la entrega de v1.5)
 - Biblioteca de ejercicios multi-media (imágenes múltiples, PDF, contraindicaciones,
-  notas privadas), constructor de programas por semanas + duplicar/mover/drag&drop,
-  gestor nutricional avanzado (recetas, suplementos, horarios, PDF), reportes PDF y
-  exportaciones.
+  notas privadas), constructor de programas por semanas + drag&drop, gestor
+  nutricional avanzado (recetas, suplementos, horarios), reportes/exportaciones en PDF
+  real.
 - Evaluar el merge a `main` como v1.5 estable y crear el tag `v1.5`.
 
 ## v1.4

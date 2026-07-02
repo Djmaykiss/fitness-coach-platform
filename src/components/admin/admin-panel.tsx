@@ -12,6 +12,7 @@ import {
   PauseCircle,
   Pencil,
   Plus,
+  Printer,
   RefreshCw,
   Salad,
   Search,
@@ -40,6 +41,8 @@ import { nutritionService } from "@/services/nutrition.service";
 import { coachConfig, whatsappTo, whatsappUrl } from "@/config/coachConfig";
 import { formatDate } from "@/lib/format";
 import { isValidEmail } from "@/lib/validation";
+import { printClientProfile } from "@/lib/print";
+import { useSettings } from "@/context/settings-context";
 import type {
   AdminClientRow,
   ClientProgress,
@@ -606,8 +609,17 @@ function ClientDetailCard({
   client: AdminClientRow;
   onClose: () => void;
 }) {
+  const { settings } = useSettings();
   return (
     <FormShell title={`Ficha: ${client.name}`} onClose={onClose}>
+      <button
+        type="button"
+        onClick={() => printClientProfile(client, settings.businessName)}
+        className="mb-4 inline-flex min-h-10 items-center gap-2 rounded-lg border border-white/15 px-4 text-sm font-bold text-zinc-300 transition hover:border-[#65ff4f]/50 hover:text-[#65ff4f]"
+      >
+        <Printer size={16} />
+        Imprimir / Exportar perfil
+      </button>
       {client.evaluation ? (
         <EvaluationDetails evaluation={client.evaluation} />
       ) : (

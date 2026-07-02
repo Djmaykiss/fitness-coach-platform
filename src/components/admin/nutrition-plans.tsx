@@ -13,9 +13,12 @@ import {
   UserCheck,
   Utensils,
 } from "lucide-react";
+import { Printer } from "lucide-react";
 import { nutritionService } from "@/services/nutrition.service";
 import { adminDashboardService } from "@/services/dashboard.service";
 import { useToast } from "@/context/toast-context";
+import { useSettings } from "@/context/settings-context";
+import { printNutrition } from "@/lib/print";
 import type {
   AdminClientRow,
   CreateNutritionPlanInput,
@@ -53,6 +56,7 @@ type Panel =
 
 export function NutritionPlansManager() {
   const toast = useToast();
+  const { settings } = useSettings();
   const [plans, setPlans] = useState<NutritionPlan[]>([]);
   const [clients, setClients] = useState<AdminClientRow[]>([]);
   const [loaded, setLoaded] = useState(false);
@@ -203,6 +207,10 @@ export function NutritionPlansManager() {
                   <button type="button" className={rowBtn} onClick={() => setPanel({ kind: "assign", plan })}>
                     <UserCheck size={14} />
                     Asignar
+                  </button>
+                  <button type="button" className={rowBtn} onClick={() => printNutrition(plan, settings.businessName)}>
+                    <Printer size={14} />
+                    Imprimir
                   </button>
                   <button type="button" className={rowBtn} onClick={() => setPanel({ kind: "edit", plan })}>
                     <Pencil size={14} />
