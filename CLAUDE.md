@@ -354,6 +354,141 @@ Estas reglas son permanentes; aplicarlas automaticamente sin que el usuario las 
 8. Proponer mejoras de arquitectura que no rompan compatibilidad, al finalizar la tarea (sin aplicarlas sin autorizacion).
 9. Versionado: trabajar en ramas `feature/*` (nunca directo en `main`); merge a `main` solo tras lint+build+pruebas; cada version estable se documenta en `CLAUDE.md` + `CHANGELOG.md` y se etiqueta con `git tag -a vX.Y`.
 
+## Migracion a Supabase (DISEÑO DEFINITIVO v2 — sin ejecutar aun, pendiente de aprobacion)
+Estado: DISEÑO. No se ha creado ninguna tabla ni tocado codigo; v1.5 sigue 100% en
+`localStorage`. Esquema DEFINITIVO pensado para crecer años sin rehacer la base. La
+migracion NO reescribe UI ni servicios: se implementan `Supabase*Repository` que cumplen
+las MISMAS interfaces de `src/repositories/types.ts` y se cambia el cableado en
+`src/repositories/index.ts` por repositorio, con flag
+`NEXT_PUBLIC_DATA_BACKEND=local|supabase` (modo hibrido/reversible).
+
+Decisiones base (definitivas):
+- MULTI-TENANT real: raiz `organizations`. TODO lleva `organization_id`. Un usuario se
+  vincula a orgs via `memberships` (profile-organization-role), soportando cientos de
+  orgs y roles distintos por org.
+- Identidad en 4 capas: `auth.users` (Supabase Auth) -> `profiles` (identidad global
+  1:1) -> `memberships` (rol en una org) -> `coaches` (perfil PROFESIONAL). La MARCA/
+  white-label (nombre, logo, colores, legales, contacto) vive en `organizations`; la
+  info profesional del coach (bio, especialidades, certificaciones) en `coaches`.
+- Roles en `memberships.role`: owner | admin | coach | client.
+- IDs `uuid`; columnas comunes en toda tabla: `id`, `organization_id`, `created_at`,
+  `updated_at` (trigger), `created_by`, y `deleted_at` (SOFT DELETE) en el contenido.
+- Enums como `text` + `CHECK` (extensibles sin migracion dura). Campos flexibles en
+  `jsonb`; lo que se filtra/ordena queda como columna.
+- MULTIMEDIA generico: `media_assets` (recurso: kind image/gif/video/pdf/file/link,
+  bucket+path o url, mime, size) + puentes con FK real por dominio (`exercise_media`, a
+  futuro `nutrition_media`/`discover_media`). Reemplaza el campo `video` unico y las
+  columnas image/gif por-entidad; soporta multiples recursos.
+- ASIGNACIONES genericas: una sola `student_assignments` (client + `resource_type` +
+  `resource_id` + status) reemplaza `program_assignments`/`nutrition_assignments` y sirve
+  para programas, nutricion, cursos, retos, documentos, rutinas, ejercicios, etc. El
+  "programa actual" = assignment activo con `resource_type='training_program'`.
+- TAXONOMIA: `exercise_categories`/`nutrition_categories`/`program_categories`
+  (jerarquicas via `parent_id`) + `tags` global + puentes `exercise_tags`/`program_tags`.
+- CHAT escalable: `conversations` + `conversation_members` (con `last_read_at`) +
+  `messages` (reemplaza la unica `chat_messages`).
+- NOTIFICACIONES: tabla real `notifications` (recipient, type, priority, entity, read_at,
+  `dedupe_key` unico) que la app upsertea desde su derivacion actual; leido = `read_at`.
+- AUDITORIA: `audit_logs` (actor, tabla, accion, before/after jsonb, ip, user_agent,
+  fecha) por TRIGGER generico `SECURITY DEFINER` en tablas clave, desde la fase 1.
+- FUTURO (tablas creadas desde ya, aunque inicien vacias): `appointments`; pagos
+  `plans`/`subscriptions`/`payments`; `reports`.
+- NO migran: `pending-evaluation` (pre-auth, transitorio, queda en localStorage) ni el
+  contenido `Mock*` de marketing (estatico).
+
+Inventario de tablas (por dominio):
+- Tenant/identidad: `organizations`, `profiles`, `memberships`, `coaches`.
+- Taxonomia/media: `exercise_categories`, `nutrition_categories`, `program_categories`,
+  `tags`, `exercise_tags`, `program_tags`, `media_assets`, `exercise_media`.
+- Catalogo del coach: `library_exercises`, `training_programs`, `training_days`,
+  `training_exercises`, `nutrition_plans`, `nutrition_days`, `nutrition_meals`,
+  `discover_routines`, `discover_categories`, `discover_articles`, `onboarding_messages`,
+  `onboarding_rewards`, `onboarding_predictions`.
+- Alumnos/CRM: `clients`, `leads`, `evaluations`, `client_progress`, `crm_records`,
+  `crm_history`, `student_assignments`.
+- Actividad del alumno: `workout_results`, `workout_day_progress`,
+  `exercise_series_progress`, `nutrition_meal_progress`, `client_checklists`,
+  `progress_photos`.
+- Chat: `conversations`, `conversation_members`, `messages`.
+- Notificaciones: `notifications`.
+- Negocio/futuro: `appointments`, `plans`, `subscriptions`, `payments`, `reports`.
+- Transversal: `audit_logs`.
+- Deprecada (no se crea): `program_rows` (la reemplaza `training_programs` + vista).
+
+Buckets de Storage (path `{organization_id}/{entidad}/{id}/{archivo}`):
+- Publicos (lectura): `logos`, `discover-images`, `exercise-images`, `exercise-gifs`,
+  `nutrition-images`.
+- Privados (RLS por org/usuario): `avatars`, `progress-photos`, `documents`,
+  `exercise-videos` (solo si se suben; YouTube queda como URL), `message-attachments`,
+  `report-files`.
+
+Flujo de autenticacion: Supabase Auth (email/clave). Trigger `on auth.users insert` crea
+`profiles`. El owner crea su `organization` + membership owner; invita coaches (membership
+coach); el alumno entra por onboarding (lead->convert) que crea `auth.users` + `clients`
++ membership client. `useAuth()` mantiene su API; solo cambia su interior. El onboarding
+anonimo escribe el lead via RPC `SECURITY DEFINER` (sin INSERT abierto). Org y rol se
+resuelven por `memberships`.
+
+Estrategia RLS (definitiva): `ENABLE`+`FORCE` en todas las tablas. Helpers
+`SECURITY DEFINER STABLE`: `current_org_ids()`, `has_org_role(org, roles[])`,
+`is_org_staff(org)` (owner/admin/coach), `my_client_id(org)`. Patron: (a) staff -> CRUD
+donde `organization_id` esta en `current_org_ids()`; (b) alumno -> SELECT de su `clients`,
+de sus recursos asignados (via `student_assignments`) y del contenido `published` de su
+org; INSERT/UPDATE solo de SU actividad donde `client_id = my_client_id()`; (c) anonimo ->
+nada directo, solo RPC de captura de lead y lectura de publicado via RPC/servidor.
+`audit_logs`/`payments` solo lectura de staff y escritura por trigger o service-role.
+Storage: politicas por prefijo `{org}/…`; el alumno solo su carpeta.
+
+Orden seguro de implementacion (cada fase con lint+build+pruebas y su repo swap):
+0) Extensiones (pgcrypto), helpers RLS, trigger `updated_at`, trigger generico de audit.
+1) Tenant+identidad (`organizations`,`profiles`,`memberships`,`coaches`) + Auth trigger +
+   RLS base + buckets/politicas de Storage.
+2) Taxonomia+media (`*_categories`,`tags`,`*_tags`,`media_assets`).
+3) Catalogo del coach (`library_exercises`+`exercise_media`, `discover_*`, `onboarding_*`).
+4) Leads+`evaluations` (RPC anonima).
+5) `clients`+`client_progress`+`student_assignments`.
+6) Entrenamiento (`training_programs`->dias->ejercicios).
+7) Nutricion (`nutrition_plans`->dias->comidas).
+8) Actividad del alumno (`workout_results`,`*_progress`,`client_checklists`,`progress_photos`).
+9) Chat (`conversations`,`conversation_members`,`messages`).
+10) CRM (`crm_records`+`crm_history`).
+11) `notifications`.
+12) Pagos (`plans`,`subscriptions`,`payments`).
+13) `appointments`.  14) `reports`.  15) Swap final y retiro del flag `local`.
+
+Implementacion Fase 0 y Fase 1 (HECHA — SQL generado, NO ejecutado contra ninguna BD):
+- Fuente de verdad del modelo: `DATABASE_MASTER_PLAN.md` (raiz). El SQL vive en
+  `supabase/migrations/*.sql` con `supabase/README.md` (orden + anotaciones). Rama
+  `feature/supabase-migration` (sin merge/push).
+- Archivos (todos idempotentes, sin `DROP`/`DELETE` de datos, solo estructura,
+  CONSERVAR): `0000_phase0_infra.sql` (pgcrypto, `set_updated_at`, `audit_logs`+RLS
+  bloqueada, `audit_trigger` generico); `0001_phase1_identity_tables.sql`
+  (`organizations`,`profiles`,`memberships`,`coaches` + indices + triggers updated_at
+  y auditoria); `0002_phase1_functions.sql` (helpers `current_org_ids`/`has_org_role`/
+  `is_org_staff`, trigger `handle_new_user`, RPC `create_organization`);
+  `0003_phase1_rls_policies.sql`; `0004_phase1_storage.sql` (11 buckets + politicas).
+- Decisiones tecnicas nuevas registradas en la implementacion:
+  (a) Los helpers RLS que dependen de `memberships` se crean en Fase 1, no en Fase 0
+  (dependencia de tabla). (b) `my_client_id()` y la ESCRITURA de `progress-photos` por
+  el propio alumno se difieren a Fase 5 (necesitan `clients`); en Fase 1 esos buckets
+  son solo-staff. (c) `avatars` usa convencion de path `{profile_id}/…` (excepcion a la
+  convencion general `{organization_id}/…`), porque el avatar es del usuario. (d) La
+  creacion de org y el membership owner se hacen atomicamente via RPC
+  `create_organization` (SECURITY DEFINER), evitando politicas de INSERT abiertas;
+  `revoke execute … from public` + `grant … to authenticated`. (e) El `audit_trigger`
+  intenta leer `ip`/`user_agent` de `request.headers` en modo best-effort (nunca rompe
+  la escritura si no estan). (f) DELETE bloqueado por RLS en `organizations`/`coaches`
+  (se usa soft delete `deleted_at`). (g) Verificacion: sin Postgres local, la sintaxis
+  se valido de forma estatica (bloques `$$` balanceados, sin sentencias de datos
+  peligrosas); `supabase db lint` requiere DB local (Docker) no disponible; la
+  validacion en runtime la hace Supabase al ejecutar los scripts.
+
+Politica de anotacion de cada SQL (al entregar el script): por bloque (1) MODIFICA DATOS
+o SOLO LECTURA; (2) RIESGO (bajo/medio/alto); (3) CONSERVAR o BORRAR despues. DDL/RLS/
+funciones/triggers = esquema, riesgo bajo, CONSERVAR. Seed de org/coach = datos,
+CONSERVAR. Seeds demo/importador unico = datos, BORRAR despues. Ningun `DROP`/`DELETE`
+sin backup y confirmacion explicita.
+
 ## Publicacion GitHub
 - Fecha de publicacion: 2026-06-25.
 - Repositorio: `fitness-coach-platform`.
