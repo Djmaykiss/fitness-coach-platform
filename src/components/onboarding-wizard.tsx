@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   ArrowLeft,
   ArrowRight,
@@ -12,20 +12,32 @@ import {
   CheckCircle2,
   Dumbbell,
   Flame,
+  Gift,
   HeartPulse,
   Home,
   MapPin,
+  Medal,
   PersonStanding,
+  Quote,
   Repeat,
   Ruler,
   Sparkles,
+  Star,
   Target,
+  TrendingUp,
   Trophy,
   Weight,
 } from "lucide-react";
 import type { ComponentType } from "react";
 import type { LucideProps } from "lucide-react";
 import { onboardingService } from "@/services/onboarding.service";
+import { onboardingContentService } from "@/services/onboarding-content.service";
+import { formatDate } from "@/lib/format";
+import type {
+  OnboardingMessage,
+  OnboardingPrediction,
+  OnboardingReward,
+} from "@/types";
 import {
   AVAILABILITY_DAYS,
   BODY_TYPES,
@@ -42,7 +54,17 @@ import {
   YES_NO,
 } from "@/data/onboarding";
 
-const TOTAL_STEPS = 11;
+const TOTAL_STEPS = 12;
+
+/** Iconos de recompensa (deben coincidir con el set del panel del coach). */
+const REWARD_ICONS: Record<string, ComponentType<LucideProps>> = {
+  target: Target,
+  trophy: Trophy,
+  sparkles: Sparkles,
+  gift: Gift,
+  star: Star,
+  medal: Medal,
+};
 
 const OBJECTIVE_ICONS: Record<string, ComponentType<LucideProps>> = {
   "Perder grasa": Flame,
@@ -66,6 +88,7 @@ type WizardData = {
   age: string;
   sex: string;
   weight: string;
+  targetWeight: string;
   height: string;
   waist: string;
   bodyType: string;
@@ -111,6 +134,7 @@ const INITIAL: WizardData = {
   age: "",
   sex: "",
   weight: "",
+  targetWeight: "",
   height: "",
   waist: "",
   bodyType: "",
@@ -160,6 +184,44 @@ export function OnboardingWizard() {
     [data.objective],
   );
 
+  // Contenido del onboarding administrado por el coach (solo lo PUBLICADO).
+  const [messages, setMessages] = useState<OnboardingMessage[]>([]);
+  const [rewards, setRewards] = useState<OnboardingReward[]>([]);
+  const [predictions, setPredictions] = useState<OnboardingPrediction[]>([]);
+
+  useEffect(() => {
+    let active = true;
+    Promise.all([
+      onboardingContentService.getPublishedMessages(),
+      onboardingContentService.getPublishedRewards(),
+      onboardingContentService.getPublishedPredictions(),
+    ]).then(([m, r, p]) => {
+      if (!active) return;
+      setMessages(m);
+      setRewards(r);
+      setPredictions(p);
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  // Mensaje motivacional segun el objetivo (o "General"); null si no hay publicados.
+  const motivation = useMemo(
+    () => pickByObjective(messages, (m) => m.category, data.objective)?.message ?? null,
+    [messages, data.objective],
+  );
+  // Texto de prediccion segun el objetivo (o "General").
+  const prediction = useMemo(
+    () => pickByObjective(predictions, (p) => p.objective, data.objective),
+    [predictions, data.objective],
+  );
+  // Fecha estimada informativa: hoy + semanas del plan recomendado.
+  const estimatedDate = useMemo(
+    () => addWeeksISO(weeksFromLabel(recommendation.weeks)),
+    [recommendation.weeks],
+  );
+
   const canContinue = ((): boolean => {
     switch (step) {
       case 1:
@@ -194,6 +256,7 @@ export function OnboardingWizard() {
       age: data.age,
       sex: data.sex,
       weight: data.weight,
+      targetWeight: data.targetWeight,
       height: data.height,
       waist: data.waist,
       bodyType:
@@ -264,7 +327,16 @@ export function OnboardingWizard() {
       </div>
 
       <div key={step} className="onboarding-step mt-8">
-        <Step step={step} data={data} set={set} recommendation={recommendation} />
+        <Step
+          step={step}
+          data={data}
+          set={set}
+          recommendation={recommendation}
+          motivation={motivation}
+          prediction={prediction}
+          rewards={rewards}
+          estimatedDate={estimatedDate}
+        />
       </div>
 
       <div className="mt-8 flex items-center justify-between gap-3">
@@ -312,17 +384,25 @@ function Step({
   data,
   set,
   recommendation,
+  motivation,
+  prediction,
+  rewards,
+  estimatedDate,
 }: {
   step: number;
   data: WizardData;
   set: <K extends keyof WizardData>(key: K, value: WizardData[K]) => void;
   recommendation: { plan: string; weeks: string };
+  motivation: string | null;
+  prediction: OnboardingPrediction | null;
+  rewards: OnboardingReward[];
+  estimatedDate: string;
 }) {
   if (step === 1) {
     return (
       <div>
         <StepHeader
-          eyebrow="Paso 1 de 11"
+          eyebrow="Paso 1 de 12"
           title="Hagamos esto personal"
           subtitle="Cuéntanos quién eres para construir un plan hecho a tu medida, sin plantillas genéricas."
         />
@@ -365,7 +445,7 @@ function Step({
     return (
       <div>
         <StepHeader
-          eyebrow="Paso 2 de 11"
+          eyebrow="Paso 2 de 12"
           title="Tu punto de partida"
           subtitle="Estos números son la base para medir cada avance. La cintura es opcional."
         />
@@ -384,8 +464,13 @@ function Step({
             onChange={(v) => set("height", v)}
             placeholder="Ej: 175"
           />
-        </div>
-        <div className="mt-4 max-w-[calc(50%-0.5rem)] max-sm:max-w-full">
+          <TextField
+            label="Peso objetivo (kg) — opcional"
+            type="number"
+            value={data.targetWeight}
+            onChange={(v) => set("targetWeight", v)}
+            placeholder="Ej: 74"
+          />
           <TextField
             label="Cintura (cm) — opcional"
             type="number"
@@ -402,7 +487,7 @@ function Step({
     return (
       <div>
         <StepHeader
-          eyebrow="Paso 3 de 11"
+          eyebrow="Paso 3 de 12"
           title="¿Con cuál te identificas hoy?"
           subtitle="Elige la figura que más se parece a tu cuerpo ahora mismo. Aquí no se juzga: es tu punto de inicio."
         />
@@ -430,7 +515,7 @@ function Step({
     return (
       <div>
         <StepHeader
-          eyebrow="Paso 4 de 11"
+          eyebrow="Paso 4 de 12"
           title="¿Qué transformación quieres lograr?"
           subtitle="Tu objetivo define todo tu entrenamiento. Elige el que más te mueve hoy."
         />
@@ -461,7 +546,7 @@ function Step({
     return (
       <div>
         <StepHeader
-          eyebrow="Paso 5 de 11"
+          eyebrow="Paso 5 de 12"
           title="Tu nivel y tu cancha"
           subtitle="Adaptamos la intensidad a tu experiencia y al lugar donde vas a entrenar."
         />
@@ -510,7 +595,7 @@ function Step({
     return (
       <div>
         <StepHeader
-          eyebrow="Paso 6 de 11"
+          eyebrow="Paso 6 de 12"
           title="¿Cuánto tiempo te das a la semana?"
           subtitle="Sé realista: la constancia le gana a la intensidad. Elige los días que de verdad puedes sostener."
         />
@@ -538,7 +623,7 @@ function Step({
     return (
       <div>
         <StepHeader
-          eyebrow="Paso 7 de 11"
+          eyebrow="Paso 7 de 12"
           title="Tu estilo de vida"
           subtitle="El descanso y la nutrición son la otra mitad de tus resultados. Cuéntanos cómo vienes."
         />
@@ -562,7 +647,7 @@ function Step({
     return (
       <div>
         <StepHeader
-          eyebrow="Paso 8 de 11"
+          eyebrow="Paso 8 de 12"
           title="Tu salud va primero"
           subtitle="Entrenamos seguro. Cuéntanos tus antecedentes para cuidarte en cada sesión."
         />
@@ -616,7 +701,7 @@ function Step({
     return (
       <div>
         <StepHeader
-          eyebrow="Paso 9 de 11"
+          eyebrow="Paso 9 de 12"
           title="Cómo comes hoy (1 de 2)"
           subtitle="Sin culpas ni juicios: solo queremos conocer tus hábitos reales para personalizar tu guía."
         />
@@ -684,7 +769,7 @@ function Step({
     return (
       <div>
         <StepHeader
-          eyebrow="Paso 10 de 11"
+          eyebrow="Paso 10 de 12"
           title="Cómo comes hoy (2 de 2)"
           subtitle="Último tramo. Con esto afinamos tu guía nutricional a tu día a día."
         />
@@ -748,6 +833,90 @@ function Step({
     );
   }
 
+  // Paso 12: pantalla de prediccion (contenido publicado por el coach)
+  if (step === 12) {
+    return (
+      <div>
+        <StepHeader
+          eyebrow="Paso 12 de 12"
+          title="Tu predicción personalizada"
+          subtitle="Una proyección informativa basada en tu evaluación. Los resultados dependen de tu constancia; no son una garantía."
+        />
+
+        {motivation ? (
+          <div className="mb-5 flex items-start gap-3 rounded-2xl border border-[#65ff4f]/25 bg-[#65ff4f]/[0.06] p-4">
+            <Quote className="mt-0.5 shrink-0 text-[#65ff4f]" size={18} />
+            <p className="text-sm font-semibold leading-6 text-zinc-100">
+              {motivation}
+            </p>
+          </div>
+        ) : null}
+
+        <div className="grid gap-3 sm:grid-cols-3">
+          <SummaryRow icon={Weight} label="Peso actual" value={data.weight ? `${data.weight} kg` : ""} />
+          <SummaryRow icon={Target} label="Peso objetivo" value={data.targetWeight ? `${data.targetWeight} kg` : "A definir"} highlight />
+          <SummaryRow icon={CalendarDays} label="Fecha estimada" value={formatDate(estimatedDate)} />
+        </div>
+
+        {/* Texto de prediccion publicado por el coach (segun objetivo) */}
+        <div className="mt-5 overflow-hidden rounded-2xl border border-[#65ff4f]/40 bg-gradient-to-br from-[#65ff4f]/[0.16] via-[#65ff4f]/[0.05] to-transparent p-5 shadow-[0_0_50px_-20px_rgba(101,255,79,0.6)]">
+          <div className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.2em] text-[#65ff4f]">
+            <TrendingUp size={16} />
+            {prediction?.timeframe
+              ? `Proyección a ${prediction.timeframe}`
+              : "Tu proyección"}
+          </div>
+          <p className="mt-3 text-xl font-black tracking-tight text-white sm:text-2xl">
+            {prediction?.title ?? "Tu mejor versión, paso a paso"}
+          </p>
+          <p className="mt-3 text-sm leading-6 text-zinc-200">
+            {prediction?.body ??
+              "Con un plan estructurado y acompañamiento de tu coach, los resultados llegan cuando la constancia se vuelve hábito."}
+          </p>
+        </div>
+
+        {/* Recompensas publicadas por el coach */}
+        {rewards.length > 0 ? (
+          <div className="mt-5">
+            <p className="mb-3 flex items-center gap-2 text-xs font-black uppercase tracking-[0.2em] text-zinc-500">
+              <Gift size={16} className="text-[#65ff4f]" />
+              Lo que obtienes al empezar
+            </p>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {rewards.map((reward) => {
+                const Icon = REWARD_ICONS[reward.icon] ?? Sparkles;
+                return (
+                  <div
+                    key={reward.id}
+                    className="flex items-start gap-3 rounded-xl border border-white/10 bg-white/[0.03] p-4"
+                  >
+                    <span className="inline-flex shrink-0 rounded-lg border border-[#65ff4f]/20 bg-[#65ff4f]/10 p-2 text-[#65ff4f]">
+                      <Icon size={18} />
+                    </span>
+                    <div className="min-w-0">
+                      <p className="font-black text-white">{reward.title}</p>
+                      {reward.description ? (
+                        <p className="mt-0.5 text-sm leading-6 text-zinc-400">
+                          {reward.description}
+                        </p>
+                      ) : null}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        ) : null}
+
+        <p className="mt-5 text-xs leading-5 text-zinc-500">
+          * Proyección informativa, no constituye una promesa de resultados ni una
+          recomendación médica. Al continuar guardaremos tu evaluación y crearás tu
+          cuenta para acceder a tu plan.
+        </p>
+      </div>
+    );
+  }
+
   // Paso 11: diagnostico profesional
   const bodyLabel =
     BODY_TYPES.find((b) => b.key === data.bodyType)?.label ?? data.bodyType;
@@ -755,10 +924,19 @@ function Step({
   return (
     <div>
       <StepHeader
-        eyebrow="Paso 11 de 11"
+        eyebrow="Paso 11 de 12"
         title="Tu diagnóstico está listo"
         subtitle="Esto es lo que vemos en tu evaluación y el plan con mayor potencial para acompañarte."
       />
+
+      {motivation ? (
+        <div className="mb-5 flex items-start gap-3 rounded-2xl border border-[#65ff4f]/25 bg-[#65ff4f]/[0.06] p-4">
+          <Quote className="mt-0.5 shrink-0 text-[#65ff4f]" size={18} />
+          <p className="text-sm font-semibold leading-6 text-zinc-100">
+            {motivation}
+          </p>
+        </div>
+      ) : null}
 
       <div className="mb-4 flex items-center gap-2 text-xs font-black uppercase tracking-[0.2em] text-zinc-500">
         <CheckCircle2 size={16} className="text-[#65ff4f]" />
@@ -807,6 +985,35 @@ function Step({
       </p>
     </div>
   );
+}
+
+/* ---------- Helpers de contenido publicado ---------- */
+
+/** Elige un item cuyo segmento coincida con el objetivo, o "General", o el primero. */
+function pickByObjective<T>(
+  items: T[],
+  getSegment: (item: T) => string,
+  objective: string,
+): T | null {
+  if (items.length === 0) return null;
+  return (
+    items.find((i) => getSegment(i) === objective) ??
+    items.find((i) => getSegment(i) === "General") ??
+    items[0]
+  );
+}
+
+/** Extrae el numero de semanas de una etiqueta tipo "12 semanas" (8 por defecto). */
+function weeksFromLabel(label: string): number {
+  const n = Number.parseInt(label, 10);
+  return Number.isFinite(n) && n > 0 ? n : 8;
+}
+
+/** ISO de hoy + N semanas (fecha estimada informativa). */
+function addWeeksISO(weeks: number): string {
+  const d = new Date();
+  d.setDate(d.getDate() + weeks * 7);
+  return d.toISOString();
 }
 
 /* ---------- Sub-componentes ---------- */

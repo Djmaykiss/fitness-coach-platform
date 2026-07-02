@@ -114,9 +114,28 @@ Todos los cambios relevantes del proyecto se registran en este archivo.
   `npm run lint` + `npm run build` OK; móvil 375px sin overflow. Sin Supabase ni
   backend.
 
+### Incremento 6 — Onboarding premium conectado al CMS + pantalla de predicción
+- El wizard de onboarding de la landing ahora consume el contenido PUBLICADO por el
+  coach (`onboardingContentService.getPublished{Messages,Rewards,Predictions}`):
+  - Mensaje motivacional según el objetivo del alumno (o "General") en el diagnóstico
+    y en la predicción.
+  - Recompensas publicadas listadas en la pantalla de predicción.
+  - Texto de predicción según el objetivo (con fallback a "General" y a un texto por
+    defecto seguro).
+- Nueva pantalla de predicción (paso 12): peso actual, peso objetivo, fecha estimada
+  informativa (hoy + semanas del plan), mensaje/predicción del coach y recompensas,
+  con aviso explícito de que es informativa y NO garantiza resultados.
+- Se agregó un campo opcional "Peso objetivo (kg)" en el paso 2 (guardado en
+  `evaluation.targetWeight`). El wizard pasó de 11 a 12 pasos.
+- El flujo se mantiene: "Quiero comenzar" → `/register` → dashboard (sin cambios en
+  el registro). Nada eliminado; todo aditivo.
+- Verificado: el coach despublica una recompensa y el alumno deja de verla; mensaje y
+  predicción correctos para "Perder grasa"; peso actual/objetivo/fecha estimada;
+  registro → dashboard con `targetWeight` guardado. `npm run lint` + `npm run build`
+  OK; móvil 375px sin overflow. Sin Supabase ni backend.
+
 ### Pendiente en v1.5 (próximo incremento)
-- Onboarding premium rediseñado y pantalla de predicción personalizada, que
-  consumirán el contenido administrado por el coach (parte 2 del incremento 4).
+- Pulido final de v1.5 y evaluación de merge a `main` como nueva versión estable.
 
 ## v1.4
 
