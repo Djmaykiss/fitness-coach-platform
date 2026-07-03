@@ -5,12 +5,26 @@
 > el **orden, dependencias, checklist, rollback, pruebas y criterios de cierre** de
 > cada bloque de migración de repositorios.
 >
-> Estado: **Bloques 0, 1 y 2 COMPLETADOS**. La app sigue 100% en `localStorage`
-> por defecto (flag `local`); los Bloques 1 (Auth + Organización/Settings) y 2
-> (Catálogo del coach) están migrados y verificados en vivo, activables por flag.
-> Bloques 3–11 pendientes.
+> Estado: **Bloques 0, 1, 2 y 3 COMPLETADOS**. La app sigue 100% en `localStorage`
+> por defecto (flag `local`); los Bloques 1 (Auth + Organización/Settings), 2
+> (Catálogo del coach) y 3 (Leads + Evaluaciones) están migrados y verificados en
+> vivo, activables por flag. Bloques 4–11 pendientes.
 
 ## Progreso
+
+- **Bloque 3 — Leads + Evaluaciones (HECHO):** BD Fase 4 aplicada
+  (`supabase/migrations/0010_phase4_leads_evaluations.sql`: `leads` + `evaluations` +
+  RLS + RPC `create_lead_public`). `SupabaseLeadRepository`: `createLead` /
+  `createEvaluationLead` ANÓNIMOS vía RPC `create_lead_public` (SECURITY DEFINER; sin
+  INSERT abierto), resto (`getLeads`/`updateStatus`/`updateLead`/`deleteLead`) del STAFF
+  bajo RLS por org. Evaluación como `jsonb`; `deleteLead` hard delete con cascade.
+  Cableado con factoría lazy. **Verificado en vivo (24/24 OK):** RPC create (paridad de
+  source/status/objective/trim), evaluación `jsonb` legible por staff, integración
+  (staff ve leads anónimos), newest-first, updateStatus (+null), updateLead, deleteLead
+  (+cascade, +repetido=false), RLS anon/alumno (sin lectura ni escritura directa), y
+  SEGURIDAD de la RPC sin escalación (org inexistente rechazada por FK; sin lectura ni
+  privilegios extra). Lint + build limpios. **Cierre (Regla #12):** `leadRepository`
+  6/6 ✅. Para activar en dev: añadir `lead` a `NEXT_PUBLIC_SUPABASE_REPOS`.
 
 - **Bloque 2 — Catálogo del coach (HECHO):** BD Fases 2 y 3 aplicadas
   (`supabase/migrations/0008_phase2_taxonomy_media.sql`, `0009_phase3_catalog.sql`).

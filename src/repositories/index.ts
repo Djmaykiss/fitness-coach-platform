@@ -6,6 +6,7 @@ import { SupabaseSettingsRepository } from "@/repositories/supabase/settings.rep
 import { SupabaseDiscoverRepository } from "@/repositories/supabase/discover.repository";
 import { SupabaseOnboardingContentRepository } from "@/repositories/supabase/onboarding-content.repository";
 import { SupabaseExerciseLibraryRepository } from "@/repositories/supabase/exercise-library.repository";
+import { SupabaseLeadRepository } from "@/repositories/supabase/lead.repository";
 import { LocalCrmRepository } from "@/repositories/local/crm.repository";
 import { LocalNotificationsRepository } from "@/repositories/local/notifications.repository";
 import { MockTestimonialRepository } from "@/repositories/mock/testimonial.repository";
@@ -95,9 +96,10 @@ export const clientRepository: ClientRepository = pickRepository(
   "client",
   new LocalClientRepository(),
 );
-export const leadRepository: LeadRepository = pickRepository(
+export const leadRepository: LeadRepository = pickRepository<LeadRepository>(
   "lead",
   new LocalLeadRepository(),
+  () => new SupabaseLeadRepository(),
 );
 export const progressRepository: ProgressRepository = pickRepository(
   "progress",
