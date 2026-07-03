@@ -5,11 +5,28 @@
 > el **orden, dependencias, checklist, rollback, pruebas y criterios de cierre** de
 > cada bloque de migración de repositorios.
 >
-> Estado: **Bloque 0 COMPLETADO** (fundaciones). La app sigue 100% en `localStorage`
-> (flag `local` por defecto). Bloques 1–11 pendientes.
+> Estado: **Bloque 0 y Bloque 1 COMPLETADOS**. La app sigue 100% en `localStorage`
+> por defecto (flag `local`); el Bloque 1 (Auth + Organización/Settings) está migrado
+> y verificado en vivo, activable por flag. Bloques 2–11 pendientes.
 
 ## Progreso
 
+- **Bloque 1 — Auth + Organización/Settings (HECHO):** `src/services/supabase-auth.service.ts`
+  (Supabase Auth: login/register/logout/sesión/`onAuthChange`; arma `AuthUser` desde
+  `profiles`+`memberships`, rol owner/admin/coach→`admin`, client→`client`; `register`
+  solo `signUp`, la fila `clients` se difiere al Bloque 4); `src/context/auth-context.tsx`
+  gateado por `backendFor("auth")` (solo su interior; `local`=mock byte-idéntico,
+  `supabase`=SDK; `useAuth()` sin cambios); `src/repositories/supabase/org-context.ts`
+  (`getCurrentOrgId()`: `profiles.default_organization_id`→primera membership `active`,
+  cacheado); `src/repositories/supabase/settings.repository.ts` (`SupabaseSettingsRepository`
+  get/save→`organizations`), cableado en `index.ts` con factoría lazy. `.env.local` (no
+  commiteado) con URL+anon key. Seed `supabase/seed/0100_block1_demo_org.seed.sql` ejecutado
+  (1 org + owner/coach + membership client). **Verificado en vivo (16/16 OK):** login
+  coach/alumno, `profiles` auto-creados por trigger, `organizations`/`memberships`,
+  resolver de org, settings save+get persistido, RLS (alumno no edita org; anónimo ve 0
+  filas). Lint + build limpios. Para probar en la app: descomentar
+  `NEXT_PUBLIC_SUPABASE_REPOS=auth,settings` en `.env.local`. Repos: `auth` (interior de
+  auth-context) + `settings` (`SettingsRepository`, 2/2 métodos → ✅). Sin merge/push.
 - **Bloque 0 — Fundaciones (HECHO):** instalado `@supabase/supabase-js` (^2.110);
   `src/lib/supabase.ts` (cliente lazy: no rompe sin credenciales); `src/repositories/
   backend.ts` (flag `NEXT_PUBLIC_DATA_BACKEND` + override `NEXT_PUBLIC_SUPABASE_REPOS`

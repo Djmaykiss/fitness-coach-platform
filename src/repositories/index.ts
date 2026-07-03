@@ -2,6 +2,7 @@ import { MockContentRepository } from "@/repositories/mock/content.repository";
 import { LocalDiscoverRepository } from "@/repositories/local/discover.repository";
 import { LocalOnboardingContentRepository } from "@/repositories/local/onboarding-content.repository";
 import { LocalSettingsRepository } from "@/repositories/local/settings.repository";
+import { SupabaseSettingsRepository } from "@/repositories/supabase/settings.repository";
 import { LocalCrmRepository } from "@/repositories/local/crm.repository";
 import { LocalNotificationsRepository } from "@/repositories/local/notifications.repository";
 import { MockTestimonialRepository } from "@/repositories/mock/testimonial.repository";
@@ -72,6 +73,7 @@ export const onboardingContentRepository: OnboardingContentRepository =
 export const settingsRepository: SettingsRepository = pickRepository(
   "settings",
   new LocalSettingsRepository(),
+  () => new SupabaseSettingsRepository(),
 );
 export const crmRepository: CrmRepository = pickRepository(
   "crm",
