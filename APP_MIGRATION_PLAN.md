@@ -5,11 +5,29 @@
 > el **orden, dependencias, checklist, rollback, pruebas y criterios de cierre** de
 > cada bloque de migración de repositorios.
 >
-> Estado: **Bloque 0 y Bloque 1 COMPLETADOS**. La app sigue 100% en `localStorage`
-> por defecto (flag `local`); el Bloque 1 (Auth + Organización/Settings) está migrado
-> y verificado en vivo, activable por flag. Bloques 2–11 pendientes.
+> Estado: **Bloques 0, 1 y 2 COMPLETADOS**. La app sigue 100% en `localStorage`
+> por defecto (flag `local`); los Bloques 1 (Auth + Organización/Settings) y 2
+> (Catálogo del coach) están migrados y verificados en vivo, activables por flag.
+> Bloques 3–11 pendientes.
 
 ## Progreso
+
+- **Bloque 2 — Catálogo del coach (HECHO):** BD Fases 2 y 3 aplicadas
+  (`supabase/migrations/0008_phase2_taxonomy_media.sql`, `0009_phase3_catalog.sql`).
+  Repos: `SupabaseDiscoverRepository` (`discover_routines/categories/articles`),
+  `SupabaseOnboardingContentRepository` (`onboarding_messages/rewards/predictions`) —
+  ambos sobre `content-crud.ts` (`publishableEntity`: CRUD + publicar/despublicar,
+  `create` publica por defecto, `remove`=soft delete, orden newest-first) — y
+  `SupabaseExerciseLibraryRepository` (`library_exercises` + media normalizada en
+  `exercise_media`→`media_assets`, ensamblado/reconciliación de slots image/gif/video).
+  Cableados en `index.ts` con factoría lazy (`pickRepository<Interface>`). **Verificado
+  en vivo (23/23 OK):** CRUD completo de los 3 repos, media (crear/editar/borrar slots),
+  RLS (alumno sin escritura y solo publicado; anon lee publicado, no ve no-publicado ni
+  `library_exercises` ni inserta), lectura pública de `published`, array `muscle_groups`,
+  soft delete, orden newest-first, `published` default true. Lint + build limpios.
+  **Cierre (Regla #12):** `discoverRepository` 15/15 ✅ · `onboardingContentRepository`
+  15/15 ✅ · `exerciseLibraryRepository` 5/5 ✅. Para activar en dev:
+  `NEXT_PUBLIC_SUPABASE_REPOS=auth,settings,discover,onboardingContent,exerciseLibrary`.
 
 - **Bloque 1 — Auth + Organización/Settings (HECHO):** `src/services/supabase-auth.service.ts`
   (Supabase Auth: login/register/logout/sesión/`onAuthChange`; arma `AuthUser` desde

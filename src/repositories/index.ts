@@ -3,6 +3,9 @@ import { LocalDiscoverRepository } from "@/repositories/local/discover.repositor
 import { LocalOnboardingContentRepository } from "@/repositories/local/onboarding-content.repository";
 import { LocalSettingsRepository } from "@/repositories/local/settings.repository";
 import { SupabaseSettingsRepository } from "@/repositories/supabase/settings.repository";
+import { SupabaseDiscoverRepository } from "@/repositories/supabase/discover.repository";
+import { SupabaseOnboardingContentRepository } from "@/repositories/supabase/onboarding-content.repository";
+import { SupabaseExerciseLibraryRepository } from "@/repositories/supabase/exercise-library.repository";
 import { LocalCrmRepository } from "@/repositories/local/crm.repository";
 import { LocalNotificationsRepository } from "@/repositories/local/notifications.repository";
 import { MockTestimonialRepository } from "@/repositories/mock/testimonial.repository";
@@ -64,12 +67,17 @@ export const pendingEvaluationRepository: PendingEvaluationRepository =
   new LocalPendingEvaluationRepository();
 
 /* --- Migrables (hoy Local; Supabase se enchufa por bloque segun el plan) --- */
-export const discoverRepository: DiscoverRepository = pickRepository(
+export const discoverRepository: DiscoverRepository = pickRepository<DiscoverRepository>(
   "discover",
   new LocalDiscoverRepository(),
+  () => new SupabaseDiscoverRepository(),
 );
 export const onboardingContentRepository: OnboardingContentRepository =
-  pickRepository("onboardingContent", new LocalOnboardingContentRepository());
+  pickRepository<OnboardingContentRepository>(
+    "onboardingContent",
+    new LocalOnboardingContentRepository(),
+    () => new SupabaseOnboardingContentRepository(),
+  );
 export const settingsRepository: SettingsRepository = pickRepository(
   "settings",
   new LocalSettingsRepository(),
@@ -98,7 +106,11 @@ export const progressRepository: ProgressRepository = pickRepository(
 export const trainingProgramRepository: TrainingProgramRepository =
   pickRepository("trainingProgram", new LocalTrainingProgramRepository());
 export const exerciseLibraryRepository: ExerciseLibraryRepository =
-  pickRepository("exerciseLibrary", new LocalExerciseLibraryRepository());
+  pickRepository<ExerciseLibraryRepository>(
+    "exerciseLibrary",
+    new LocalExerciseLibraryRepository(),
+    () => new SupabaseExerciseLibraryRepository(),
+  );
 export const nutritionPlanRepository: NutritionPlanRepository = pickRepository(
   "nutritionPlan",
   new LocalNutritionPlanRepository(),

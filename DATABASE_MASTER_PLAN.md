@@ -103,8 +103,8 @@ abierto). `useAuth()` mantiene su API; solo cambia su implementación interna.
 |---|---|---|
 | 0 | Extensiones, helpers base, `set_updated_at`, `audit_logs` + trigger de auditoría genérico | **Implementada** |
 | 1 | `organizations`, `profiles`, `memberships`, `coaches` + Auth trigger + helpers RLS + RLS + Storage | **Implementada** |
-| 2 | Taxonomía + media (`*_categories`, `tags`, `*_tags`, `media_assets`) | Diseño |
-| 3 | Catálogo (`library_exercises`+`exercise_media`, `discover_*`, `onboarding_*`) | Diseño |
+| 2 | Taxonomía + media (`*_categories`, `tags`, `media_assets`) | **Implementada** |
+| 3 | Catálogo (`library_exercises`+`exercise_media`, `discover_*`, `onboarding_*`) | **Implementada** |
 | 4 | `leads` + `evaluations` (RPC anónima) | Diseño |
 | 5 | `clients` + `client_progress` + `student_assignments` (+`my_client_id`) | Diseño |
 | 6 | Entrenamiento (`training_programs`→días→ejercicios) | Diseño |
