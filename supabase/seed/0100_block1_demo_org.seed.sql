@@ -19,8 +19,8 @@
 do $$
 declare
   -- >>> REEMPLAZAR por los UID reales de auth.users <<<
-  v_admin  uuid := '00000000-0000-0000-0000-000000000000';  -- uid de admin@coach.com
-  v_client uuid := '00000000-0000-0000-0000-000000000000';  -- uid de cliente@coach.com
+  v_admin  uuid := '75db1223-1234-412d-9900-05e3fdd92dd1';  -- uid de admin@coach.com (coach)
+  v_client uuid := 'c06c9215-f3f8-4c5b-b615-759f3a296f6d';  -- uid de cliente@coach.com (alumno)
   v_org uuid;
 begin
   -- Guard de idempotencia: si el admin ya es owner de una org, no repetir.
