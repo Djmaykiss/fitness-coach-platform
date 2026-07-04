@@ -111,7 +111,7 @@ abierto). `useAuth()` mantiene su API; solo cambia su implementación interna.
 | 7 | Nutrición (`nutrition_plans`→días→comidas) | **Implementada** |
 | 8 | Actividad del alumno | **Implementada** |
 | 9 | Chat | **Implementada** |
-| 10 | CRM (`crm_records`+`crm_history`) | Diseño |
+| 10 | CRM (`crm_records`+`crm_history`) | **Implementada** |
 | 11 | `notifications` | Diseño |
 | 12 | Pagos | Diseño |
 | 13 | `appointments` | Diseño |

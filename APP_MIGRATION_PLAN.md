@@ -5,13 +5,23 @@
 > el **orden, dependencias, checklist, rollback, pruebas y criterios de cierre** de
 > cada bloque de migración de repositorios.
 >
-> Estado: **Bloques 0–7 COMPLETADOS**. La app sigue 100% en `localStorage` por
-> defecto (flag `local`); los Bloques 1 (Auth + Organización/Settings), 2 (Catálogo
-> del coach), 3 (Leads + Evaluaciones), 4 (Alumnos + Progreso + Asignaciones), 5
-> (Entrenamiento), 6 (Nutrición) y 7 (Actividad del alumno + Chat) están migrados y
-> verificados en vivo, activables por flag. Bloques 8–11 pendientes.
+> Estado: **Bloques 0–8 COMPLETADOS**. La app sigue 100% en `localStorage` por
+> defecto (flag `local`); los Bloques 1–8 (Auth/Settings, Catálogo, Leads, Alumnos,
+> Entrenamiento, Nutrición, Actividad+Chat, CRM) están migrados y verificados en vivo,
+> activables por flag. Bloques 9–11 pendientes.
 
 ## Progreso
+
+- **Bloque 8 — CRM (HECHO):** BD Fase 10 aplicada (`0015_phase10_crm.sql`: `crm_records`
+  + `crm_history` + RLS staff-only). `SupabaseCrmRepository` (4/4): `getRecords`,
+  `getRecord`, `upsert` (escalares, merge sin duplicar), `setStage` (upsert + append a
+  `crm_history`); ensambla `history`. Decisiones: CRM staff-only (alumno nunca ve el
+  pipeline); `entity_id` polimórfico (lead o cliente, sin FK, unique por org); `stage`
+  override manual nullable; `follow_up_date`/`date` texto. **Verificado en vivo (17/17
+  OK):** upsert (crea/merge/no duplica), getRecord (+null), setStage (etapa + historial
+  ordenado con fecha), getRecords, RLS alumno/anon (sin lectura ni escritura). Lint +
+  build limpios. **Cierre (Regla #12):** `crmRepository` 4/4 ✅. Para activar en dev:
+  añadir `crm` a `NEXT_PUBLIC_SUPABASE_REPOS`.
 
 - **Bloque 7 — Actividad del alumno + Chat (HECHO):** BD Fases 8/9 aplicadas
   (`0014_phase8_9_activity_chat.sql`: `progress_photos`, `client_checklists`, y chat con
