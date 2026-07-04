@@ -9,6 +9,7 @@ import { SupabaseExerciseLibraryRepository } from "@/repositories/supabase/exerc
 import { SupabaseLeadRepository } from "@/repositories/supabase/lead.repository";
 import { SupabaseClientRepository } from "@/repositories/supabase/client.repository";
 import { SupabaseProgressRepository } from "@/repositories/supabase/progress.repository";
+import { SupabaseTrainingProgramRepository } from "@/repositories/supabase/training-program.repository";
 import { LocalCrmRepository } from "@/repositories/local/crm.repository";
 import { LocalNotificationsRepository } from "@/repositories/local/notifications.repository";
 import { MockTestimonialRepository } from "@/repositories/mock/testimonial.repository";
@@ -110,7 +111,11 @@ export const progressRepository: ProgressRepository = pickRepository<ProgressRep
   () => new SupabaseProgressRepository(),
 );
 export const trainingProgramRepository: TrainingProgramRepository =
-  pickRepository("trainingProgram", new LocalTrainingProgramRepository());
+  pickRepository<TrainingProgramRepository>(
+    "trainingProgram",
+    new LocalTrainingProgramRepository(),
+    () => new SupabaseTrainingProgramRepository(),
+  );
 export const exerciseLibraryRepository: ExerciseLibraryRepository =
   pickRepository<ExerciseLibraryRepository>(
     "exerciseLibrary",

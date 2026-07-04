@@ -5,13 +5,28 @@
 > el **orden, dependencias, checklist, rollback, pruebas y criterios de cierre** de
 > cada bloque de migración de repositorios.
 >
-> Estado: **Bloques 0, 1, 2, 3 y 4 COMPLETADOS**. La app sigue 100% en `localStorage`
-> por defecto (flag `local`); los Bloques 1 (Auth + Organización/Settings), 2
-> (Catálogo del coach), 3 (Leads + Evaluaciones) y 4 (Alumnos + Progreso +
-> Asignaciones) están migrados y verificados en vivo, activables por flag. Bloques
-> 5–11 pendientes.
+> Estado: **Bloques 0–5 COMPLETADOS**. La app sigue 100% en `localStorage` por
+> defecto (flag `local`); los Bloques 1 (Auth + Organización/Settings), 2 (Catálogo
+> del coach), 3 (Leads + Evaluaciones), 4 (Alumnos + Progreso + Asignaciones) y 5
+> (Entrenamiento) están migrados y verificados en vivo, activables por flag. Bloques
+> 6–11 pendientes.
 
 ## Progreso
+
+- **Bloque 5 — Entrenamiento (HECHO):** BD Fase 6 aplicada (`0012_phase6_training.sql`:
+  `training_programs`→`training_days`→`training_exercises`, `workout_day_progress`,
+  `exercise_series_progress`, `workout_results` + RLS). `SupabaseTrainingProgramRepository`
+  (20/20): ensamblado anidado por `position`; mutaciones re-ensamblan el programa;
+  `deleteProgram` soft; asignación via `student_assignments` (una activa); progreso del
+  alumno (día = fila, series `int[]`, resultados newest-first); renumeración de `position`
+  para duplicar/mover. RLS: catálogo staff-CRUD + SELECT miembros; progreso staff + alumno
+  dueño. **Verificado en vivo (29/29 OK):** CRUD programa/día/ejercicio, duplicar/mover
+  (orden + ids nuevos + '(copia)'), exerciseId de biblioteca, ensamblado anidado,
+  asignar/reasignar (una activa), workout_day_progress, exercise_series_progress
+  ([0,2]→[2]), workout_results (newest-first), RLS alumno (lee/escribe lo suyo, sin
+  escribir catálogo ni progreso ajeno) y anon (0 + sin INSERT). Lint + build limpios.
+  **Cierre (Regla #12):** `trainingProgramRepository` 20/20 ✅. Para activar en dev:
+  añadir `trainingProgram` a `NEXT_PUBLIC_SUPABASE_REPOS`.
 
 - **Bloque 4 — Alumnos + Progreso + Asignaciones (HECHO):** BD Fase 5 aplicada
   (`0011_phase5_clients_progress_assignments.sql`: `clients`, `client_progress`,
