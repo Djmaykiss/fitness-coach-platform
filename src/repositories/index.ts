@@ -11,6 +11,7 @@ import { SupabaseClientRepository } from "@/repositories/supabase/client.reposit
 import { SupabaseProgressRepository } from "@/repositories/supabase/progress.repository";
 import { SupabaseTrainingProgramRepository } from "@/repositories/supabase/training-program.repository";
 import { SupabaseNutritionPlanRepository } from "@/repositories/supabase/nutrition-plan.repository";
+import { SupabaseCoachingRepository } from "@/repositories/supabase/coaching.repository";
 import { LocalCrmRepository } from "@/repositories/local/crm.repository";
 import { LocalNotificationsRepository } from "@/repositories/local/notifications.repository";
 import { MockTestimonialRepository } from "@/repositories/mock/testimonial.repository";
@@ -129,9 +130,10 @@ export const nutritionPlanRepository: NutritionPlanRepository =
     new LocalNutritionPlanRepository(),
     () => new SupabaseNutritionPlanRepository(),
   );
-export const coachingRepository: CoachingRepository = pickRepository(
+export const coachingRepository: CoachingRepository = pickRepository<CoachingRepository>(
   "coaching",
   new LocalCoachingRepository(),
+  () => new SupabaseCoachingRepository(),
 );
 export const userRepository: UserRepository = pickRepository(
   "user",

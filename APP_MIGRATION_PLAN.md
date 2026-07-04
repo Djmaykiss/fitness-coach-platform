@@ -5,13 +5,29 @@
 > el **orden, dependencias, checklist, rollback, pruebas y criterios de cierre** de
 > cada bloque de migración de repositorios.
 >
-> Estado: **Bloques 0–6 COMPLETADOS**. La app sigue 100% en `localStorage` por
+> Estado: **Bloques 0–7 COMPLETADOS**. La app sigue 100% en `localStorage` por
 > defecto (flag `local`); los Bloques 1 (Auth + Organización/Settings), 2 (Catálogo
 > del coach), 3 (Leads + Evaluaciones), 4 (Alumnos + Progreso + Asignaciones), 5
-> (Entrenamiento) y 6 (Nutrición) están migrados y verificados en vivo, activables por
-> flag. Bloques 7–11 pendientes.
+> (Entrenamiento), 6 (Nutrición) y 7 (Actividad del alumno + Chat) están migrados y
+> verificados en vivo, activables por flag. Bloques 8–11 pendientes.
 
 ## Progreso
+
+- **Bloque 7 — Actividad del alumno + Chat (HECHO):** BD Fases 8/9 aplicadas
+  (`0014_phase8_9_activity_chat.sql`: `progress_photos`, `client_checklists`, y chat con
+  el MODELO COMPLETO `conversations` + `conversation_members` + `messages` + RLS).
+  `SupabaseCoachingRepository` (8/8): fotos (texto dataURL/URL, sin Storage aún),
+  checklists (fila por item, ensambla mapa anidado), chat 1:1 vía conversations/messages
+  (`ensureConversation` por `client_id`; `removeClient` cascade). CHAT completo tras
+  RECHAZO del usuario a `chat_messages` simplificado — esquema listo para grupos/staff/
+  adjuntos/`last_read_at`. RLS: staff + alumno dueño (`messages` vía subconsulta EXISTS).
+  **Verificado en vivo (26/26 OK):** progress_photos (newest-first, RLS propio/ajeno),
+  client_checklists (mapa anidado, upsert sin duplicar), chat (orden cronológico, UNA
+  conversación direct, messages ligados, conversation_members con last_read_at),
+  getChat/addChatMessage, removeClient (fotos+checklists+conversación cascade
+  members/messages), RLS alumno/anon. Lint + build limpios. **Cierre (Regla #12):**
+  `coachingRepository` 8/8 ✅. Para activar en dev: añadir `coaching` a
+  `NEXT_PUBLIC_SUPABASE_REPOS`.
 
 - **Bloque 6 — Nutrición (HECHO):** BD Fase 7 aplicada (`0013_phase7_nutrition.sql`:
   `nutrition_plans`→`nutrition_days`→`nutrition_meals` + `nutrition_meal_progress` +

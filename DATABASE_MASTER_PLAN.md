@@ -109,8 +109,8 @@ abierto). `useAuth()` mantiene su API; solo cambia su implementación interna.
 | 5 | `clients` + `client_progress` + `student_assignments` (+`my_client_id`) | **Implementada** |
 | 6 | Entrenamiento (`training_programs`→días→ejercicios) | **Implementada** |
 | 7 | Nutrición (`nutrition_plans`→días→comidas) | **Implementada** |
-| 8 | Actividad del alumno | Diseño |
-| 9 | Chat | Diseño |
+| 8 | Actividad del alumno | **Implementada** |
+| 9 | Chat | **Implementada** |
 | 10 | CRM (`crm_records`+`crm_history`) | Diseño |
 | 11 | `notifications` | Diseño |
 | 12 | Pagos | Diseño |
