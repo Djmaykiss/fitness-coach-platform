@@ -5,12 +5,25 @@
 > el **orden, dependencias, checklist, rollback, pruebas y criterios de cierre** de
 > cada bloque de migración de repositorios.
 >
-> Estado: **Bloques 0–8 COMPLETADOS**. La app sigue 100% en `localStorage` por
-> defecto (flag `local`); los Bloques 1–8 (Auth/Settings, Catálogo, Leads, Alumnos,
-> Entrenamiento, Nutrición, Actividad+Chat, CRM) están migrados y verificados en vivo,
-> activables por flag. Bloques 9–11 pendientes.
+> Estado: **Bloques 0–9 COMPLETADOS** (TODOS los repos migrables migrados). La app
+> sigue 100% en `localStorage` por defecto (flag `local`); los Bloques 1–9
+> (Auth/Settings, Catálogo, Leads, Alumnos, Entrenamiento, Nutrición, Actividad+Chat,
+> CRM, Notificaciones) están migrados y verificados en vivo, activables por flag.
+> Falta el **Bloque 10 (cutover global a `supabase` + verificación total)** y el
+> **Bloque 11 (limpieza)**.
 
 ## Progreso
+
+- **Bloque 9 — Notificaciones (HECHO):** BD Fase 11 aplicada
+  (`0016_phase11_notifications.sql`: tabla `notifications` modelo completo +
+  `dedupe_key`/`read_at` + RLS por-usuario). `SupabaseNotificationsRepository` (3/3):
+  `getReadIds`/`markRead`/`markAllRead`; persiste SOLO el estado leído (fila por org +
+  recipient=`auth.uid()` + `dedupe_key` con `read_at`); columnas de contenido listas
+  para notificaciones server-side futuras. **Verificado en vivo (12/12 OK):** getReadIds,
+  markRead (+idempotente), markAllRead (+idempotente), RLS por-usuario (alumno no ve las
+  del coach, gestiona SOLO las suyas, no crea con recipient ajeno) y anon (0 + sin
+  INSERT). Lint + build limpios. **Cierre (Regla #12):** `notificationsRepository` 3/3 ✅.
+  Con esto los **15 repos migrables** están migrados; sigue el cutover (Bloque 10).
 
 - **Bloque 8 — CRM (HECHO):** BD Fase 10 aplicada (`0015_phase10_crm.sql`: `crm_records`
   + `crm_history` + RLS staff-only). `SupabaseCrmRepository` (4/4): `getRecords`,
