@@ -5,13 +5,26 @@
 > el **orden, dependencias, checklist, rollback, pruebas y criterios de cierre** de
 > cada bloque de migración de repositorios.
 >
-> Estado: **Bloques 0–5 COMPLETADOS**. La app sigue 100% en `localStorage` por
+> Estado: **Bloques 0–6 COMPLETADOS**. La app sigue 100% en `localStorage` por
 > defecto (flag `local`); los Bloques 1 (Auth + Organización/Settings), 2 (Catálogo
-> del coach), 3 (Leads + Evaluaciones), 4 (Alumnos + Progreso + Asignaciones) y 5
-> (Entrenamiento) están migrados y verificados en vivo, activables por flag. Bloques
-> 6–11 pendientes.
+> del coach), 3 (Leads + Evaluaciones), 4 (Alumnos + Progreso + Asignaciones), 5
+> (Entrenamiento) y 6 (Nutrición) están migrados y verificados en vivo, activables por
+> flag. Bloques 7–11 pendientes.
 
 ## Progreso
+
+- **Bloque 6 — Nutrición (HECHO):** BD Fase 7 aplicada (`0013_phase7_nutrition.sql`:
+  `nutrition_plans`→`nutrition_days`→`nutrition_meals` + `nutrition_meal_progress` +
+  RLS). `SupabaseNutritionPlanRepository` (13/13, espejo de Entrenamiento sin
+  mover/duplicar): ensamblado anidado por `position`; mutaciones re-ensamblan el plan;
+  `deletePlan` soft; asignación via `student_assignments` (una activa); progreso de
+  comidas (comida = fila). RLS: catálogo staff-CRUD + SELECT miembros; progreso staff +
+  alumno dueño. **Verificado en vivo (21/21 OK):** CRUD plan/día/comida, ensamblado
+  anidado, asignar/reasignar (una activa), nutrition_meal_progress (marcar/desmarcar),
+  deletePlan soft, RLS alumno (lee/marca lo suyo, sin escribir catálogo ni comida
+  ajena) y anon (0 + sin INSERT). Lint + build limpios. **Cierre (Regla #12):**
+  `nutritionPlanRepository` 13/13 ✅. Para activar en dev: añadir `nutritionPlan` a
+  `NEXT_PUBLIC_SUPABASE_REPOS`.
 
 - **Bloque 5 — Entrenamiento (HECHO):** BD Fase 6 aplicada (`0012_phase6_training.sql`:
   `training_programs`→`training_days`→`training_exercises`, `workout_day_progress`,

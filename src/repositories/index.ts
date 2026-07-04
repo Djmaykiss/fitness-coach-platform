@@ -10,6 +10,7 @@ import { SupabaseLeadRepository } from "@/repositories/supabase/lead.repository"
 import { SupabaseClientRepository } from "@/repositories/supabase/client.repository";
 import { SupabaseProgressRepository } from "@/repositories/supabase/progress.repository";
 import { SupabaseTrainingProgramRepository } from "@/repositories/supabase/training-program.repository";
+import { SupabaseNutritionPlanRepository } from "@/repositories/supabase/nutrition-plan.repository";
 import { LocalCrmRepository } from "@/repositories/local/crm.repository";
 import { LocalNotificationsRepository } from "@/repositories/local/notifications.repository";
 import { MockTestimonialRepository } from "@/repositories/mock/testimonial.repository";
@@ -122,10 +123,12 @@ export const exerciseLibraryRepository: ExerciseLibraryRepository =
     new LocalExerciseLibraryRepository(),
     () => new SupabaseExerciseLibraryRepository(),
   );
-export const nutritionPlanRepository: NutritionPlanRepository = pickRepository(
-  "nutritionPlan",
-  new LocalNutritionPlanRepository(),
-);
+export const nutritionPlanRepository: NutritionPlanRepository =
+  pickRepository<NutritionPlanRepository>(
+    "nutritionPlan",
+    new LocalNutritionPlanRepository(),
+    () => new SupabaseNutritionPlanRepository(),
+  );
 export const coachingRepository: CoachingRepository = pickRepository(
   "coaching",
   new LocalCoachingRepository(),
