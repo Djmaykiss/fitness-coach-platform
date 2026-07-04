@@ -106,7 +106,7 @@ abierto). `useAuth()` mantiene su API; solo cambia su implementación interna.
 | 2 | Taxonomía + media (`*_categories`, `tags`, `media_assets`) | **Implementada** |
 | 3 | Catálogo (`library_exercises`+`exercise_media`, `discover_*`, `onboarding_*`) | **Implementada** |
 | 4 | `leads` + `evaluations` (RPC anónima) | **Implementada** |
-| 5 | `clients` + `client_progress` + `student_assignments` (+`my_client_id`) | Diseño |
+| 5 | `clients` + `client_progress` + `student_assignments` (+`my_client_id`) | **Implementada** |
 | 6 | Entrenamiento (`training_programs`→días→ejercicios) | Diseño |
 | 7 | Nutrición (`nutrition_plans`→días→comidas) | Diseño |
 | 8 | Actividad del alumno | Diseño |

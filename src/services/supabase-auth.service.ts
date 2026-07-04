@@ -1,5 +1,6 @@
 import { getSupabaseClient } from "@/lib/supabase";
 import { clearOrgCache } from "@/repositories/supabase/org-context";
+import { pendingEvaluationRepository } from "@/repositories";
 import type { AuthResult } from "@/services/auth.service";
 import type { AuthUser, Credentials, Role, RegisterInput } from "@/types";
 
@@ -7,8 +8,8 @@ import type { AuthUser, Credentials, Role, RegisterInput } from "@/types";
  * Autenticación real con Supabase Auth (Bloque 1 de APP_MIGRATION_PLAN.md). Solo se
  * usa cuando el flag resuelve `supabase` para `auth`; con `local` sigue el mock.
  * Mantiene el MISMO contrato que `authService` (AuthResult / AuthUser), por lo que
- * `useAuth()` no cambia su API. La membership(client) y la fila `clients` del registro
- * se crean en el Bloque 4 (vía RPC); aquí `register` solo crea el usuario de Auth.
+ * `useAuth()` no cambia su API. Bloque 4: `register` cierra `register→clients` vía la
+ * RPC `register_client` (membership client + fila `clients` + evaluación pendiente).
  */
 
 function str(r: Record<string, unknown>, k: string): string {
@@ -74,8 +75,16 @@ export const supabaseAuthService = {
     if (error) return { ok: false, error: error.message };
     if (!data.user) return { ok: false, error: "No se pudo crear la cuenta." };
     clearOrgCache();
-    // La membership(client) + fila `clients` se crean en el Bloque 4 (RPC).
+    // Cierre register→clients (Bloque 4): con sesión activa, la RPC crea la
+    // membership(client) + fila `clients` y adjunta la evaluación pendiente.
     if (data.session) {
+      const pending = await pendingEvaluationRepository.get();
+      const fullName = `${input.firstName} ${input.lastName}`.trim();
+      const { error: rpcError } = await sb.rpc("register_client", {
+        p_name: fullName,
+        p_evaluation: pending?.evaluation ?? null,
+      });
+      if (!rpcError && pending) await pendingEvaluationRepository.clear();
       return { ok: true, user: await buildAuthUser(data.user.id, data.user.email ?? input.email) };
     }
     // Sin sesión (confirmación de email activada): datos mínimos.

@@ -7,6 +7,8 @@ import { SupabaseDiscoverRepository } from "@/repositories/supabase/discover.rep
 import { SupabaseOnboardingContentRepository } from "@/repositories/supabase/onboarding-content.repository";
 import { SupabaseExerciseLibraryRepository } from "@/repositories/supabase/exercise-library.repository";
 import { SupabaseLeadRepository } from "@/repositories/supabase/lead.repository";
+import { SupabaseClientRepository } from "@/repositories/supabase/client.repository";
+import { SupabaseProgressRepository } from "@/repositories/supabase/progress.repository";
 import { LocalCrmRepository } from "@/repositories/local/crm.repository";
 import { LocalNotificationsRepository } from "@/repositories/local/notifications.repository";
 import { MockTestimonialRepository } from "@/repositories/mock/testimonial.repository";
@@ -92,18 +94,20 @@ export const notificationsRepository: NotificationsRepository = pickRepository(
   "notifications",
   new LocalNotificationsRepository(),
 );
-export const clientRepository: ClientRepository = pickRepository(
+export const clientRepository: ClientRepository = pickRepository<ClientRepository>(
   "client",
   new LocalClientRepository(),
+  () => new SupabaseClientRepository(),
 );
 export const leadRepository: LeadRepository = pickRepository<LeadRepository>(
   "lead",
   new LocalLeadRepository(),
   () => new SupabaseLeadRepository(),
 );
-export const progressRepository: ProgressRepository = pickRepository(
+export const progressRepository: ProgressRepository = pickRepository<ProgressRepository>(
   "progress",
   new LocalProgressRepository(),
+  () => new SupabaseProgressRepository(),
 );
 export const trainingProgramRepository: TrainingProgramRepository =
   pickRepository("trainingProgram", new LocalTrainingProgramRepository());

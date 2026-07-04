@@ -5,12 +5,32 @@
 > el **orden, dependencias, checklist, rollback, pruebas y criterios de cierre** de
 > cada bloque de migración de repositorios.
 >
-> Estado: **Bloques 0, 1, 2 y 3 COMPLETADOS**. La app sigue 100% en `localStorage`
+> Estado: **Bloques 0, 1, 2, 3 y 4 COMPLETADOS**. La app sigue 100% en `localStorage`
 > por defecto (flag `local`); los Bloques 1 (Auth + Organización/Settings), 2
-> (Catálogo del coach) y 3 (Leads + Evaluaciones) están migrados y verificados en
-> vivo, activables por flag. Bloques 4–11 pendientes.
+> (Catálogo del coach), 3 (Leads + Evaluaciones) y 4 (Alumnos + Progreso +
+> Asignaciones) están migrados y verificados en vivo, activables por flag. Bloques
+> 5–11 pendientes.
 
 ## Progreso
+
+- **Bloque 4 — Alumnos + Progreso + Asignaciones (HECHO):** BD Fase 5 aplicada
+  (`0011_phase5_clients_progress_assignments.sql`: `clients`, `client_progress`,
+  `student_assignments` [genérica, Bloques 5/6] + FK `evaluations.client_id` +
+  `my_client_id(org)` + RLS + RPC `register_client`). `SupabaseClientRepository`
+  (`clients`; evaluación por `client_id`; orden asc; `deleteClient` soft) y
+  `SupabaseProgressRepository` (`client_progress` 1 fila/cliente; siembra starter;
+  upsert). **CIERRE register→clients:** `supabaseAuthService.register` llama
+  `register_client` (SECURITY DEFINER: membership client + `clients` + evaluación
+  pendiente de localStorage) y limpia el pending. Cableados con factoría lazy.
+  **Verificado en vivo (29/29 OK):** CRUD clients (alta staff, Vencido default, orden
+  asc, update +null, soft delete +repetido), CRUD progress (siembra sin duplicar,
+  upsert, remove), `register_client` (crea el cliente del propio usuario, idempotente),
+  register→clients (evaluación vinculada + legible por alumno), `student_assignments`
+  (staff crea / alumno lee la suya / alumno no crea), `findByUserId`, RLS alumno (solo
+  lo suyo, sin escribir ajeno), RLS anon (0 filas + sin INSERT), aislamiento. Lint +
+  build limpios. **Cierre (Regla #12):** `clientRepository` 5/5 ✅ · `progressRepository`
+  3/3 ✅ · cierre `register→clients` ✅. Para activar en dev: añadir `client,progress` a
+  `NEXT_PUBLIC_SUPABASE_REPOS`. Bloque 4 desbloquea 5–8.
 
 - **Bloque 3 — Leads + Evaluaciones (HECHO):** BD Fase 4 aplicada
   (`supabase/migrations/0010_phase4_leads_evaluations.sql`: `leads` + `evaluations` +
