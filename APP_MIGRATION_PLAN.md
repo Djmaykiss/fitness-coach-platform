@@ -5,14 +5,27 @@
 > el **orden, dependencias, checklist, rollback, pruebas y criterios de cierre** de
 > cada bloque de migración de repositorios.
 >
-> Estado: **Bloques 0–9 COMPLETADOS** (TODOS los repos migrables migrados). La app
-> sigue 100% en `localStorage` por defecto (flag `local`); los Bloques 1–9
-> (Auth/Settings, Catálogo, Leads, Alumnos, Entrenamiento, Nutrición, Actividad+Chat,
-> CRM, Notificaciones) están migrados y verificados en vivo, activables por flag.
-> Falta el **Bloque 10 (cutover global a `supabase` + verificación total)** y el
-> **Bloque 11 (limpieza)**.
+> Estado: **Bloques 0–10 COMPLETADOS**. Los 15 repos migrables están migrados y
+> verificados; el **cutover global** (`NEXT_PUBLIC_DATA_BACKEND=supabase`) se validó
+> end-to-end en la app real. El default committeado sigue `local` y los `Local*` se
+> conservan (rollback por flag). Falta solo el **Bloque 11 (limpieza post-estable)**.
 
 ## Progreso
+
+- **Bloque 10 — Cutover global + verificación end-to-end (HECHO):** app probada con
+  `NEXT_PUBLIC_DATA_BACKEND=supabase` (solo en `.env.local`, no commiteado). **Bug
+  corregido:** deadlock del lock de auth de supabase-js — `onAuthChange` hacía `await`
+  de consultas DENTRO del callback de `onAuthStateChange` → "CARGANDO..." en full-page
+  loads; fix: diferir el async fuera del callback (`setTimeout(0)`). **Config requerida
+  (no código):** desactivar "Confirm email" en Supabase Auth para que el auto-registro
+  reciba sesión y corra `register_client`. **Verificado en vivo (20/20 items):** logins
+  coach/alumno, dashboard coach (white-label + $50 + notificaciones derivadas reales),
+  settings, biblioteca (alta con media normalizada), programas/nutrición/leads/CRM,
+  dashboard alumno, onboarding→registro→cliente (register_client + evaluación vinculada
+  + pending limpiado), login del recién registrado, modo entrenamiento (programa
+  asignado resuelto), Descubre, chat (conversations+messages), full-reload sin deadlock
+  en /dashboard//descubre//perfil//admin, responsive 375, consola limpia, lint + build.
+  Queda el **Bloque 11 (limpieza)**.
 
 - **Bloque 9 — Notificaciones (HECHO):** BD Fase 11 aplicada
   (`0016_phase11_notifications.sql`: tabla `notifications` modelo completo +

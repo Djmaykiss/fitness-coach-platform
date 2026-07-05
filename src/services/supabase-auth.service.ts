@@ -109,9 +109,22 @@ export const supabaseAuthService = {
   /** Suscribe a cambios de sesión; devuelve el desuscriptor. */
   onAuthChange(cb: (user: AuthUser | null) => void): () => void {
     const sb = getSupabaseClient();
-    const { data } = sb.auth.onAuthStateChange(async (_event, session) => {
+    const { data } = sb.auth.onAuthStateChange((_event, session) => {
       clearOrgCache();
-      cb(session?.user ? await buildAuthUser(session.user.id, session.user.email ?? "") : null);
+      // IMPORTANTE: NO usar `await` de llamadas a Supabase DENTRO del callback de
+      // onAuthStateChange: el SDK retiene un lock de auth mientras el callback corre y
+      // esas consultas esperan el mismo lock -> deadlock (la app se queda "cargando" en
+      // un full-page load con sesion). Diferimos el trabajo async fuera del callback.
+      const sUser = session?.user;
+      if (!sUser) {
+        cb(null);
+        return;
+      }
+      setTimeout(() => {
+        buildAuthUser(sUser.id, sUser.email ?? "")
+          .then(cb)
+          .catch(() => cb(null));
+      }, 0);
     });
     return () => data.subscription.unsubscribe();
   },
