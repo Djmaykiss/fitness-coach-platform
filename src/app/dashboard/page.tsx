@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
   Activity,
@@ -26,6 +27,7 @@ import { WorkoutHistory } from "@/components/dashboard/workout-history";
 import { NutritionPlanView } from "@/components/dashboard/nutrition-plan-view";
 import { PremiumDashboard } from "@/components/dashboard/premium-dashboard";
 import { StatCard } from "@/components/ui";
+import { TabNav } from "@/components/ui-kit";
 import { useAuth } from "@/context/auth-context";
 import { clientDashboardService } from "@/services/dashboard.service";
 import type { ClientAccess } from "@/services/dashboard.service";
@@ -33,8 +35,20 @@ import { coachConfig, whatsappUrl } from "@/config/coachConfig";
 import { formatDate } from "@/lib/format";
 import type { ClientProgress, LeadEvaluation } from "@/types";
 
+/** Secciones del dashboard del alumno (12D). `hoy/plan/progreso` son en-pagina;
+ *  `descubre/perfil` navegan a sus rutas existentes. */
+const STUDENT_TABS = [
+  { key: "hoy", label: "Hoy", icon: Activity },
+  { key: "plan", label: "Mi plan", icon: Dumbbell },
+  { key: "progreso", label: "Progreso", icon: Trophy },
+  { key: "descubre", label: "Descubre", icon: Compass },
+  { key: "perfil", label: "Perfil", icon: UserRound },
+];
+
 export default function ClientDashboardPage() {
   const { user } = useAuth();
+  const router = useRouter();
+  const [section, setSection] = useState<string>("hoy");
   const [progress, setProgress] = useState<ClientProgress | null>(null);
   const [access, setAccess] = useState<ClientAccess | null>(null);
   const [accessLoaded, setAccessLoaded] = useState(false);
@@ -68,6 +82,13 @@ export default function ClientDashboardPage() {
   const realName =
     user?.firstName && user.firstName !== "Cliente" ? user.firstName : "";
 
+  // `descubre`/`perfil` son rutas existentes; el resto cambia la seccion en-pagina.
+  const goSection = (key: string) => {
+    if (key === "descubre") return router.push("/descubre");
+    if (key === "perfil") return router.push("/perfil");
+    setSection(key);
+  };
+
   return (
     <RequireAuth role="client">
       <DashboardShell
@@ -92,27 +113,71 @@ export default function ClientDashboardPage() {
         ) : (
           <>
             {access ? <AccessNotice access={access} /> : null}
-            <QuickLinks />
-            {progress ? (
-              <ProgressView progress={progress} />
-            ) : (
-              <p className="text-zinc-400">Cargando tu progreso...</p>
-            )}
-            {evaluation ? (
-              <section className="premium-card mt-6 rounded-2xl p-6">
-                <h2 className="text-2xl font-black">Mi evaluación inicial</h2>
-                <p className="mt-1 text-sm text-zinc-400">
-                  Los datos que registraste al comenzar.
-                </p>
-                <div className="mt-5">
-                  <EvaluationDetails evaluation={evaluation} />
-                </div>
-              </section>
+
+            {/* Navegacion por secciones (12D). Desktop: pills sticky. Movil: bottom-nav. */}
+            <div className="sticky top-16 z-20 -mx-5 mb-6 hidden border-b border-white/10 bg-[#050706]/85 px-5 py-3 backdrop-blur-xl sm:-mx-8 sm:block sm:px-8">
+              <TabNav
+                tabs={STUDENT_TABS}
+                active={section}
+                onChange={goSection}
+                aria-label="Secciones"
+              />
+            </div>
+
+            {/* HOY · progreso rapido + programa (rutina de hoy) */}
+            {section === "hoy" ? (
+              <div className="space-y-6 pb-24 sm:pb-0">
+                {progress ? (
+                  <ProgressView progress={progress} />
+                ) : (
+                  <p className="text-zinc-400">Cargando tu progreso...</p>
+                )}
+                {user ? <TrainingProgramView userId={user.id} /> : null}
+              </div>
             ) : null}
-            {user ? <TrainingProgramView userId={user.id} /> : null}
-            {user ? <WorkoutHistory userId={user.id} /> : null}
-            {user ? <NutritionPlanView userId={user.id} /> : null}
-            {user ? <PremiumDashboard userId={user.id} /> : null}
+
+            {/* MI PLAN · nutricion (+ acceso al resumen /plan) */}
+            {section === "plan" ? (
+              <div className="space-y-6 pb-24 sm:pb-0">
+                <div className="flex justify-end">
+                  <Link
+                    href="/plan"
+                    className="inline-flex items-center gap-2 rounded-lg border border-white/15 bg-white/5 px-4 py-2 text-sm font-bold text-zinc-200 transition hover:border-[#65ff4f]/50 hover:text-[#65ff4f]"
+                  >
+                    <Sparkles size={16} /> Ver resumen del plan
+                  </Link>
+                </div>
+                {user ? <NutritionPlanView userId={user.id} /> : null}
+              </div>
+            ) : null}
+
+            {/* PROGRESO · historial + evaluacion + dashboard premium */}
+            {section === "progreso" ? (
+              <div className="space-y-6 pb-24 sm:pb-0">
+                {user ? <WorkoutHistory userId={user.id} /> : null}
+                {evaluation ? (
+                  <section className="premium-card rounded-2xl p-6">
+                    <h2 className="text-2xl font-black">Mi evaluación inicial</h2>
+                    <p className="mt-1 text-sm text-zinc-400">
+                      Los datos que registraste al comenzar.
+                    </p>
+                    <div className="mt-5">
+                      <EvaluationDetails evaluation={evaluation} />
+                    </div>
+                  </section>
+                ) : null}
+                {user ? <PremiumDashboard userId={user.id} /> : null}
+              </div>
+            ) : null}
+
+            {/* Bottom-nav movil (app-like) */}
+            <TabNav
+              tabs={STUDENT_TABS}
+              active={section}
+              onChange={goSection}
+              variant="bottom"
+              aria-label="Secciones"
+            />
           </>
         )}
       </DashboardShell>
@@ -279,34 +344,6 @@ function LockedDashboard({
         Se abrirá WhatsApp para escribirle a tu coach.
       </p>
     </section>
-  );
-}
-
-/** Accesos rápidos del alumno (estilo app): mi plan, descubre, mi perfil. */
-function QuickLinks() {
-  const links = [
-    { href: "/plan", label: "Mi plan", icon: Sparkles },
-    { href: "/descubre", label: "Descubre", icon: Compass },
-    { href: "/perfil", label: "Mi perfil", icon: UserRound },
-  ];
-  return (
-    <div className="mb-6 grid grid-cols-3 gap-3">
-      {links.map((l) => {
-        const Icon = l.icon;
-        return (
-          <Link
-            key={l.href}
-            href={l.href}
-            className="premium-card card-hover flex flex-col items-center gap-2 rounded-2xl p-4 text-center"
-          >
-            <span className="inline-flex rounded-xl border border-[#65ff4f]/20 bg-[#65ff4f]/10 p-2.5 text-[#65ff4f]">
-              <Icon size={20} />
-            </span>
-            <span className="text-sm font-black">{l.label}</span>
-          </Link>
-        );
-      })}
-    </div>
   );
 }
 
