@@ -3,11 +3,14 @@
 import { useEffect, useState } from "react";
 import {
   AlertTriangle,
+  Bell,
   CalendarClock,
   CircleDollarSign,
   ClipboardList,
   Dumbbell,
   FileText,
+  LayoutDashboard,
+  Library,
   MessageCircle,
   PauseCircle,
   Pencil,
@@ -16,12 +19,15 @@ import {
   RefreshCw,
   Salad,
   Search,
+  Settings2,
   Trash2,
   UserCheck,
   UserPlus,
   Users,
+  Workflow,
 } from "lucide-react";
 import { StatCard } from "@/components/ui";
+import { TabNav } from "@/components/ui-kit";
 import { AccessBadge } from "@/components/access-badge";
 import { EvaluationDetails } from "@/components/evaluation-details";
 import { ExerciseLibraryManager } from "@/components/admin/exercise-library";
@@ -105,8 +111,19 @@ type Editor =
   | { kind: "createProgram" }
   | null;
 
+/** Pestañas del panel del coach (12B). Cada una muestra sus modulos existentes. */
+const ADMIN_TABS = [
+  { key: "inicio", label: "Inicio", icon: LayoutDashboard },
+  { key: "alumnos", label: "Alumnos", icon: Users },
+  { key: "crm", label: "CRM", icon: Workflow },
+  { key: "contenido", label: "Contenido", icon: Library },
+  { key: "notificaciones", label: "Notificaciones", icon: Bell },
+  { key: "configuracion", label: "Configuración", icon: Settings2 },
+];
+
 export function AdminPanel() {
   const toast = useToast();
+  const [tab, setTab] = useState<string>("inicio");
   const [exec, setExec] = useState<ExecutiveStats | null>(null);
   const [clients, setClients] = useState<AdminClientRow[]>([]);
   const [leads, setLeads] = useState<Lead[]>([]);
@@ -200,14 +217,49 @@ export function AdminPanel() {
 
   return (
     <>
-      {/* Panel principal del coach (overview con métricas reales) */}
-      <CoachOverviewPanel />
+      {/* Navegacion por tabs (12B). Sticky bajo el header del shell. */}
+      <div className="sticky top-16 z-20 -mx-5 mb-6 border-b border-white/10 bg-[#050706]/85 px-5 py-3 backdrop-blur-xl sm:-mx-8 sm:px-8">
+        <TabNav
+          tabs={ADMIN_TABS}
+          active={tab}
+          onChange={setTab}
+          aria-label="Secciones del panel"
+        />
+      </div>
 
-      {/* Centro de notificaciones */}
-      <NotificationsCenter />
+      {/* Editores y fichas: se muestran al accionar desde cualquier seccion */}
+      {editor ? (
+        <div className="mb-6">
+          <EditorCard
+            key={editorKey(editor)}
+            editor={editor}
+            programs={programs}
+            onClose={() => setEditor(null)}
+            onDone={afterMutation}
+          />
+        </div>
+      ) : null}
+      {leadDetail ? (
+        <div className="mb-6">
+          <LeadDetailCard lead={leadDetail} onClose={() => setLeadDetail(null)} />
+        </div>
+      ) : null}
+      {clientDetail ? (
+        <div className="mb-6">
+          <ClientDetailCard client={clientDetail} onClose={() => setClientDetail(null)} />
+        </div>
+      ) : null}
+
+      {/* NOTIFICACIONES */}
+      {tab === "notificaciones" ? <NotificationsCenter /> : null}
 
       {/* CRM · Pipeline (leads + alumnos por etapa) */}
-      <CrmPipeline />
+      {tab === "crm" ? <CrmPipeline /> : null}
+
+      {/* INICIO · overview con métricas reales + panel ejecutivo */}
+      {tab === "inicio" ? (
+        <div className="space-y-6">
+          <CoachOverviewPanel onNavigate={setTab} />
 
       {/* Panel ejecutivo (brechas operativas por atender) */}
       {exec ? (
@@ -228,36 +280,12 @@ export function AdminPanel() {
           />
         </div>
       ) : null}
-
-      {editor ? (
-        <div className="mt-6">
-          <EditorCard
-            key={editorKey(editor)}
-            editor={editor}
-            programs={programs}
-            onClose={() => setEditor(null)}
-            onDone={afterMutation}
-          />
         </div>
       ) : null}
 
-      {leadDetail ? (
-        <div className="mt-6">
-          <LeadDetailCard
-            lead={leadDetail}
-            onClose={() => setLeadDetail(null)}
-          />
-        </div>
-      ) : null}
-
-      {clientDetail ? (
-        <div className="mt-6">
-          <ClientDetailCard
-            client={clientDetail}
-            onClose={() => setClientDetail(null)}
-          />
-        </div>
-      ) : null}
+      {/* ALUMNOS · clientes + programas + leads */}
+      {tab === "alumnos" ? (
+        <div>
 
       {/* Clientes */}
       <section className="premium-card mt-6 overflow-hidden rounded-2xl">
@@ -404,6 +432,13 @@ export function AdminPanel() {
         />
       </section>
 
+        </div>
+      ) : null}
+
+      {/* CONTENIDO · biblioteca, programas, nutricion, descubre, onboarding */}
+      {tab === "contenido" ? (
+        <div className="space-y-6">
+
       {/* Biblioteca de ejercicios (catálogo) */}
       <ExerciseLibraryManager />
 
@@ -418,6 +453,13 @@ export function AdminPanel() {
 
       {/* Onboarding (CMS de mensajes, recompensas y predicción) */}
       <OnboardingContentManager />
+
+        </div>
+      ) : null}
+
+      {/* ALUMNOS · leads (misma pestaña que clientes/programas) */}
+      {tab === "alumnos" ? (
+        <div>
 
       {/* Leads */}
       <section className="premium-card mt-6 overflow-hidden rounded-2xl">
@@ -502,8 +544,11 @@ export function AdminPanel() {
         </div>
       </section>
 
-      {/* Configuración del negocio (white-label) */}
-      <BusinessSettingsManager />
+        </div>
+      ) : null}
+
+      {/* CONFIGURACION · negocio / white-label */}
+      {tab === "configuracion" ? <BusinessSettingsManager /> : null}
     </>
   );
 }

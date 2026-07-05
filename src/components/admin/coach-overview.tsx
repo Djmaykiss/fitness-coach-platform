@@ -29,7 +29,12 @@ import { AccessBadge } from "@/components/access-badge";
 import { formatDate } from "@/lib/format";
 import type { CoachNotification, CoachOverview } from "@/types";
 
-export function CoachOverviewPanel() {
+export function CoachOverviewPanel({
+  onNavigate,
+}: {
+  /** Si se provee, los accesos rapidos cambian de tab en vez de hacer scroll. */
+  onNavigate?: (tab: string) => void;
+} = {}) {
   const { settings } = useSettings();
   const [data, setData] = useState<CoachOverview | null>(null);
   const [notifications, setNotifications] = useState<CoachNotification[]>([]);
@@ -81,7 +86,9 @@ export function CoachOverviewPanel() {
           <div className="flex items-center gap-3">
             <button
               type="button"
-              onClick={() => scrollToHeading("Notificaciones")}
+              onClick={() =>
+                onNavigate ? onNavigate("notificaciones") : scrollToHeading("Notificaciones")
+              }
               className="relative inline-flex h-12 w-12 items-center justify-center rounded-xl border border-white/10 bg-white/[0.03] text-zinc-300 transition hover:border-[#65ff4f]/50 hover:text-[#65ff4f]"
               aria-label={`Notificaciones${unread ? `, ${unread} sin leer` : ""}`}
             >
@@ -127,7 +134,7 @@ export function CoachOverviewPanel() {
           <button
             key={q.label}
             type="button"
-            onClick={() => scrollToHeading(q.match)}
+            onClick={() => (onNavigate ? onNavigate(q.tab) : scrollToHeading(q.match))}
             className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2 text-xs font-bold text-zinc-300 transition hover:border-[#65ff4f]/50 hover:text-[#65ff4f]"
           >
             <q.icon size={14} />
@@ -246,16 +253,16 @@ export function CoachOverviewPanel() {
 }
 
 const QUICK_LINKS = [
-  { label: "Alumnos", match: "Clientes", icon: Users },
-  { label: "Leads", match: "Leads", icon: UserPlus },
-  { label: "Ejercicios", match: "Biblioteca de ejercicios", icon: Dumbbell },
-  { label: "Programas", match: "Programas de entrenamiento", icon: ListChecks },
-  { label: "Nutrición", match: "Planes de nutrición", icon: Salad },
-  { label: "Notificaciones", match: "Notificaciones", icon: Bell },
-  { label: "CRM", match: "CRM", icon: Workflow },
-  { label: "Descubre", match: "Descubre", icon: BookOpen },
-  { label: "Onboarding", match: "Onboarding", icon: Sparkles },
-  { label: "Configuración", match: "Configuración del negocio", icon: Settings2 },
+  { label: "Alumnos", match: "Clientes", tab: "alumnos", icon: Users },
+  { label: "Leads", match: "Leads", tab: "alumnos", icon: UserPlus },
+  { label: "Ejercicios", match: "Biblioteca de ejercicios", tab: "contenido", icon: Dumbbell },
+  { label: "Programas", match: "Programas de entrenamiento", tab: "contenido", icon: ListChecks },
+  { label: "Nutrición", match: "Planes de nutrición", tab: "contenido", icon: Salad },
+  { label: "Notificaciones", match: "Notificaciones", tab: "notificaciones", icon: Bell },
+  { label: "CRM", match: "CRM", tab: "crm", icon: Workflow },
+  { label: "Descubre", match: "Descubre", tab: "contenido", icon: BookOpen },
+  { label: "Onboarding", match: "Onboarding", tab: "contenido", icon: Sparkles },
+  { label: "Configuración", match: "Configuración del negocio", tab: "configuracion", icon: Settings2 },
 ] as const;
 
 /** Desplaza a la sección cuyo encabezado (h2) contiene el texto dado. */
