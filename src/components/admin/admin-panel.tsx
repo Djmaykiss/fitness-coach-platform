@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import {
   AlertTriangle,
   Bell,
+  BookOpen,
   CalendarClock,
   CircleDollarSign,
   ClipboardList,
@@ -11,6 +12,7 @@ import {
   FileText,
   LayoutDashboard,
   Library,
+  ListChecks,
   MessageCircle,
   PauseCircle,
   Pencil,
@@ -20,6 +22,7 @@ import {
   Salad,
   Search,
   Settings2,
+  Sparkles,
   Trash2,
   UserCheck,
   UserPlus,
@@ -121,9 +124,19 @@ const ADMIN_TABS = [
   { key: "configuracion", label: "Configuración", icon: Settings2 },
 ];
 
+/** Sub-pestañas dentro de "Contenido" (12C). Un manager visible a la vez. */
+const CONTENT_TABS = [
+  { key: "biblioteca", label: "Biblioteca", icon: Dumbbell },
+  { key: "programas", label: "Programas", icon: ListChecks },
+  { key: "nutricion", label: "Nutrición", icon: Salad },
+  { key: "descubre", label: "Descubre", icon: BookOpen },
+  { key: "onboarding", label: "Onboarding", icon: Sparkles },
+];
+
 export function AdminPanel() {
   const toast = useToast();
   const [tab, setTab] = useState<string>("inicio");
+  const [contentTab, setContentTab] = useState<string>("biblioteca");
   const [exec, setExec] = useState<ExecutiveStats | null>(null);
   const [clients, setClients] = useState<AdminClientRow[]>([]);
   const [leads, setLeads] = useState<Lead[]>([]);
@@ -259,7 +272,12 @@ export function AdminPanel() {
       {/* INICIO · overview con métricas reales + panel ejecutivo */}
       {tab === "inicio" ? (
         <div className="space-y-6">
-          <CoachOverviewPanel onNavigate={setTab} />
+          <CoachOverviewPanel
+            onNavigate={(t, sub) => {
+              setTab(t);
+              if (sub) setContentTab(sub);
+            }}
+          />
 
       {/* Panel ejecutivo (brechas operativas por atender) */}
       {exec ? (
@@ -435,25 +453,30 @@ export function AdminPanel() {
         </div>
       ) : null}
 
-      {/* CONTENIDO · biblioteca, programas, nutricion, descubre, onboarding */}
+      {/* CONTENIDO · sub-tabs (12C): un manager visible a la vez */}
       {tab === "contenido" ? (
-        <div className="space-y-6">
+        <div className="space-y-4">
+          <TabNav
+            tabs={CONTENT_TABS}
+            active={contentTab}
+            onChange={setContentTab}
+            aria-label="Contenido del coach"
+          />
 
-      {/* Biblioteca de ejercicios (catálogo) */}
-      <ExerciseLibraryManager />
+          {/* Biblioteca de ejercicios (catálogo) */}
+          {contentTab === "biblioteca" ? <ExerciseLibraryManager /> : null}
 
-      {/* Programas de entrenamiento (builder real) */}
-      <TrainingProgramsManager />
+          {/* Programas de entrenamiento (builder real) */}
+          {contentTab === "programas" ? <TrainingProgramsManager /> : null}
 
-      {/* Planes de nutrición (módulo real) */}
-      <NutritionPlansManager />
+          {/* Planes de nutrición (módulo real) */}
+          {contentTab === "nutricion" ? <NutritionPlansManager /> : null}
 
-      {/* Descubre (CMS de contenido del alumno) */}
-      <DiscoverManager />
+          {/* Descubre (CMS de contenido del alumno) */}
+          {contentTab === "descubre" ? <DiscoverManager /> : null}
 
-      {/* Onboarding (CMS de mensajes, recompensas y predicción) */}
-      <OnboardingContentManager />
-
+          {/* Onboarding (CMS de mensajes, recompensas y predicción) */}
+          {contentTab === "onboarding" ? <OnboardingContentManager /> : null}
         </div>
       ) : null}
 
