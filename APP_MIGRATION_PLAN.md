@@ -5,12 +5,24 @@
 > el **orden, dependencias, checklist, rollback, pruebas y criterios de cierre** de
 > cada bloque de migración de repositorios.
 >
-> Estado: **Bloques 0–10 COMPLETADOS**. Los 15 repos migrables están migrados y
-> verificados; el **cutover global** (`NEXT_PUBLIC_DATA_BACKEND=supabase`) se validó
-> end-to-end en la app real. El default committeado sigue `local` y los `Local*` se
-> conservan (rollback por flag). Falta solo el **Bloque 11 (limpieza post-estable)**.
+> Estado: **Bloques 0–10 + 12.5 COMPLETADOS**. TODOS los repos migrables (incluido
+> `userRepository`, cerrado en 12.5) están migrados y verificados; el **cutover global**
+> (`NEXT_PUBLIC_DATA_BACKEND=supabase`) se validó end-to-end en la app real. El default
+> committeado sigue `local` y los `Local*` se conservan (rollback por flag). Falta solo
+> el **Bloque 11 (limpieza post-estable)**.
 
 ## Progreso
+
+- **Bloque 12.5 — `userRepository` (HECHO):** cierra el último repo migrable. BD:
+  `0017_users_list_rpc.sql` (RPC `list_org_users()` SECURITY DEFINER staff-only; el email
+  vive en `auth.users`, no en `profiles`). `SupabaseUserRepository`: `getUsers()` vía la
+  RPC (para email del alumno en la tabla Alumnos + CRM), `findByEmail` sobre `getUsers`;
+  `findByCredentials`/`create` no se alcanzan en supabase (auth va por `supabaseAuthService`).
+  `LocalUserRepository` intacto (rollback). **Verificado en vivo:** getUsers con emails,
+  tabla Alumnos muestra email del alumno + buscador por email, login coach/alumno, RLS
+  (alumno no-staff → 0), AISLAMIENTO con 2 orgs (cada coach solo ve su org), backend
+  `local` sigue funcionando (login mock + /admin en localStorage). Lint + build limpios.
+  **Cierre (Regla #12):** `userRepository` 4/4 ✅. No queda ningún repo migrable pendiente.
 
 - **Bloque 10 — Cutover global + verificación end-to-end (HECHO):** app probada con
   `NEXT_PUBLIC_DATA_BACKEND=supabase` (solo en `.env.local`, no commiteado). **Bug
