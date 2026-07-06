@@ -77,24 +77,23 @@ export function CrmPipeline() {
 
   return (
     <section className="premium-card mt-6 overflow-hidden rounded-2xl">
-      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-white/10 p-6">
-        <div>
-          <h2 className="flex items-center gap-2 text-2xl font-black">
-            <Workflow size={20} className="text-[#65ff4f]" />
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 p-4 sm:p-5">
+        <div className="min-w-0">
+          <h2 className="flex items-center gap-2 text-xl font-black">
+            <Workflow size={18} className="text-[#65ff4f]" />
             CRM · Pipeline
           </h2>
-          <p className="mt-1 text-sm text-zinc-400">
-            Leads y alumnos por etapa. Arrastra el foco con los filtros o cambia la
-            etapa de cada tarjeta.
+          <p className="mt-1 hidden text-sm text-zinc-400 sm:block">
+            Leads y alumnos por etapa. Filtra o cambia la etapa de cada tarjeta.
           </p>
         </div>
-        <span className="rounded-lg border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs font-bold text-zinc-300">
+        <span className="shrink-0 rounded-lg border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs font-bold text-zinc-300">
           {filtered.length} en pipeline
         </span>
       </div>
 
       {/* Buscador + filtros por etapa */}
-      <div className="space-y-3 border-b border-white/10 px-6 py-4">
+      <div className="space-y-3 border-b border-white/10 px-4 py-3 sm:px-5">
         <div className="relative">
           <Search size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" />
           <input
@@ -116,7 +115,7 @@ export function CrmPipeline() {
         </div>
       </div>
 
-      <div className="p-6">
+      <div className="p-4 sm:p-5">
         {!loaded ? (
           <p className="text-sm text-zinc-400">Cargando pipeline...</p>
         ) : filtered.length === 0 ? (

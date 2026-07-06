@@ -1,8 +1,10 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import {
   Activity,
+  ArrowLeft,
   Dumbbell,
   Flame,
   MessageCircle,
@@ -98,6 +100,15 @@ function Profile() {
       navName={realName}
       navHref="/perfil"
     >
+      <div className="mb-5">
+        <Link
+          href="/dashboard"
+          className="inline-flex items-center gap-2 rounded-lg border border-white/15 bg-white/5 px-4 py-2 text-sm font-bold text-zinc-200 transition hover:border-[#65ff4f]/50 hover:text-[#65ff4f]"
+        >
+          <ArrowLeft size={16} /> Volver al panel
+        </Link>
+      </div>
+
       <div className="grid gap-6 lg:grid-cols-[1fr_0.9fr]">
         {/* Datos + gráfica */}
         <section className="premium-card rounded-2xl p-6">
