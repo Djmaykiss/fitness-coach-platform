@@ -61,15 +61,15 @@ export function DashboardShell({
         </nav>
 
         <section className="mx-auto w-full max-w-7xl flex-1 overflow-x-clip px-5 py-10 sm:px-8">
-          <div className="mb-8">
-            <p className="text-sm font-black uppercase tracking-[0.24em] text-[#65ff4f]">
+          <div className="mb-6">
+            <p className="text-xs font-black uppercase tracking-[0.24em] text-[#65ff4f] sm:text-sm">
               {eyebrow}
             </p>
-            <h1 className="mt-3 text-4xl font-black tracking-tight sm:text-6xl">
+            <h1 className="mt-2 text-3xl font-black tracking-tight sm:text-5xl">
               {title}
             </h1>
             {subtitle ? (
-              <p className="mt-4 max-w-2xl text-base leading-7 text-zinc-400">
+              <p className="mt-3 max-w-2xl text-sm leading-6 text-zinc-400 sm:text-base sm:leading-7">
                 {subtitle}
               </p>
             ) : null}
