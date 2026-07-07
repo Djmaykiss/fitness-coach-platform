@@ -71,25 +71,48 @@ export const clientDashboardService = {
 export const adminDashboardService = {
   getPrograms: () => programRepository.getProgramRows(),
 
-  /** Clientes con su programa, progreso y banderas derivadas (tabla del admin). */
+  /** Clientes con su programa, progreso y banderas derivadas (tabla del admin).
+   *  RESILIENTE: `getClients()` (public.clients por org) es la fuente; los datos
+   *  auxiliares (emails, progreso, asignaciones) van en try/catch para que un fallo
+   *  de estos NO oculte a ningun cliente de la lista. */
   async getClientRows(): Promise<AdminClientRow[]> {
     const clients = await clientRepository.getClients();
-    const users = await userRepository.getUsers();
-    const emailByUserId = new Map(users.map((u) => [u.id, u.email]));
+
+    // Emails (userId -> email). Si falla, los clientes se listan igual (email vacio).
+    let emailByUserId = new Map<string, string>();
+    try {
+      const users = await userRepository.getUsers();
+      emailByUserId = new Map(users.map((u) => [u.id, u.email]));
+    } catch {
+      emailByUserId = new Map();
+    }
+
     return Promise.all(
       clients.map(async (client) => {
-        const [progress, trainingId, nutritionId] = await Promise.all([
-          progressRepository.getForClient(client.id),
-          trainingProgramRepository.getAssignment(client.id),
-          nutritionPlanRepository.getAssignment(client.id),
-        ]);
+        let programa = "";
+        let progresoPct = 0;
+        let trainingId: string | null = null;
+        let nutritionId: string | null = null;
+        try {
+          const [progress, tId, nId] = await Promise.all([
+            progressRepository.getForClient(client.id),
+            trainingProgramRepository.getAssignment(client.id),
+            nutritionPlanRepository.getAssignment(client.id),
+          ]);
+          programa = progress.programa;
+          progresoPct = progress.progresoPct;
+          trainingId = tId;
+          nutritionId = nId;
+        } catch {
+          // Un fallo de datos auxiliares no debe ocultar al cliente.
+        }
         const accessStatus = client.accessStatus ?? "Vencido";
         return {
           id: client.id,
           name: client.name,
           status: client.status,
-          programa: progress.programa,
-          progresoPct: progress.progresoPct,
+          programa,
+          progresoPct,
           accessStatus,
           accessExpiresAt: client.accessExpiresAt ?? null,
           evaluation: client.evaluation,

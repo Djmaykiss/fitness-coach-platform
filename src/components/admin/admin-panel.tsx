@@ -150,16 +150,18 @@ export function AdminPanel() {
   const [leadQuery, setLeadQuery] = useState("");
 
   async function load() {
-    const [e, c, l, p] = await Promise.all([
+    // RESILIENTE: cada carga es independiente; si una falla (p. ej. stats), la lista
+    // de alumnos igual se muestra (antes un solo fallo del Promise.all borraba todo).
+    const [e, c, l, p] = await Promise.allSettled([
       adminDashboardService.getExecutiveStats(),
       adminDashboardService.getClientRows(),
       leadService.getLeads(),
       adminDashboardService.getPrograms(),
     ]);
-    setExec(e);
-    setClients(c);
-    setLeads(l);
-    setPrograms(p);
+    if (e.status === "fulfilled") setExec(e.value);
+    if (c.status === "fulfilled") setClients(c.value);
+    if (l.status === "fulfilled") setLeads(l.value);
+    if (p.status === "fulfilled") setPrograms(p.value);
     setLoaded(true);
   }
 
