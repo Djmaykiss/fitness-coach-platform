@@ -75,28 +75,41 @@ export const supabaseAuthService = {
     if (error) return { ok: false, error: error.message };
     if (!data.user) return { ok: false, error: "No se pudo crear la cuenta." };
     clearOrgCache();
-    // Cierre register→clients (Bloque 4): con sesión activa, la RPC crea la
-    // membership(client) + fila `clients` y adjunta la evaluación pendiente.
-    if (data.session) {
-      const pending = await pendingEvaluationRepository.get();
-      const fullName = `${input.firstName} ${input.lastName}`.trim();
-      const { error: rpcError } = await sb.rpc("register_client", {
-        p_name: fullName,
-        p_evaluation: pending?.evaluation ?? null,
-      });
-      if (!rpcError && pending) await pendingEvaluationRepository.clear();
-      return { ok: true, user: await buildAuthUser(data.user.id, data.user.email ?? input.email) };
+
+    // Confirmar que hay una SESIÓN ACTIVA antes de crear el cliente. Sin sesión
+    // (p. ej. "Confirm email" activado), la RPC correría sin `auth.uid()` y no
+    // persistiría membership/cliente -> NO se declara la cuenta como creada.
+    const { data: sessionData } = await sb.auth.getSession();
+    if (!sessionData.session) {
+      await sb.auth.signOut().catch(() => {});
+      return {
+        ok: false,
+        error:
+          "Tu cuenta se creó pero falta confirmar el correo antes de continuar. Revisa tu email o pide al coach que desactive la confirmación de correo.",
+      };
     }
-    // Sin sesión (confirmación de email activada): datos mínimos.
+
+    // Cierre register→clients: crea membership(client) + fila `clients` + adjunta la
+    // evaluación pendiente. Si la RPC FALLA, se reporta el error REAL (no se traga),
+    // NO se dice "cuenta creada" y se cierra la sesión huérfana.
+    const pending = await pendingEvaluationRepository.get();
+    const fullName = `${input.firstName} ${input.lastName}`.trim();
+    const { error: rpcError } = await sb.rpc("register_client", {
+      p_name: fullName,
+      p_evaluation: pending?.evaluation ?? null,
+    });
+    if (rpcError) {
+      await sb.auth.signOut().catch(() => {});
+      clearOrgCache();
+      return {
+        ok: false,
+        error: `No se pudo completar tu registro como alumno: ${rpcError.message}`,
+      };
+    }
+    if (pending) await pendingEvaluationRepository.clear();
     return {
       ok: true,
-      user: {
-        id: data.user.id,
-        email: input.email,
-        firstName: input.firstName,
-        lastName: input.lastName,
-        role: "client",
-      },
+      user: await buildAuthUser(data.user.id, data.user.email ?? input.email),
     };
   },
 
