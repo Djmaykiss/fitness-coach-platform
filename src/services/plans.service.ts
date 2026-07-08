@@ -26,4 +26,29 @@ export const plansService = {
     if (!client) return null;
     return plansRepository.getClientPlan(client.id);
   },
+
+  /** Plan contratado por clientId (para la ficha del coach). */
+  getClientPlanForClient: (clientId: string) =>
+    plansRepository.getClientPlan(clientId),
+
+  /**
+   * Registro con plan elegido en la landing: asigna el plan al alumno recién creado
+   * (resuelve userId -> clientId). Si no encuentra el cliente, no falla el registro.
+   */
+  async contractPlanForUser(
+    userId: string,
+    plan: { planId: string; planName: string },
+  ) {
+    const client = await clientRepository.findByUserId(userId);
+    if (!client) return null;
+    return plansRepository.assignPlan(client.id, plan.planId, plan.planName);
+  },
+
+  /** Coach: asigna/cambia el plan de un alumno (resuelve el nombre desde el plan). */
+  async assignPlanToClient(clientId: string, planId: string) {
+    const plans = await plansRepository.getPlans();
+    const plan = plans.find((p) => p.id === planId);
+    if (!plan) return null;
+    return plansRepository.assignPlan(clientId, planId, plan.name);
+  },
 };

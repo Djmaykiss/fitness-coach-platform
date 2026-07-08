@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Check, Crown } from "lucide-react";
 import { plansService } from "@/services/plans.service";
+import { setSelectedPlan } from "@/lib/selected-plan";
 import type { Plan } from "@/types";
 
 /**
@@ -105,6 +106,7 @@ function PlanCard({ plan }: { plan: Plan }) {
 
       <a
         href="#agenda"
+        onClick={() => setSelectedPlan({ planId: plan.id, planName: plan.name })}
         className={`mt-6 inline-flex min-h-12 w-full items-center justify-center rounded-lg px-5 text-sm font-black uppercase tracking-wide transition duration-300 hover:-translate-y-0.5 active:scale-[0.98] ${
           plan.recommended
             ? "bg-gradient-to-b from-[#85ff73] to-[#65ff4f] text-black shadow-[0_8px_30px_-8px_rgba(101,255,79,0.5)] hover:brightness-110"

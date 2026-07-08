@@ -6,6 +6,7 @@ import {
   readCollection,
   readRecord,
   writeCollection,
+  writeRecord,
 } from "@/lib/local-store";
 import type { ClientPlan, CreatePlanInput, Plan } from "@/types";
 
@@ -87,5 +88,20 @@ export class LocalPlansRepository implements PlansRepository {
   getClientPlan(clientId: string) {
     const record = readRecord<ClientPlan>(STORAGE_KEYS.clientPlans, clientPlansSeed);
     return resolveMock<ClientPlan | null>(record[clientId] ?? null);
+  }
+
+  assignPlan(clientId: string, planId: string, planName: string) {
+    const record = readRecord<ClientPlan>(STORAGE_KEYS.clientPlans, clientPlansSeed);
+    const now = new Date();
+    const contract: ClientPlan = {
+      planId,
+      planName,
+      status: "Activo",
+      startDate: now.toISOString(),
+      renewalDate: new Date(now.getTime() + 30 * 864e5).toISOString(),
+    };
+    record[clientId] = contract;
+    writeRecord(STORAGE_KEYS.clientPlans, record);
+    return resolveMock(contract);
   }
 }

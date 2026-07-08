@@ -396,4 +396,6 @@ export interface PlansRepository {
   reorder(orderedIds: string[]): Promise<void>;
   /** Plan contratado por un alumno (perfil), por clientId; null si no tiene. */
   getClientPlan(clientId: string): Promise<ClientPlan | null>;
+  /** Asigna/cambia el plan contratado de un alumno (registro con plan / cambio del coach). */
+  assignPlan(clientId: string, planId: string, planName: string): Promise<ClientPlan>;
 }

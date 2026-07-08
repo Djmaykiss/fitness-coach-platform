@@ -192,6 +192,36 @@ export class SupabasePlansRepository implements PlansRepository {
     }
   }
 
+  async assignPlan(clientId: string, planId: string, planName: string): Promise<ClientPlan> {
+    // org del cliente (para scoping RLS).
+    const { data: cli } = await this.sb()
+      .from("clients")
+      .select("organization_id")
+      .eq("id", clientId)
+      .maybeSingle();
+    const org = cli ? str(cli as Row, "organization_id") : "";
+    const now = new Date();
+    const contract = {
+      planId,
+      planName,
+      status: "Activo",
+      startDate: now.toISOString(),
+      renewalDate: new Date(now.getTime() + 30 * 864e5).toISOString(),
+    };
+    // Una sola fila "actual" por cliente: reemplaza la anterior.
+    await this.sb().from("client_plans").delete().eq("client_id", clientId);
+    await this.sb().from("client_plans").insert({
+      organization_id: org,
+      client_id: clientId,
+      plan_id: planId,
+      plan_name: planName,
+      status: contract.status,
+      start_date: contract.startDate,
+      renewal_date: contract.renewalDate,
+    });
+    return contract;
+  }
+
   async getClientPlan(clientId: string): Promise<ClientPlan | null> {
     const { data, error } = await this.sb()
       .from("client_plans")

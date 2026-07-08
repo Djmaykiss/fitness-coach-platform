@@ -7,6 +7,8 @@ import { ArrowRight, ClipboardCheck, LockKeyhole } from "lucide-react";
 import { useAuth } from "@/context/auth-context";
 import { useToast } from "@/context/toast-context";
 import { onboardingService } from "@/services/onboarding.service";
+import { plansService } from "@/services/plans.service";
+import { getSelectedPlan, clearSelectedPlan } from "@/lib/selected-plan";
 import { isValidEmail } from "@/lib/validation";
 import type { AuthUser } from "@/types";
 
@@ -81,6 +83,20 @@ export function AuthForm({ mode }: AuthFormProps) {
       setMessage(result.error);
       toast.error(result.error);
       return;
+    }
+
+    // Registro con plan elegido en la landing: asigna ese plan al alumno recién
+    // creado (client_plans) y limpia la selección. Si no hay plan, flujo normal.
+    if (!isLogin) {
+      const selected = getSelectedPlan();
+      if (selected) {
+        try {
+          await plansService.contractPlanForUser(result.user.id, selected);
+        } catch {
+          // No bloquear el registro si la asignación del plan falla.
+        }
+        clearSelectedPlan();
+      }
     }
 
     toast.success(isLogin ? "Sesión iniciada." : "Cuenta creada.");

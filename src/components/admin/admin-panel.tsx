@@ -49,6 +49,7 @@ import { adminDashboardService } from "@/services/dashboard.service";
 import { leadService } from "@/services/lead.service";
 import { trainingService } from "@/services/training.service";
 import { nutritionService } from "@/services/nutrition.service";
+import { plansService } from "@/services/plans.service";
 import { coachConfig, whatsappTo, whatsappUrl } from "@/config/coachConfig";
 import { formatDate } from "@/lib/format";
 import { isValidEmail } from "@/lib/validation";
@@ -56,11 +57,13 @@ import { printClientProfile } from "@/lib/print";
 import { useSettings } from "@/context/settings-context";
 import type {
   AdminClientRow,
+  ClientPlan,
   ClientProgress,
   ExecutiveStats,
   Lead,
   LeadStatus,
   NutritionPlan,
+  Plan,
   ProgramRow,
   TrainingProgram,
 } from "@/types";
@@ -706,6 +709,7 @@ function ClientDetailCard({
         <Printer size={16} />
         Imprimir / Exportar perfil
       </button>
+      <ClientPlanControl clientId={client.id} />
       {client.evaluation ? (
         <EvaluationDetails evaluation={client.evaluation} />
       ) : (
@@ -714,6 +718,67 @@ function ClientDetailCard({
         </p>
       )}
     </FormShell>
+  );
+}
+
+/** Muestra el plan contratado del alumno y permite al coach asignarlo/cambiarlo. */
+function ClientPlanControl({ clientId }: { clientId: string }) {
+  const toast = useToast();
+  const [plans, setPlans] = useState<Plan[]>([]);
+  const [current, setCurrent] = useState<ClientPlan | null>(null);
+  const [saving, setSaving] = useState(false);
+
+  async function load() {
+    const [all, cp] = await Promise.all([
+      plansService.getPlans(),
+      plansService.getClientPlanForClient(clientId),
+    ]);
+    setPlans(all);
+    setCurrent(cp);
+  }
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [clientId]);
+
+  async function change(planId: string) {
+    if (!planId) return;
+    setSaving(true);
+    await plansService.assignPlanToClient(clientId, planId);
+    await load();
+    setSaving(false);
+    toast.success("Plan del alumno actualizado.");
+  }
+
+  return (
+    <div className="mb-5 rounded-xl border border-[#65ff4f]/20 bg-[#65ff4f]/[0.05] p-4">
+      <p className="text-xs font-black uppercase tracking-wide text-[#65ff4f]">
+        Plan contratado
+      </p>
+      <p className="mt-1 text-sm font-bold text-white">
+        {current ? `${current.planName} · ${current.status}` : "Sin plan contratado"}
+      </p>
+      <label className="mt-3 block text-xs font-bold text-zinc-300">
+        Asignar / cambiar plan
+        <select
+          value={current?.planId ?? ""}
+          disabled={saving}
+          onChange={(e) => change(e.target.value)}
+          className="mt-1 w-full rounded-lg border border-white/15 bg-black/35 px-3 py-2 text-sm text-white outline-none transition focus:border-[#65ff4f] disabled:opacity-50"
+        >
+          <option value="" className="bg-[#0a0d0b]">
+            — Selecciona un plan —
+          </option>
+          {plans.map((p) => (
+            <option key={p.id} value={p.id} className="bg-[#0a0d0b]">
+              {p.name}
+              {p.active ? "" : " (inactivo)"}
+            </option>
+          ))}
+        </select>
+      </label>
+    </div>
   );
 }
 
