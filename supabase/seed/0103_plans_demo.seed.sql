@@ -15,9 +15,9 @@ begin
     return;
   end if;
 
-  -- ENCIENDE
+  -- Básico
   insert into public.plans (organization_id, name, price_label, modality, ideal_for, button_label, color, recommended, active, position)
-  values (v_org, 'ENCIENDE', '$67–97/mes · o Reto 4 semanas por $97', '100% Online',
+  values (v_org, 'Básico', '$67–97/mes · o Reto 4 semanas por $97', '100% Online',
     'Personas que quieren comenzar a bajar de peso, crear hábitos saludables y desarrollar constancia.',
     'Comenzar Ahora', '#65ff4f', false, true, 0)
   returning id into v_id;
@@ -29,9 +29,9 @@ begin
     (v_org, v_id, 'Accountability semanal', 4),
     (v_org, v_id, 'Sin llamadas individuales', 5);
 
-  -- FORJA
+  -- Intermedio
   insert into public.plans (organization_id, name, price_label, modality, ideal_for, button_label, color, recommended, active, position)
-  values (v_org, 'FORJA', '$180–250/mes', '100% Online',
+  values (v_org, 'Intermedio', '$180–250/mes', '100% Online',
     'Personas que buscan aumentar fuerza, velocidad o masa muscular mediante programación personalizada.',
     'Quiero este plan', '#1e3a8a', false, true, 1)
   returning id into v_id;
@@ -44,9 +44,9 @@ begin
     (v_org, v_id, 'Coaching mental mensual', 5),
     (v_org, v_id, 'Ajuste nutricional', 6);
 
-  -- LEYENDA (recomendado)
+  -- Elite (recomendado)
   insert into public.plans (organization_id, name, price_label, modality, ideal_for, button_label, color, recommended, active, position)
-  values (v_org, 'LEYENDA', '$450–650/mes', 'Online + Eventos Presenciales',
+  values (v_org, 'Elite', '$450–650/mes', 'Online + Eventos Presenciales',
     'Atletas y personas que desean el máximo nivel de acompañamiento personalizado.',
     'Ser Leyenda', '#65ff4f', true, true, 2)
   returning id into v_id;

@@ -251,7 +251,7 @@ function PlanEditor({
 
       <div className="grid gap-4 p-4 sm:p-5 md:grid-cols-2">
         <Field label="Nombre">
-          <input className={inputClass} value={form.name} onChange={(e) => set("name", e.target.value)} placeholder="ENCIENDE" />
+          <input className={inputClass} value={form.name} onChange={(e) => set("name", e.target.value)} placeholder="Básico" />
         </Field>
         <Field label="Precio (texto libre)">
           <input className={inputClass} value={form.priceLabel} onChange={(e) => set("priceLabel", e.target.value)} placeholder="$67–97/mes" />

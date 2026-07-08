@@ -6,8 +6,8 @@ import type { ClientPlan, Plan } from "@/types";
  */
 export const plansSeed: Plan[] = [
   {
-    id: "plan-enciende",
-    name: "ENCIENDE",
+    id: "plan-basico",
+    name: "Básico",
     priceLabel: "$67–97/mes · o Reto 4 semanas por $97",
     modality: "100% Online",
     idealFor:
@@ -28,8 +28,8 @@ export const plansSeed: Plan[] = [
     position: 0,
   },
   {
-    id: "plan-forja",
-    name: "FORJA",
+    id: "plan-intermedio",
+    name: "Intermedio",
     priceLabel: "$180–250/mes",
     modality: "100% Online",
     idealFor:
@@ -51,8 +51,8 @@ export const plansSeed: Plan[] = [
     position: 1,
   },
   {
-    id: "plan-leyenda",
-    name: "LEYENDA",
+    id: "plan-elite",
+    name: "Elite",
     priceLabel: "$450–650/mes",
     modality: "Online + Eventos Presenciales",
     idealFor:
@@ -76,11 +76,11 @@ export const plansSeed: Plan[] = [
   },
 ];
 
-/** Demo: el alumno de ejemplo (`c-demo`) tiene el plan ENCIENDE contratado. */
+/** Demo: el alumno de ejemplo (`c-demo`) tiene el plan Básico contratado. */
 export const clientPlansSeed: Record<string, ClientPlan> = {
   "c-demo": {
-    planId: "plan-enciende",
-    planName: "ENCIENDE",
+    planId: "plan-basico",
+    planName: "Básico",
     status: "Activo",
     startDate: new Date().toISOString(),
     renewalDate: new Date(Date.now() + 30 * 864e5).toISOString(),
