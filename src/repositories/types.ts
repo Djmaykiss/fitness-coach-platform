@@ -20,6 +20,9 @@ import type {
   Credentials,
   LibraryExercise,
   NutritionPlan,
+  Plan,
+  CreatePlanInput,
+  ClientPlan,
   Lead,
   LeadStatus,
   NavLink,
@@ -372,4 +375,25 @@ export interface CoachingRepository {
   addChatMessage(clientId: string, message: ChatMessage): Promise<ChatMessage[]>;
   /** Elimina fotos y checklists de un cliente (al borrar el alumno). */
   removeClient(clientId: string): Promise<void>;
+}
+
+/**
+ * Planes comerciales (administra el coach). CRUD + activar/desactivar + recomendado +
+ * reordenar (drag & drop) + plan contratado por alumno. Todo persistido (Local/Supabase).
+ */
+export interface PlansRepository {
+  /** Todos los planes (coach), ordenados por `position`. */
+  getPlans(): Promise<Plan[]>;
+  /** Solo planes ACTIVOS (landing pública), ordenados por `position`. */
+  getActivePlans(): Promise<Plan[]>;
+  createPlan(input: CreatePlanInput): Promise<Plan>;
+  updatePlan(id: string, patch: Partial<CreatePlanInput>): Promise<Plan | null>;
+  deletePlan(id: string): Promise<boolean>;
+  setActive(id: string, active: boolean): Promise<Plan | null>;
+  /** Marca este plan como el recomendado (y desmarca los demás). */
+  setRecommended(id: string): Promise<void>;
+  /** Reordena por lista de ids (drag & drop). */
+  reorder(orderedIds: string[]): Promise<void>;
+  /** Plan contratado por un alumno (perfil), por clientId; null si no tiene. */
+  getClientPlan(clientId: string): Promise<ClientPlan | null>;
 }

@@ -5,10 +5,13 @@ import { useEffect, useState } from "react";
 import {
   Activity,
   ArrowLeft,
+  CalendarClock,
+  CreditCard,
   Dumbbell,
   Flame,
   MessageCircle,
   Ruler,
+  Sparkles,
   Target,
   Timer,
   TrendingUp,
@@ -20,9 +23,17 @@ import { useAuth } from "@/context/auth-context";
 import { clientDashboardService } from "@/services/dashboard.service";
 import { trainingService } from "@/services/training.service";
 import { metricsService } from "@/services/metrics.service";
+import { plansService } from "@/services/plans.service";
 import { metricSeries } from "@/data/coaching";
 import { coachConfig, whatsappUrl } from "@/config/coachConfig";
-import type { ChartPoint, ClientProgress, LeadEvaluation, WorkoutResult } from "@/types";
+import { formatDate } from "@/lib/format";
+import type {
+  ChartPoint,
+  ClientPlan,
+  ClientProgress,
+  LeadEvaluation,
+  WorkoutResult,
+} from "@/types";
 
 function num(value: string | undefined): number {
   const n = Number.parseFloat(String(value ?? "").replace(",", "."));
@@ -45,6 +56,7 @@ function Profile() {
   const [evaluation, setEvaluation] = useState<LeadEvaluation | null>(null);
   const [progress, setProgress] = useState<ClientProgress | null>(null);
   const [results, setResults] = useState<WorkoutResult[]>([]);
+  const [clientPlan, setClientPlan] = useState<ClientPlan | null>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -59,6 +71,12 @@ function Profile() {
       setProgress(p);
       setResults(r);
     });
+    plansService
+      .getClientPlanForUser(user.id)
+      .then((cp) => {
+        if (active) setClientPlan(cp);
+      })
+      .catch(() => {});
     return () => {
       active = false;
     };
@@ -108,6 +126,25 @@ function Profile() {
           <ArrowLeft size={16} /> Volver al panel
         </Link>
       </div>
+
+      {/* Plan contratado */}
+      <section className="premium-card mb-6 rounded-2xl p-6">
+        <p className="mb-3 flex items-center gap-2 text-sm font-black uppercase tracking-[0.2em] text-[#65ff4f]">
+          <CreditCard size={16} /> Plan contratado
+        </p>
+        {clientPlan ? (
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <Info icon={<Sparkles size={14} />} label="Plan" value={clientPlan.planName || "—"} highlight />
+            <Info icon={<Activity size={14} />} label="Estado" value={clientPlan.status || "—"} />
+            <Info icon={<CalendarClock size={14} />} label="Inicio" value={clientPlan.startDate ? formatDate(clientPlan.startDate) : "—"} />
+            <Info icon={<CalendarClock size={14} />} label="Renovación" value={clientPlan.renewalDate ? formatDate(clientPlan.renewalDate) : "—"} />
+          </div>
+        ) : (
+          <p className="text-sm text-zinc-400">
+            Aún no tienes un plan contratado. Escríbele a tu coach para elegir el tuyo.
+          </p>
+        )}
+      </section>
 
       <div className="grid gap-6 lg:grid-cols-[1fr_0.9fr]">
         {/* Datos + gráfica */}

@@ -8,6 +8,7 @@ import {
   CalendarClock,
   CircleDollarSign,
   ClipboardList,
+  CreditCard,
   Dumbbell,
   FileText,
   LayoutDashboard,
@@ -42,6 +43,7 @@ import { CoachOverviewPanel } from "@/components/admin/coach-overview";
 import { BusinessSettingsManager } from "@/components/admin/business-settings";
 import { CrmPipeline } from "@/components/admin/crm-pipeline";
 import { NotificationsCenter } from "@/components/admin/notifications-center";
+import { PlansManager } from "@/components/admin/plans-manager";
 import { useToast } from "@/context/toast-context";
 import { adminDashboardService } from "@/services/dashboard.service";
 import { leadService } from "@/services/lead.service";
@@ -131,6 +133,7 @@ const CONTENT_TABS = [
   { key: "nutricion", label: "Nutrición", icon: Salad },
   { key: "descubre", label: "Descubre", icon: BookOpen },
   { key: "onboarding", label: "Onboarding", icon: Sparkles },
+  { key: "planes", label: "Planes", icon: CreditCard },
 ];
 
 export function AdminPanel({
@@ -489,6 +492,9 @@ export function AdminPanel({
 
           {/* Onboarding (CMS de mensajes, recompensas y predicción) */}
           {contentTab === "onboarding" ? <OnboardingContentManager /> : null}
+
+          {/* Planes comerciales */}
+          {contentTab === "planes" ? <PlansManager /> : null}
         </div>
       ) : null}
 

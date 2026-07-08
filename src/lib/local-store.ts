@@ -41,6 +41,8 @@ export const STORAGE_KEYS = {
   settings: "coach-fitness:settings",
   crm: "coach-fitness:crm",
   notificationsRead: "coach-fitness:notifications-read",
+  plans: "coach-fitness:plans",
+  clientPlans: "coach-fitness:client-plans",
 } as const;
 
 const isBrowser = () => typeof window !== "undefined";

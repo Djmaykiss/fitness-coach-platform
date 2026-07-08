@@ -9,6 +9,7 @@ import {
   TestimonialsSection,
   TransformationsSection,
 } from "@/sections/landing-sections";
+import { PlansSection } from "@/components/plans-section";
 
 export function LandingPage() {
   return (
@@ -16,6 +17,7 @@ export function LandingPage() {
       <HeroSection />
       <AboutSection />
       <ProgramsSection />
+      <PlansSection />
       <TransformationsSection />
       <TestimonialsSection />
       <BenefitsSection />

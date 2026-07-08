@@ -794,3 +794,38 @@ export type CoachNotification = {
   date: string;
   read: boolean;
 };
+
+/* ---------- Planes / membresías comerciales (administra el coach) ---------- */
+
+/** Plan comercial mostrado en la landing y administrado por el coach. */
+export type Plan = {
+  id: string;
+  name: string;
+  /** Texto de precio libre (p. ej. "$67–97/mes o Reto 4 semanas por $97"). */
+  priceLabel: string;
+  modality: string;
+  idealFor: string;
+  /** Beneficios (persistidos como `plan_features` en Supabase). */
+  features: string[];
+  buttonLabel: string;
+  /** Color de acento de la tarjeta (hex). */
+  color: string;
+  /** Imagen opcional del plan (URL). */
+  image: string;
+  recommended: boolean;
+  active: boolean;
+  /** Orden en la landing / panel (drag & drop). */
+  position: number;
+};
+
+/** Datos editables de un plan (sin id ni position, que gestiona la capa de datos). */
+export type CreatePlanInput = Omit<Plan, "id" | "position">;
+
+/** Plan contratado por un alumno (perfil del alumno). */
+export type ClientPlan = {
+  planId: string;
+  planName: string;
+  status: string;
+  startDate: string;
+  renewalDate: string;
+};

@@ -29,6 +29,8 @@ import { LocalNutritionPlanRepository } from "@/repositories/local/nutrition-pla
 import { LocalPendingEvaluationRepository } from "@/repositories/local/pending-evaluation.repository";
 import { LocalCoachingRepository } from "@/repositories/local/coaching.repository";
 import { LocalUserRepository } from "@/repositories/local/user.repository";
+import { LocalPlansRepository } from "@/repositories/local/plans.repository";
+import { SupabasePlansRepository } from "@/repositories/supabase/plans.repository";
 import type {
   ClientRepository,
   CoachingRepository,
@@ -37,6 +39,7 @@ import type {
   LeadRepository,
   OnboardingContentRepository,
   PendingEvaluationRepository,
+  PlansRepository,
   SettingsRepository,
   CrmRepository,
   NotificationsRepository,
@@ -145,4 +148,9 @@ export const userRepository: UserRepository = pickRepository<UserRepository>(
   "user",
   new LocalUserRepository(),
   () => new SupabaseUserRepository(),
+);
+export const plansRepository: PlansRepository = pickRepository<PlansRepository>(
+  "plans",
+  new LocalPlansRepository(),
+  () => new SupabasePlansRepository(),
 );
