@@ -1,20 +1,19 @@
 "use client";
 
-import { DashboardShell } from "@/layouts/dashboard-shell";
+import { useState } from "react";
 import { RequireAuth } from "@/components/require-auth";
 import { AdminPanel } from "@/components/admin/admin-panel";
-import { useAuth } from "@/context/auth-context";
+import { AdminShell } from "@/components/admin/admin-shell";
 
 export default function AdminPage() {
-  const { user } = useAuth();
+  // Seccion activa elevada al shell (sidebar desktop) + tabs compactas del panel (movil).
+  // SOLO estado de navegacion; la logica/datos siguen en AdminPanel.
+  const [section, setSection] = useState("inicio");
   return (
     <RequireAuth role="admin">
-      <DashboardShell
-        title={`Bienvenido, ${user?.firstName ?? ""}`}
-        subtitle="Gestiona alumnos, programas, asignaciones y progreso."
-      >
-        <AdminPanel />
-      </DashboardShell>
+      <AdminShell active={section} onChange={setSection}>
+        <AdminPanel activeTab={section} onTabChange={setSection} />
+      </AdminShell>
     </RequireAuth>
   );
 }

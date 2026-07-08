@@ -133,9 +133,18 @@ const CONTENT_TABS = [
   { key: "onboarding", label: "Onboarding", icon: Sparkles },
 ];
 
-export function AdminPanel() {
+export function AdminPanel({
+  activeTab,
+  onTabChange,
+}: {
+  /** Tab controlado por el shell (sidebar). Si no se pasa, usa estado interno. */
+  activeTab?: string;
+  onTabChange?: (key: string) => void;
+} = {}) {
   const toast = useToast();
-  const [tab, setTab] = useState<string>("inicio");
+  const [internalTab, setInternalTab] = useState<string>("inicio");
+  const tab = activeTab ?? internalTab;
+  const setTab = onTabChange ?? setInternalTab;
   const [contentTab, setContentTab] = useState<string>("biblioteca");
   const [exec, setExec] = useState<ExecutiveStats | null>(null);
   const [clients, setClients] = useState<AdminClientRow[]>([]);
@@ -232,8 +241,9 @@ export function AdminPanel() {
 
   return (
     <>
-      {/* Navegacion por tabs (12B). Sticky bajo el header del shell. */}
-      <div className="sticky top-16 z-20 -mx-5 mb-6 border-b border-white/10 bg-[#050706]/85 px-5 py-3 backdrop-blur-xl sm:-mx-8 sm:px-8">
+      {/* Navegacion por tabs: en DESKTOP la da el sidebar del AdminShell; aqui es la
+          tira compacta para movil/tablet (lg:hidden), sticky bajo el header movil. */}
+      <div className="sticky top-14 z-20 -mx-4 mb-6 border-b border-white/10 bg-[#050706]/85 px-4 py-3 backdrop-blur-xl sm:-mx-6 sm:px-6 lg:hidden">
         <TabNav
           tabs={ADMIN_TABS}
           active={tab}
