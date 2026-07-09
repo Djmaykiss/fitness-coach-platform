@@ -36,6 +36,10 @@ const rowToScalar = (r: Row) => ({
   substitutions: str(r, "substitutions"),
   recommendedTime: str(r, "recommended_time"),
   recommendedRest: str(r, "recommended_rest"),
+  // Seguro aunque la columna aún no exista (0021): cualquier valor != 'public' -> private.
+  visibility: (str(r, "visibility") === "public" ? "public" : "private") as
+    | "private"
+    | "public",
 });
 
 const emptyMedia = (): Record<MediaRole, string> => ({ image: "", gif: "", video: "" });
@@ -145,6 +149,22 @@ export class SupabaseExerciseLibraryRepository implements ExerciseLibraryReposit
       await this.reconcileSlot(id, orgId, role, value);
     }
 
+    return this.getExercise(id);
+  }
+
+  async setVisibility(
+    id: string,
+    visibility: "private" | "public",
+  ): Promise<LibraryExercise | null> {
+    const { data, error } = await this.sb()
+      .from("library_exercises")
+      .update({ visibility })
+      .eq("id", id)
+      .is("deleted_at", null)
+      .select("id")
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    if (!data) return null;
     return this.getExercise(id);
   }
 

@@ -353,6 +353,11 @@ export interface ExerciseLibraryRepository {
     id: string,
     patch: Partial<CreateLibraryExerciseInput>,
   ): Promise<LibraryExercise | null>;
+  /** Publica/oculta el ejercicio en el catálogo (Descubre). No afecta programas. */
+  setVisibility(
+    id: string,
+    visibility: "private" | "public",
+  ): Promise<LibraryExercise | null>;
   deleteExercise(id: string): Promise<boolean>;
 }
 

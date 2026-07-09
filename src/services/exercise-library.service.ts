@@ -12,5 +12,7 @@ export const exerciseLibraryService = {
     exerciseLibraryRepository.createExercise(input),
   updateExercise: (id: string, patch: Partial<CreateLibraryExerciseInput>) =>
     exerciseLibraryRepository.updateExercise(id, patch),
+  setVisibility: (id: string, visibility: "private" | "public") =>
+    exerciseLibraryRepository.setVisibility(id, visibility),
   deleteExercise: (id: string) => exerciseLibraryRepository.deleteExercise(id),
 };

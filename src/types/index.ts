@@ -632,9 +632,16 @@ export type LibraryExercise = {
   substitutions: string;
   recommendedTime: string;
   recommendedRest: string;
+  /**
+   * Visibilidad en el catálogo público (Descubre). `private` = solo para programas
+   * internos del coach; `public` = aparece en Descubre. Default `private`. NO afecta al
+   * entrenamiento asignado (un ejercicio privado dentro de un programa se ve/entrena).
+   */
+  visibility: "private" | "public";
 };
 
-export type CreateLibraryExerciseInput = Omit<LibraryExercise, "id">;
+/** Datos para crear un ejercicio. La visibilidad NO se elige al crear: nace `private`. */
+export type CreateLibraryExerciseInput = Omit<LibraryExercise, "id" | "visibility">;
 
 /* ---------- Planes de nutricion (modulo real, persistido) ---------- */
 

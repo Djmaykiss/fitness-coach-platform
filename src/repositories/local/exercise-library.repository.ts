@@ -41,10 +41,21 @@ export class LocalExerciseLibraryRepository
         .slice(2, 6)}`,
       ...input,
       name: input.name.trim(),
+      visibility: "private", // nace privado; el coach lo publica después
     };
     items.push(exercise);
     this.write(items);
     return resolveMock(exercise);
+  }
+
+  setVisibility(id: string, visibility: "private" | "public") {
+    const items = this.read();
+    const index = items.findIndex((e) => e.id === id);
+    if (index === -1) return resolveMock<LibraryExercise | null>(null);
+    const updated: LibraryExercise = { ...items[index], visibility };
+    items[index] = updated;
+    this.write(items);
+    return resolveMock<LibraryExercise | null>(updated);
   }
 
   updateExercise(id: string, patch: Partial<CreateLibraryExerciseInput>) {

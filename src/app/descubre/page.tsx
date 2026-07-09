@@ -71,15 +71,23 @@ function Discover() {
       setRoutines(r);
       setCategories(c);
       setArticles(a);
-      setLibrary(lib);
+      // Descubre = catálogo PÚBLICO: solo ejercicios que el coach hizo públicos.
+      setLibrary(lib.filter((e) => e.visibility === "public"));
     });
     return () => {
       active = false;
     };
   }, []);
 
-  const exercisesFor = (cat: DiscoverCategory) =>
-    library.filter((e) => cat.muscleGroups.includes(e.muscleGroup));
+  const exercisesFor = (cat: DiscoverCategory) => {
+    const seen = new Set<string>();
+    return library.filter((e) => {
+      if (!cat.muscleGroups.includes(e.muscleGroup)) return false;
+      if (seen.has(e.id)) return false; // dedupe visual dentro de la categoría
+      seen.add(e.id);
+      return true;
+    });
+  };
 
   return (
     <DashboardShell

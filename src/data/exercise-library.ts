@@ -32,6 +32,7 @@ function ex(
     substitutions: "",
     recommendedTime: "",
     recommendedRest: "",
+    visibility: "public", // seed demo: visibles en Descubre (solo modo demo/local)
     ...data,
   };
 }

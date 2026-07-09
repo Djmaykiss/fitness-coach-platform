@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Dumbbell, Pencil, Plus, Trash2 } from "lucide-react";
+import { Dumbbell, Eye, EyeOff, Pencil, Plus, Trash2 } from "lucide-react";
 import { exerciseLibraryService } from "@/services/exercise-library.service";
 import { useToast } from "@/context/toast-context";
 import { isBlank, isValidVideoOrEmpty } from "@/lib/validation";
@@ -37,6 +37,17 @@ export function ExerciseLibraryManager() {
   async function load() {
     setExercises(await exerciseLibraryService.getExercises());
     setLoaded(true);
+  }
+
+  async function toggleVisibility(ex: LibraryExercise) {
+    const next = ex.visibility === "public" ? "private" : "public";
+    try {
+      await exerciseLibraryService.setVisibility(ex.id, next);
+      await load();
+      toast.success(next === "public" ? "Ejercicio publicado en Descubre." : "Ejercicio ocultado de Descubre.");
+    } catch {
+      toast.error("No se pudo cambiar la visibilidad.");
+    }
   }
 
   useEffect(() => {
@@ -138,6 +149,15 @@ export function ExerciseLibraryManager() {
                   <Chip>{ex.muscleGroup || "—"}</Chip>
                   <Chip>{ex.difficulty || "—"}</Chip>
                   {ex.equipment ? <Chip>{ex.equipment}</Chip> : null}
+                  {ex.visibility === "public" ? (
+                    <span className="inline-flex items-center gap-1 rounded-lg border border-[#65ff4f]/30 bg-[#65ff4f]/10 px-2.5 py-1 text-[#65ff4f]">
+                      <Eye size={12} /> Público
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1 rounded-lg border border-white/10 bg-white/[0.04] px-2.5 py-1 text-zinc-400">
+                      <EyeOff size={12} /> Privado
+                    </span>
+                  )}
                 </div>
                 <div className="mt-4 flex flex-wrap gap-2">
                   <button
@@ -147,6 +167,14 @@ export function ExerciseLibraryManager() {
                   >
                     <Pencil size={14} />
                     Editar
+                  </button>
+                  <button
+                    type="button"
+                    className={rowBtn}
+                    onClick={() => toggleVisibility(ex)}
+                  >
+                    {ex.visibility === "public" ? <EyeOff size={14} /> : <Eye size={14} />}
+                    {ex.visibility === "public" ? "Ocultar" : "Publicar"}
                   </button>
                   <button
                     type="button"
