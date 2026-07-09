@@ -6,6 +6,7 @@ import {
   trainingProgramRepository,
 } from "@/repositories";
 import { metricsService } from "@/services/metrics.service";
+import { isDemoContent } from "@/lib/demo";
 import {
   beforeAfter,
   bodyMetricsInput,
@@ -30,6 +31,7 @@ import type {
   CreateProgressPhoto,
   GoalData,
   HistoryEvent,
+  MetricSeries,
   NutritionState,
 } from "@/types";
 
@@ -82,8 +84,11 @@ function parseNum(value: string): number {
  */
 export const coachingService = {
   async getDashboard(userId: string): Promise<CoachingDashboard> {
+    // Producción sin demo: nada de datos falsos. El fallback `c-demo` y los seeds demo
+    // (gráficas, recursos, Antes/Después, chat demo) solo se muestran con isDemoContent().
+    const demo = isDemoContent();
     const client = await clientRepository.findByUserId(userId);
-    const clientId = client?.id ?? "c-demo";
+    const clientId = client?.id ?? (demo ? "c-demo" : "");
 
     const [
       photos,
@@ -135,9 +140,12 @@ export const coachingService = {
       .filter((a) => a.unlocked)
       .forEach((a) => history.push({ date: "", label: `Logro: ${a.label}`, done: true }));
 
+    // Gráficas demo -> vacías en producción (la sección muestra placeholder).
+    const emptyMetrics: MetricSeries = { weight: [], waist: [], fat: [], muscle: [] };
+
     return {
       clientId,
-      metrics: metricSeries,
+      metrics: demo ? metricSeries : emptyMetrics,
       compliance,
       measurements,
       goal,
@@ -148,10 +156,10 @@ export const coachingService = {
       nutrition: buildNutrition(checks["nutrition"]),
       reminders: buildChecklist(reminders, checks["reminders"]),
       weeklyGoals: buildChecklist(weeklyGoals, checks["weekly-goals"]),
-      resources,
+      resources: demo ? resources : [],
       chat,
       checkIn,
-      beforeAfter,
+      beforeAfter: demo ? beforeAfter : { before: "", after: "" },
       photos,
       bodyMetrics: metricsService.compute(bodyMetricsInput),
       calendar: {

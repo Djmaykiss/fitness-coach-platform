@@ -94,6 +94,14 @@ la **Categoría A (no gateada)** con un interruptor de demo explícito.
 - **Dashboard alumno (`coaching.service`):** cuando demo=off, NO componer `metricSeries`/
   `resources`/`beforeAfter`/`chatDemo`; mostrar **placeholders/estados vacíos** elegantes
   ("Aún no hay datos"); quitar el fallback `c-demo` en producción (usar el cliente real).
+  ✅ HECHO (sin commit): gráficas, recursos y Antes/Después con placeholder; fallback
+  `c-demo` gateado. Verificado local (on/off) + supabase (no roto).
+- **Dashboard alumno — resto del PremiumDashboard (DECISIÓN: OPCIÓN B):** las secciones demo
+  que DUPLICAN pestañas reales (Rutina del día → pestaña "Hoy"; Nutrición → pestaña "Mi
+  plan") se **OCULTAN en producción** (demo=off); las secciones analíticas sin datos reales
+  (medidas, cumplimiento, objetivos semanales, recordatorios, check-in, métricas corporales)
+  muestran **placeholder profesional**. NUNCA rutina/nutrición/métricas/recordatorios/
+  objetivos falsos. (Pendiente de implementar en la continuación de P2.)
 
 ### P3 — Gatear también la siembra local (para poder probar "modo producción" en local)
 - `readCollection(key, isDemoContent() ? seed : [])` (y equivalente en `readRecord`) → en

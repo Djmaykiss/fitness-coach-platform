@@ -1,8 +1,10 @@
 import Link from "next/link";
-import { ArrowRight, CheckCircle2, ShieldCheck } from "lucide-react";
+import { ArrowRight, CheckCircle2, Dumbbell, Quote, ShieldCheck, Sparkles } from "lucide-react";
 import { landingService } from "@/services/landing.service";
 import { ButtonLink, Footer, SectionHeader } from "@/components/ui";
 import { TransformationImage } from "@/components/transformation-image";
+import { ContentPlaceholder } from "@/components/content-placeholder";
+import { isDemoContent } from "@/lib/demo";
 import { OnboardingWizard } from "@/components/onboarding-wizard";
 
 export async function HeroSection() {
@@ -81,7 +83,8 @@ export function AboutSection() {
 }
 
 export async function ProgramsSection() {
-  const programs = await landingService.getPrograms();
+  // Producción sin demo: solo contenido real del coach; sin él, placeholder profesional.
+  const programs = isDemoContent() ? await landingService.getPrograms() : [];
 
   return (
     <section id="programas" className="border-y border-white/10 bg-[#0a0d0b] px-5 py-24 sm:px-8">
@@ -91,6 +94,13 @@ export async function ProgramsSection() {
           title="Planes para distintos niveles"
           description="Elige el plan que mejor se ajusta a tu nivel, tu objetivo y tu disponibilidad semanal."
         />
+        {programs.length === 0 ? (
+          <ContentPlaceholder
+            icon={Dumbbell}
+            title="Aún no hay programas publicados"
+            message="Tus programas aparecerán aquí cuando los publiques."
+          />
+        ) : (
         <div className="grid gap-5 md:grid-cols-3">
           {programs.map((program) => (
             <article key={program.title} className="premium-card card-hover rounded-2xl p-6">
@@ -119,13 +129,15 @@ export async function ProgramsSection() {
             </article>
           ))}
         </div>
+        )}
       </div>
     </section>
   );
 }
 
 export async function TransformationsSection() {
-  const transformations = await landingService.getTransformations();
+  // Producción sin demo: nunca transformaciones inventadas; placeholder hasta que el coach publique.
+  const transformations = isDemoContent() ? await landingService.getTransformations() : [];
 
   return (
     <section id="transformaciones" className="mx-auto max-w-7xl px-5 py-24 sm:px-8">
@@ -134,6 +146,13 @@ export async function TransformationsSection() {
         title="Resultados que puedes lograr"
         description="Ejemplos de progreso en fuerza, composición corporal y consistencia con un plan estructurado."
       />
+      {transformations.length === 0 ? (
+        <ContentPlaceholder
+          icon={Sparkles}
+          title="Aún no hay transformaciones"
+          message="Aquí aparecerán las transformaciones de tus alumnos cuando las publiques."
+        />
+      ) : (
       <div className="grid gap-5 md:grid-cols-3">
         {transformations.map((item) => (
           <article key={item.name} className="premium-card card-hover rounded-2xl p-5">
@@ -172,12 +191,14 @@ export async function TransformationsSection() {
           </article>
         ))}
       </div>
+      )}
     </section>
   );
 }
 
 export async function TestimonialsSection() {
-  const testimonials = await landingService.getTestimonials();
+  // Producción sin demo: nunca testimonios inventados; placeholder hasta que el coach publique.
+  const testimonials = isDemoContent() ? await landingService.getTestimonials() : [];
 
   return (
     <section className="border-y border-white/10 bg-[#0a0d0b] px-5 py-24 sm:px-8">
@@ -187,6 +208,13 @@ export async function TestimonialsSection() {
           title="Historias de progreso"
           description="Personas reales que entrenaron con dirección y lograron sostener sus resultados."
         />
+        {testimonials.length === 0 ? (
+          <ContentPlaceholder
+            icon={Quote}
+            title="Aún no hay testimonios"
+            message="Publica testimonios para generar confianza."
+          />
+        ) : (
         <div className="grid gap-5 md:grid-cols-3">
           {testimonials.map((item) => (
             <article key={item.name} className="premium-card card-hover rounded-2xl p-6">
@@ -201,6 +229,7 @@ export async function TestimonialsSection() {
             </article>
           ))}
         </div>
+        )}
       </div>
     </section>
   );

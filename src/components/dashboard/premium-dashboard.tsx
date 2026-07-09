@@ -33,6 +33,7 @@ import {
 import type { ComponentType } from "react";
 import type { LucideProps } from "lucide-react";
 import { LineChart } from "@/components/dashboard/charts";
+import { ContentPlaceholder } from "@/components/content-placeholder";
 import { coachingService } from "@/services/coaching.service";
 import { formatDate } from "@/lib/format";
 import type {
@@ -347,11 +348,25 @@ function ProgressCharts({ metrics }: { metrics: MetricSeries }) {
     { key: "fat", label: "Grasa corporal", unit: "%" },
     { key: "muscle", label: "Masa muscular", unit: "%" },
   ];
+  const hasData = charts.some((c) => (metrics[c.key]?.length ?? 0) > 0);
+  if (!hasData) {
+    return (
+      <SectionCard title="Gráficas de progreso" eyebrow="Tendencias" icon={Activity}>
+        <ContentPlaceholder
+          variant="inline"
+          icon={Activity}
+          title="Aún no hay datos de progreso"
+          message="Tus gráficas aparecerán a medida que registres tu progreso."
+          hint={null}
+        />
+      </SectionCard>
+    );
+  }
   return (
     <SectionCard title="Gráficas de progreso" eyebrow="Tendencias" icon={Activity}>
       <div className="grid gap-5 sm:grid-cols-2">
         {charts.map((c) => {
-          const series = metrics[c.key];
+          const series = metrics[c.key] ?? [];
           const first = series[0]?.value ?? 0;
           const last = series[series.length - 1]?.value ?? 0;
           const delta = Math.round((last - first) * 10) / 10;
@@ -789,6 +804,20 @@ function BeforeAfter({
   const before = beforePhoto?.front || fallback.before;
   const after = afterPhoto?.front || fallback.after;
 
+  if (photos.length === 0 && !before && !after) {
+    return (
+      <SectionCard title="Antes / Después" eyebrow="Comparador" icon={Sparkles}>
+        <ContentPlaceholder
+          variant="inline"
+          icon={Sparkles}
+          title="Aún no hay fotos para comparar"
+          message="Sube tus fotos de progreso para ver tu comparación Antes / Después."
+          hint={null}
+        />
+      </SectionCard>
+    );
+  }
+
   return (
     <SectionCard title="Antes / Después" eyebrow="Comparador" icon={Sparkles}>
       {photos.length >= 2 ? (
@@ -1129,6 +1158,20 @@ function CoachChat({
 /* 13. Recursos */
 function Resources({ items }: { items: Resource[] }) {
   const [selected, setSelected] = useState<Resource | null>(null);
+
+  if (items.length === 0) {
+    return (
+      <SectionCard title="Recursos" eyebrow="Biblioteca" icon={Folder}>
+        <ContentPlaceholder
+          variant="inline"
+          icon={Folder}
+          title="Aún no hay recursos"
+          message="El coach publicará aquí guías y recursos para ti."
+          hint={null}
+        />
+      </SectionCard>
+    );
+  }
 
   return (
     <SectionCard title="Recursos" eyebrow="Biblioteca" icon={Folder}>
