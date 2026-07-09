@@ -114,6 +114,59 @@ organizations
    para "varios programas por alumno con uno principal" SIN rehacerla luego (antes no estaba).
 4. El resto (backend único, dedupe, refetch, asignación múltiple, limpieza demo) se mantiene.
 
+## 8.bis Diagnóstico del bug "solo Sentadilla" + duplicación (con evidencia real)
+Consulta de solo-lectura a la org Supabase (coach staff) — estado REAL hoy:
+- **BIBLIOTECA (3 ejercicios, TODO datos de prueba):** "Sentadilla CUTOVER", "Sentadilla
+  ENTRENAR", "Sentadilla Búlgara en Casa" — los tres `Piernas`. Sin contenido real.
+- **PROGRAMAS (1):** "Full Body Cutover" → Día 1 → un único ejercicio "Sentadilla ENTRENAR".
+- **ASIGNACIONES:** 2 alumnos asignados a ese mismo programa.
+
+**Causa 1 — DATOS (por qué "solo Sentadilla"):** la org solo tiene RESTOS de mis
+verificaciones (Bloques 5/10): 3 ejercicios "Sentadilla*" y 1 programa "Full Body Cutover"
+con 1 ejercicio. La app funciona bien: muestra el ejercicio del programa asignado; lo que
+falla es que **los datos son demo/prueba** (no hay contenido real). → Se corrige con la
+LIMPIEZA (E6) + el coach construye su biblioteca/programas reales.
+
+**Causa 2 — CÓDIGO (por qué se repite):** `training-program-view.tsx` renderiza el día de
+enfoque DOS VECES: (a) en la tarjeta "Rutina de hoy" (`focusDay`) y (b) otra vez en "Días de
+entrenamiento" (que lista TODOS los días, incluido `focusDay`). Por eso el mismo ejercicio
+aparece en ambas secciones. → Se corrige con la VISTA LIMPIA (abajo).
+
+**Causa 3 — duplicados en biblioteca:** las 3 filas "Sentadilla*" son datos de prueba
+acumulados (no un bug de dedupe). → Limpieza (E6) + evitar re-sembrar demo (Fase 1).
+
+## 8.ter Vista limpia del alumno (propuesta)
+Jerarquía única, sin duplicar el día de hoy:
+```
+Mi entrenamiento
+  → Programas asignados            (uno o varios; el principal marcado)
+     → Días del programa           (acordeón; el día de HOY viene expandido + badge "Hoy"
+                                     + CTA "Iniciar modo entrenamiento")
+        → Ejercicios del día        (una sola vez; ficha resuelta en vivo de la biblioteca)
+```
+- Se ELIMINA la sección "Rutina de hoy" que re-listaba los ejercicios; "hoy" pasa a ser un
+  BADGE + CTA sobre el día correspondiente dentro de la única lista de días.
+- **Dedupe visual:** dentro de un día, si el mismo `exerciseId` aparece repetido, se muestra
+  una sola vez. Entre programas distintos, cada programa lista lo suyo (no se mezclan).
+- El alumno SOLO ve lo asignado (ya es así); NUNCA la biblioteca global en su entrenamiento.
+
+## 8.quater Galería/biblioteca visual por categoría
+Catálogo agrupado por 8 categorías: **Piernas, Pecho, Espalda, Brazos, Hombros, Core,
+Cardio, Movilidad**.
+- REUTILIZAR la taxonomía YA existente en el esquema (no crear nueva): tabla
+  `exercise_categories` (mig. 0008) + `library_exercises.category_id` (existe, nullable,
+  diferido). Se pobla con las 8 categorías y cada ejercicio referencia una.
+- **Alumno:** la galería vive en Descubre y muestra SOLO ejercicios `visibility='public'`
+  (E2), agrupados por categoría. Nunca privados/demo/no publicados.
+- **Coach:** el manager de biblioteca gana una vista por categoría (crear/editar/publicar).
+- Cada ejercicio existe UNA vez; programas y galería solo lo referencian.
+
+## 8.quinquies Encaje en las fases
+- La VISTA LIMPIA del alumno y la GALERÍA por categoría entran en FASE 2 (arquitectura de
+  contenido), después de E2 (Privado/Público) y junto con la taxonomía `exercise_categories`.
+- La LIMPIEZA de datos de prueba (3 "Sentadilla*" + "Full Body Cutover") es E6 (script
+  revisable de soft-delete), tras lo cual el coach crea su contenido real.
+
 ## 9. Reglas
 - Nada destructivo sin OK; migraciones **nuevas y aditivas** (0021, 0022), idempotentes,
   sin `DROP/DELETE` de datos. Local/Supabase en paridad. Sin push/commit hasta confirmar

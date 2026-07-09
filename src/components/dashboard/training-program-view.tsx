@@ -125,37 +125,6 @@ export function TrainingProgramView({ userId }: { userId: string }) {
         ) : null}
       </div>
 
-      {focusDay ? (
-        <div className="premium-card rounded-2xl border border-[#65ff4f]/30 p-6">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.2em] text-[#65ff4f]">
-              <Flame size={16} />
-              Rutina de hoy
-            </div>
-            <Link
-              href={`/entrenar?day=${focusDay.id}`}
-              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-gradient-to-b from-[#85ff73] to-[#65ff4f] px-5 text-sm font-black uppercase tracking-wide text-black shadow-[0_8px_30px_-8px_rgba(101,255,79,0.5)] transition duration-300 hover:-translate-y-0.5 hover:brightness-110 active:translate-y-0 active:scale-[0.98]"
-            >
-              <Play size={16} />
-              Iniciar modo entrenamiento
-            </Link>
-          </div>
-          <DayBlock
-            day={focusDay}
-            done={completedDays.has(focusDay.id)}
-            library={library}
-            seriesProgress={seriesProgress}
-            highlight
-            onToggleDay={(done) => toggleDay(focusDay.id, done)}
-            onToggleSeries={toggleSeries}
-          />
-        </div>
-      ) : (
-        <p className="text-sm text-zinc-400">
-          Este programa aún no tiene días configurados.
-        </p>
-      )}
-
       {program.days.length > 0 ? (
         <div className="premium-card rounded-2xl p-6">
           <h3 className="text-lg font-black">Días de entrenamiento</h3>
@@ -165,6 +134,7 @@ export function TrainingProgramView({ userId }: { userId: string }) {
                 key={day.id}
                 day={day}
                 done={completedDays.has(day.id)}
+                isToday={day.id === focusDay?.id}
                 library={library}
                 seriesProgress={seriesProgress}
                 onToggleDay={(done) => toggleDay(day.id, done)}
@@ -173,7 +143,11 @@ export function TrainingProgramView({ userId }: { userId: string }) {
             ))}
           </div>
         </div>
-      ) : null}
+      ) : (
+        <p className="text-sm text-zinc-400">
+          Este programa aún no tiene días configurados.
+        </p>
+      )}
     </section>
   );
 }
@@ -181,7 +155,7 @@ export function TrainingProgramView({ userId }: { userId: string }) {
 function DayBlock({
   day,
   done,
-  highlight = false,
+  isToday = false,
   library,
   seriesProgress,
   onToggleDay,
@@ -189,22 +163,40 @@ function DayBlock({
 }: {
   day: TrainingDay;
   done: boolean;
-  highlight?: boolean;
+  isToday?: boolean;
   library: Record<string, LibraryExercise>;
   seriesProgress: Record<string, number[]>;
   onToggleDay: (done: boolean) => void;
   onToggleSeries: (exId: string, index: number, done: boolean) => void;
 }) {
+  // Dedupe visual por exerciseId dentro del mismo día (si un ejercicio se repite por
+  // error). Los ejercicios sin exerciseId (manuales) se conservan tal cual.
+  const seen = new Set<string>();
+  const exercises = day.exercises.filter((ex) => {
+    if (!ex.exerciseId) return true;
+    if (seen.has(ex.exerciseId)) return false;
+    seen.add(ex.exerciseId);
+    return true;
+  });
+
   return (
     <div
-      className={`rounded-xl border border-white/10 p-4 ${
-        highlight ? "mt-4 bg-white/[0.02]" : "bg-white/[0.03]"
+      className={`rounded-xl border p-4 ${
+        isToday
+          ? "border-[#65ff4f]/40 bg-[#65ff4f]/[0.04]"
+          : "border-white/10 bg-white/[0.03]"
       }`}
     >
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="flex items-center gap-2 font-black">
           <Dumbbell size={16} className="text-[#65ff4f]" />
           {day.name}
+          {isToday ? (
+            <span className="inline-flex items-center gap-1 rounded-md bg-[#65ff4f]/15 px-2 py-0.5 text-[11px] font-black uppercase tracking-wide text-[#65ff4f]">
+              <Flame size={12} />
+              Hoy
+            </span>
+          ) : null}
         </p>
         {done ? (
           <span className="inline-flex items-center gap-1.5 rounded-lg bg-[#65ff4f]/10 px-3 py-1 text-xs font-black uppercase tracking-wide text-[#65ff4f]">
@@ -214,9 +206,19 @@ function DayBlock({
         ) : null}
       </div>
 
-      {day.exercises.length > 0 ? (
+      {isToday ? (
+        <Link
+          href={`/entrenar?day=${day.id}`}
+          className="mt-3 inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-gradient-to-b from-[#85ff73] to-[#65ff4f] px-5 text-sm font-black uppercase tracking-wide text-black shadow-[0_8px_30px_-8px_rgba(101,255,79,0.5)] transition duration-300 hover:-translate-y-0.5 hover:brightness-110 active:translate-y-0 active:scale-[0.98]"
+        >
+          <Play size={16} />
+          Iniciar modo entrenamiento
+        </Link>
+      ) : null}
+
+      {exercises.length > 0 ? (
         <div className="mt-3 space-y-2">
-          {day.exercises.map((ex) => (
+          {exercises.map((ex) => (
             <ExerciseCard
               key={ex.id}
               exercise={ex}
