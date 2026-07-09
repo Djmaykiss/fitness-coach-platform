@@ -9,6 +9,7 @@ import { useToast } from "@/context/toast-context";
 import { onboardingService } from "@/services/onboarding.service";
 import { plansService } from "@/services/plans.service";
 import { getSelectedPlan, clearSelectedPlan } from "@/lib/selected-plan";
+import { isDemoContent } from "@/lib/demo";
 import { isValidEmail } from "@/lib/validation";
 import type { AuthUser } from "@/types";
 
@@ -180,7 +181,7 @@ export function AuthForm({ mode }: AuthFormProps) {
         <ArrowRight size={18} />
       </button>
 
-      {isLogin ? (
+      {isLogin && isDemoContent() ? (
         <div className="mt-5 rounded-lg border border-white/10 bg-white/[0.03] p-3 text-xs leading-5 text-zinc-400">
           <p className="font-bold text-zinc-300">Cuentas demo</p>
           <p>Admin: admin@coach.com / 123456</p>
