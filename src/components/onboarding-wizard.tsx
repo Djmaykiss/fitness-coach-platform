@@ -32,6 +32,7 @@ import type { ComponentType } from "react";
 import type { LucideProps } from "lucide-react";
 import { onboardingService } from "@/services/onboarding.service";
 import { onboardingContentService } from "@/services/onboarding-content.service";
+import { BodySilhouette, type BodyTypeKey } from "@/components/onboarding/body-silhouette";
 import { formatDate } from "@/lib/format";
 import { isValidEmail } from "@/lib/validation";
 import type {
@@ -401,6 +402,12 @@ function Step({
   rewards: OnboardingReward[];
   estimatedDate: string;
 }) {
+  // Sexo de la silueta del paso 3: sigue el sexo elegido en el paso 1, con opción
+  // de alternar M/F manualmente (override) sin afectar la respuesta guardada.
+  const [bodySexOverride, setBodySexOverride] = useState<"male" | "female" | null>(null);
+  const bodySex: "male" | "female" =
+    bodySexOverride ?? (data.sex === "Mujer" ? "female" : "male");
+
   if (step === 1) {
     return (
       <div>
@@ -499,16 +506,21 @@ function Step({
           title="¿Con cuál te identificas hoy?"
           subtitle="Elige la figura que más se parece a tu cuerpo ahora mismo. Aquí no se juzga: es tu punto de inicio."
         />
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+        <SexToggle
+          value={bodySex}
+          onChange={(v) => setBodySexOverride(v)}
+        />
+        <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
           {BODY_TYPES.map((body) => (
             <SelectCard
               key={body.key}
               selected={data.bodyType === body.key}
               onClick={() => set("bodyType", body.key)}
               media={
-                <CardMedia
-                  src={body.image}
-                  fallback={<PersonStanding className="text-zinc-500" size={40} />}
+                <SilhouetteMedia
+                  sex={bodySex}
+                  type={body.key as BodyTypeKey}
+                  label={body.label}
                 />
               }
               label={body.label}
@@ -1146,6 +1158,8 @@ function SelectCard({
       type="button"
       onClick={onClick}
       data-selected={selected}
+      aria-pressed={selected}
+      aria-label={label}
       className={`group flex flex-col items-center gap-2 rounded-2xl border p-3 text-center transition duration-300 hover:-translate-y-0.5 active:scale-[0.97] ${
         selected
           ? "border-[#65ff4f] bg-[#65ff4f]/10 shadow-[0_0_30px_-10px_rgba(101,255,79,0.7)]"
@@ -1188,6 +1202,72 @@ function CardMedia({
       ) : (
         fallback
       )}
+    </div>
+  );
+}
+
+/** Selector M/F para la silueta del paso 3 (segmentado, accesible). */
+function SexToggle({
+  value,
+  onChange,
+}: {
+  value: "male" | "female";
+  onChange: (v: "male" | "female") => void;
+}) {
+  const opts: { key: "male" | "female"; label: string }[] = [
+    { key: "male", label: "Hombre" },
+    { key: "female", label: "Mujer" },
+  ];
+  return (
+    <div
+      role="group"
+      aria-label="Sexo de la silueta"
+      className="mx-auto flex w-full max-w-[220px] rounded-xl border border-white/10 bg-white/[0.03] p-1"
+    >
+      {opts.map((o) => {
+        const active = value === o.key;
+        return (
+          <button
+            key={o.key}
+            type="button"
+            aria-pressed={active}
+            onClick={() => onChange(o.key)}
+            className={`flex-1 rounded-lg px-3 py-1.5 text-xs font-bold uppercase tracking-wide transition duration-200 ${
+              active
+                ? "bg-[#65ff4f]/15 text-[#65ff4f] shadow-[0_0_18px_-8px_rgba(101,255,79,0.8)]"
+                : "text-zinc-400 hover:text-zinc-200"
+            }`}
+          >
+            {o.label}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+/**
+ * Media de la tarjeta de tipo de cuerpo: silueta vectorial coloreada con
+ * `currentColor`. El color/estado (neón + glow al seleccionar, brillo al hover) lo
+ * controla el CSS del contenedor via `group-data-[selected]` / `group-hover`.
+ */
+function SilhouetteMedia({
+  sex,
+  type,
+  label,
+}: {
+  sex: "male" | "female";
+  type: BodyTypeKey;
+  label: string;
+}) {
+  return (
+    <div className="relative flex h-28 w-full items-center justify-center overflow-hidden rounded-xl border border-white/5 bg-gradient-to-b from-white/[0.06] to-white/[0.01] sm:h-32">
+      <BodySilhouette
+        sex={sex}
+        type={type}
+        label={label}
+        className="h-full w-auto py-2 text-zinc-400 transition-all duration-300 group-hover:text-zinc-200 group-hover:scale-[1.04] group-data-[selected=true]:scale-[1.06] group-data-[selected=true]:text-[#65ff4f] group-data-[selected=true]:drop-shadow-[0_0_10px_rgba(101,255,79,0.6)]"
+      />
     </div>
   );
 }
