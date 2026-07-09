@@ -31,6 +31,9 @@ import { LocalCoachingRepository } from "@/repositories/local/coaching.repositor
 import { LocalUserRepository } from "@/repositories/local/user.repository";
 import { LocalPlansRepository } from "@/repositories/local/plans.repository";
 import { SupabasePlansRepository } from "@/repositories/supabase/plans.repository";
+import { LocalStorageRepository } from "@/repositories/local/storage.repository";
+import { SupabaseStorageRepository } from "@/repositories/supabase/storage.repository";
+import type { StorageRepository } from "@/repositories/storage.types";
 import type {
   ClientRepository,
   CoachingRepository,
@@ -153,4 +156,10 @@ export const plansRepository: PlansRepository = pickRepository<PlansRepository>(
   "plans",
   new LocalPlansRepository(),
   () => new SupabasePlansRepository(),
+);
+
+export const storageRepository: StorageRepository = pickRepository<StorageRepository>(
+  "storage",
+  new LocalStorageRepository(),
+  () => new SupabaseStorageRepository(),
 );
