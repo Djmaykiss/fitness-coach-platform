@@ -43,6 +43,7 @@ export const STORAGE_KEYS = {
   notificationsRead: "coach-fitness:notifications-read",
   plans: "coach-fitness:plans",
   clientPlans: "coach-fitness:client-plans",
+  mediaAssets: "coach-fitness:media-assets",
 } as const;
 
 const isBrowser = () => typeof window !== "undefined";

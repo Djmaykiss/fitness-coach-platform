@@ -34,6 +34,9 @@ import { SupabasePlansRepository } from "@/repositories/supabase/plans.repositor
 import { LocalStorageRepository } from "@/repositories/local/storage.repository";
 import { SupabaseStorageRepository } from "@/repositories/supabase/storage.repository";
 import type { StorageRepository } from "@/repositories/storage.types";
+import { LocalMediaRepository } from "@/repositories/local/media.repository";
+import { SupabaseMediaRepository } from "@/repositories/supabase/media.repository";
+import type { MediaRepository } from "@/repositories/media.types";
 import type {
   ClientRepository,
   CoachingRepository,
@@ -162,4 +165,10 @@ export const storageRepository: StorageRepository = pickRepository<StorageReposi
   "storage",
   new LocalStorageRepository(),
   () => new SupabaseStorageRepository(),
+);
+
+export const mediaRepository: MediaRepository = pickRepository<MediaRepository>(
+  "media",
+  new LocalMediaRepository(),
+  () => new SupabaseMediaRepository(),
 );

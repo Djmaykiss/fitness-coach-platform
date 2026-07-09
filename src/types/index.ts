@@ -348,6 +348,43 @@ export type CreateProgressPhoto = Omit<ProgressPhoto, "id">;
 
 export type BeforeAfter = { before: string; after: string };
 
+/**
+ * Recurso multimedia (imagen) del coach. Guarda SOLO referencia (bucket/path/url) +
+ * metadata; el binario vive en Storage (Supabase) o IndexedDB (local). Se persiste en
+ * `media_assets`. Las fotos del alumno NO usan este tipo (van en progress/transformation).
+ */
+export type MediaAsset = {
+  id: string;
+  kind: "image";
+  bucket: string;
+  path: string;
+  url: string;
+  thumbPath: string;
+  thumbUrl: string;
+  mime: string;
+  width: number;
+  height: number;
+  size: number;
+  checksum: string;
+  title: string;
+  /** exercise | plan | transformation | article | resource | cover | gallery | library */
+  context: string;
+  /** Entidad dueña (vacío si es de biblioteca general). */
+  ownerKind: string;
+  ownerId: string;
+  metadata: Record<string, unknown>;
+  createdAt: string;
+};
+
+export type CreateMediaAsset = Omit<MediaAsset, "id" | "createdAt">;
+
+/** Filtro de listado de la biblioteca multimedia del coach. */
+export type MediaQuery = {
+  context?: string;
+  ownerKind?: string;
+  ownerId?: string;
+};
+
 /** Entradas para calcular metricas corporales (formulas reales). */
 export type BodyMetricsInput = {
   weightKg: number;
