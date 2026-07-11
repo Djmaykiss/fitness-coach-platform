@@ -7,6 +7,7 @@ import {
 } from "@/repositories";
 import { metricsService } from "@/services/metrics.service";
 import { isDemoContent } from "@/lib/demo";
+import { starterClientProgress } from "@/data/dashboard";
 import {
   beforeAfter,
   bodyMetricsInput,
@@ -25,6 +26,7 @@ import {
 import type {
   Achievement,
   ChatMessage,
+  ChecklistChecks,
   ChecklistItem,
   ChecklistState,
   CoachingDashboard,
@@ -90,6 +92,8 @@ export const coachingService = {
     const client = await clientRepository.findByUserId(userId);
     const clientId = client?.id ?? (demo ? "c-demo" : "");
 
+    // Sin ficha de cliente resuelta (p. ej. producción: alumno sin `clients`): NO se
+    // consulta (un id vacío rompería las queries de Supabase). Dashboard vacío/seguro.
     const [
       photos,
       checks,
@@ -99,16 +103,18 @@ export const coachingService = {
       progress,
       trainingAssignment,
       nutritionAssignment,
-    ] = await Promise.all([
-      coachingRepository.getPhotos(clientId),
-      coachingRepository.getChecks(clientId),
-      coachingRepository.getChat(clientId),
-      trainingProgramRepository.getWorkoutProgress(clientId),
-      nutritionPlanRepository.getMealProgress(clientId),
-      progressRepository.getForClient(clientId),
-      trainingProgramRepository.getAssignment(clientId),
-      nutritionPlanRepository.getAssignment(clientId),
-    ]);
+    ] = clientId
+      ? await Promise.all([
+          coachingRepository.getPhotos(clientId),
+          coachingRepository.getChecks(clientId),
+          coachingRepository.getChat(clientId),
+          trainingProgramRepository.getWorkoutProgress(clientId),
+          nutritionPlanRepository.getMealProgress(clientId),
+          progressRepository.getForClient(clientId),
+          trainingProgramRepository.getAssignment(clientId),
+          nutritionPlanRepository.getAssignment(clientId),
+        ])
+      : [[], {} as ChecklistChecks, [], [], [], starterClientProgress, null, null];
 
     const completedWorkouts = workoutProgress.length;
     const completedMeals = mealProgress.length;

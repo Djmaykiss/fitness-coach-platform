@@ -34,6 +34,7 @@ import type { ComponentType } from "react";
 import type { LucideProps } from "lucide-react";
 import { LineChart } from "@/components/dashboard/charts";
 import { ContentPlaceholder } from "@/components/content-placeholder";
+import { isDemoContent } from "@/lib/demo";
 import { coachingService } from "@/services/coaching.service";
 import { formatDate } from "@/lib/format";
 import type {
@@ -79,6 +80,10 @@ export function PremiumDashboard({ userId }: { userId: string }) {
   }
 
   const clientId = data.clientId;
+  // Producción sin demo: las secciones demo/ficticias (rutina, nutrición, métricas,
+  // recordatorios, objetivos, check-in) SOLO se muestran con demo ON. En producción se
+  // ocultan (no duplican Hoy/Mi plan/Progreso) y se muestra un Empty-State profesional.
+  const demo = isDemoContent();
 
   async function toggle(listKey: string, itemKey: string, done: boolean) {
     await coachingService.toggleCheck(clientId, listKey, itemKey, done);
@@ -94,30 +99,45 @@ export function PremiumDashboard({ userId }: { userId: string }) {
         </h2>
       </div>
 
-      <TransformationBar percent={data.transformationPct} />
-
-      <div className="grid gap-6 [&>*]:min-w-0 lg:grid-cols-[1.2fr_0.8fr]">
-        <GoalCard goal={data.goal} percent={data.transformationPct} />
-        <NextCheckIn checkIn={data.checkIn} />
-      </div>
-
-      <ProgressCharts metrics={data.metrics} />
-
-      <div className="grid gap-6 [&>*]:min-w-0 lg:grid-cols-2">
-        <Measurements items={data.measurements} />
-        <BodyMetricsCard metrics={data.bodyMetrics} />
-      </div>
-
-      <div className="grid gap-6 [&>*]:min-w-0 lg:grid-cols-2">
-        <Compliance data={data.compliance} />
-        <Checklist
-          title="Objetivos de la semana"
-          eyebrow="Semana"
-          icon={Target}
-          state={data.weeklyGoals}
-          onToggle={(key, done) => toggle("weekly-goals", key, done)}
+      {/* Producción sin demo: Empty-State en lugar de las métricas/objetivos ficticios. */}
+      {!demo ? (
+        <ContentPlaceholder
+          icon={Sparkles}
+          title="Aún no hay métricas ni objetivos registrados"
+          message="Tus objetivos, recordatorios, check-ins y métricas aparecerán aquí a medida que tu coach los configure y registres tu progreso. Tu rutina está en “Hoy” y tu nutrición en “Mi plan”."
+          hint={null}
         />
-      </div>
+      ) : null}
+
+      {/* Secciones demo/ficticias: SOLO con demo ON (duplican Hoy/Mi plan/Progreso). */}
+      {demo ? (
+        <>
+          <TransformationBar percent={data.transformationPct} />
+
+          <div className="grid gap-6 [&>*]:min-w-0 lg:grid-cols-[1.2fr_0.8fr]">
+            <GoalCard goal={data.goal} percent={data.transformationPct} />
+            <NextCheckIn checkIn={data.checkIn} />
+          </div>
+
+          <ProgressCharts metrics={data.metrics} />
+
+          <div className="grid gap-6 [&>*]:min-w-0 lg:grid-cols-2">
+            <Measurements items={data.measurements} />
+            <BodyMetricsCard metrics={data.bodyMetrics} />
+          </div>
+
+          <div className="grid gap-6 [&>*]:min-w-0 lg:grid-cols-2">
+            <Compliance data={data.compliance} />
+            <Checklist
+              title="Objetivos de la semana"
+              eyebrow="Semana"
+              icon={Target}
+              state={data.weeklyGoals}
+              onToggle={(key, done) => toggle("weekly-goals", key, done)}
+            />
+          </div>
+        </>
+      ) : null}
 
       <div className="grid gap-6 [&>*]:min-w-0 lg:grid-cols-[1fr_0.8fr]">
         <TrainingCalendar
@@ -129,32 +149,36 @@ export function PremiumDashboard({ userId }: { userId: string }) {
             await load();
           }}
         />
-        <TodayRoutineCard
-          routine={data.routine}
-          status={data.routineStatus}
-          onStart={() => toggle("routine", "started", true)}
-          onComplete={() => toggle("routine", "completed", true)}
-          onReset={async () => {
-            await coachingService.toggleCheck(clientId, "routine", "started", false);
-            await coachingService.toggleCheck(clientId, "routine", "completed", false);
-            await load();
-          }}
-        />
+        {demo ? (
+          <TodayRoutineCard
+            routine={data.routine}
+            status={data.routineStatus}
+            onStart={() => toggle("routine", "started", true)}
+            onComplete={() => toggle("routine", "completed", true)}
+            onReset={async () => {
+              await coachingService.toggleCheck(clientId, "routine", "started", false);
+              await coachingService.toggleCheck(clientId, "routine", "completed", false);
+              await load();
+            }}
+          />
+        ) : null}
       </div>
 
-      <div className="grid gap-6 [&>*]:min-w-0 lg:grid-cols-2">
-        <Nutrition
-          state={data.nutrition}
-          onToggle={(key, done) => toggle("nutrition", key, done)}
-        />
-        <Checklist
-          title="Recordatorios"
-          eyebrow="Hoy"
-          icon={CheckCircle2}
-          state={data.reminders}
-          onToggle={(key, done) => toggle("reminders", key, done)}
-        />
-      </div>
+      {demo ? (
+        <div className="grid gap-6 [&>*]:min-w-0 lg:grid-cols-2">
+          <Nutrition
+            state={data.nutrition}
+            onToggle={(key, done) => toggle("nutrition", key, done)}
+          />
+          <Checklist
+            title="Recordatorios"
+            eyebrow="Hoy"
+            icon={CheckCircle2}
+            state={data.reminders}
+            onToggle={(key, done) => toggle("reminders", key, done)}
+          />
+        </div>
+      ) : null}
 
       <BeforeAfter fallback={data.beforeAfter} photos={data.photos} />
 
