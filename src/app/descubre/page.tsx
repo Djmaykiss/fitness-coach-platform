@@ -3,36 +3,43 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import {
-  Activity,
   ArrowLeft,
   BookOpen,
   Dumbbell,
   Flame,
+  Footprints,
+  HeartPulse,
+  Hexagon,
   ImageIcon,
   Layers,
+  PersonStanding,
   Target,
   Timer,
   Zap,
 } from "lucide-react";
 import { DashboardShell } from "@/layouts/dashboard-shell";
 import { RequireAuth } from "@/components/require-auth";
+import { ContentPlaceholder } from "@/components/content-placeholder";
 import { useAuth } from "@/context/auth-context";
 import { discoverService } from "@/services/discover.service";
 import { exerciseLibraryService } from "@/services/exercise-library.service";
 import type {
   DiscoverArticle,
-  DiscoverCategory,
   DiscoverRoutine,
+  ExerciseCategory,
   LibraryExercise,
 } from "@/types";
 
-/** Icono de categoria por nombre (el coach elige el icono desde el panel). */
+/** Icono por clave de categoría (exercise_categories.icon). */
 const CATEGORY_ICONS: Record<string, React.ReactNode> = {
-  dumbbell: <Dumbbell size={18} />,
-  flame: <Flame size={18} />,
-  activity: <Activity size={18} />,
-  target: <Target size={18} />,
-  zap: <Zap size={18} />,
+  legs: <Footprints size={18} />,
+  chest: <Dumbbell size={18} />,
+  back: <Layers size={18} />,
+  arms: <Zap size={18} />,
+  shoulders: <Target size={18} />,
+  core: <Hexagon size={18} />,
+  cardio: <HeartPulse size={18} />,
+  mobility: <PersonStanding size={18} />,
 };
 
 function categoryIcon(icon: string) {
@@ -53,24 +60,24 @@ function Discover() {
     user?.firstName && user.firstName !== "Cliente" ? user.firstName : "";
 
   const [routines, setRoutines] = useState<DiscoverRoutine[]>([]);
-  const [categories, setCategories] = useState<DiscoverCategory[]>([]);
+  const [categories, setCategories] = useState<ExerciseCategory[]>([]);
   const [articles, setArticles] = useState<DiscoverArticle[]>([]);
   const [library, setLibrary] = useState<LibraryExercise[]>([]);
-  const [openCat, setOpenCat] = useState<DiscoverCategory | null>(null);
+  const [openCat, setOpenCat] = useState<ExerciseCategory | null>(null);
   const [openArticle, setOpenArticle] = useState<DiscoverArticle | null>(null);
 
   useEffect(() => {
     let active = true;
     Promise.all([
       discoverService.getPublishedRoutines(),
-      discoverService.getPublishedCategories(),
       discoverService.getPublishedArticles(),
       exerciseLibraryService.getExercises(),
-    ]).then(([r, c, a, lib]) => {
+      exerciseLibraryService.getCategories(),
+    ]).then(([r, a, lib, cats]) => {
       if (!active) return;
       setRoutines(r);
-      setCategories(c);
       setArticles(a);
+      setCategories(cats);
       // Descubre = catálogo PÚBLICO: solo ejercicios que el coach hizo públicos.
       setLibrary(lib.filter((e) => e.visibility === "public"));
     });
@@ -79,11 +86,12 @@ function Discover() {
     };
   }, []);
 
-  const exercisesFor = (cat: DiscoverCategory) => {
+  // Ejercicios públicos de una categoría (agrupa por categoryId; dedupe por id).
+  const exercisesFor = (cat: ExerciseCategory) => {
     const seen = new Set<string>();
     return library.filter((e) => {
-      if (!cat.muscleGroups.includes(e.muscleGroup)) return false;
-      if (seen.has(e.id)) return false; // dedupe visual dentro de la categoría
+      if (e.categoryId !== cat.id) return false;
+      if (seen.has(e.id)) return false;
       seen.add(e.id);
       return true;
     });
@@ -138,7 +146,7 @@ function Discover() {
         </Row>
       </Section>
 
-      {/* Categorias por zona */}
+      {/* Categorias por zona (taxonomía exercise_categories; solo ejercicios públicos) */}
       <Section icon={<Layers size={18} />} title="Categorías por zona">
         <Row>
           {categories.map((c) => {
@@ -158,8 +166,7 @@ function Discover() {
                 <span className="inline-flex rounded-xl border border-[#65ff4f]/20 bg-[#65ff4f]/10 p-2 text-[#65ff4f]">
                   {categoryIcon(c.icon)}
                 </span>
-                <h3 className="mt-3 font-black">{c.label}</h3>
-                <p className="mt-1 text-xs text-zinc-400">{c.description}</p>
+                <h3 className="mt-3 font-black">{c.name}</h3>
                 <p className="mt-3 text-xs font-bold text-[#65ff4f]">
                   {count} ejercicios
                 </p>
@@ -171,15 +178,20 @@ function Discover() {
         {openCat ? (
           <div className="premium-card mt-4 rounded-2xl p-5">
             <h3 className="text-lg font-black">
-              {openCat.label}{" "}
+              {openCat.name}{" "}
               <span className="text-sm font-bold text-zinc-500">
                 · {exercisesFor(openCat).length} ejercicios
               </span>
             </h3>
             {exercisesFor(openCat).length === 0 ? (
-              <p className="mt-2 text-sm text-zinc-400">
-                Aún no hay ejercicios de esta zona en la biblioteca.
-              </p>
+              <ContentPlaceholder
+                variant="inline"
+                icon={Dumbbell}
+                title={`Aún no hay ejercicios públicos en ${openCat.name}`}
+                message="Tu coach publicará aquí ejercicios de esta categoría."
+                hint={null}
+                className="mt-3"
+              />
             ) : (
               <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
                 {exercisesFor(openCat).map((e) => (

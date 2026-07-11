@@ -638,6 +638,17 @@ export type LibraryExercise = {
    * entrenamiento asignado (un ejercicio privado dentro de un programa se ve/entrena).
    */
   visibility: "private" | "public";
+  /** Categoría (taxonomía `exercise_categories`). "" = sin categoría. NO afecta el entrenamiento. */
+  categoryId: string;
+};
+
+/** Categoría de ejercicios (taxonomía `exercise_categories`, la administra el coach). */
+export type ExerciseCategory = {
+  id: string;
+  name: string;
+  /** Clave de ícono (legs/chest/back/arms/shoulders/core/cardio/mobility). */
+  icon: string;
+  position: number;
 };
 
 /** Datos para crear un ejercicio. La visibilidad NO se elige al crear: nace `private`. */

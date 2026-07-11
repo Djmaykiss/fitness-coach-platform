@@ -26,6 +26,7 @@ export const STORAGE_KEYS = {
   programAssignments: "coach-fitness:program-assignments",
   workoutProgress: "coach-fitness:workout-progress",
   exerciseLibrary: "coach-fitness:exercise-library",
+  exerciseCategories: "coach-fitness:exercise-categories",
   exerciseProgress: "coach-fitness:exercise-progress",
   nutritionPlans: "coach-fitness:nutrition-plans",
   nutritionAssignments: "coach-fitness:nutrition-assignments",

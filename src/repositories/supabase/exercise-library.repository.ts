@@ -1,5 +1,9 @@
 import type { ExerciseLibraryRepository } from "@/repositories/types";
-import type { CreateLibraryExerciseInput, LibraryExercise } from "@/types";
+import type {
+  CreateLibraryExerciseInput,
+  ExerciseCategory,
+  LibraryExercise,
+} from "@/types";
 import { getSupabaseClient } from "@/lib/supabase";
 import { getCurrentOrgId } from "@/repositories/supabase/org-context";
 import { unwrap, unwrapList } from "@/repositories/supabase/query";
@@ -40,6 +44,7 @@ const rowToScalar = (r: Row) => ({
   visibility: (str(r, "visibility") === "public" ? "public" : "private") as
     | "private"
     | "public",
+  categoryId: str(r, "category_id"),
 });
 
 const emptyMedia = (): Record<MediaRole, string> => ({ image: "", gif: "", video: "" });
@@ -87,6 +92,22 @@ export class SupabaseExerciseLibraryRepository implements ExerciseLibraryReposit
     return scalars.map((s) => this.assemble(s, media.get(s.id) ?? emptyMedia()));
   }
 
+  async getCategories(): Promise<ExerciseCategory[]> {
+    const rows = unwrapList(
+      await this.sb()
+        .from("exercise_categories")
+        .select("id, name, icon, position")
+        .is("deleted_at", null)
+        .order("position", { ascending: true }),
+    ) as Row[];
+    return rows.map((r) => ({
+      id: str(r, "id"),
+      name: str(r, "name"),
+      icon: str(r, "icon"),
+      position: Number(r["position"]) || 0,
+    }));
+  }
+
   async getExercise(id: string): Promise<LibraryExercise | null> {
     const { data, error } = await this.sb()
       .from("library_exercises")
@@ -104,6 +125,7 @@ export class SupabaseExerciseLibraryRepository implements ExerciseLibraryReposit
   async createExercise(input: CreateLibraryExerciseInput): Promise<LibraryExercise> {
     const scalarInput = omit(input as Row, ["image", "gif", "video"]);
     const row = { ...keysToSnake(scalarInput) };
+    if (row.category_id === "") row.category_id = null; // FK uuid: "" -> null
     // `organization_id` lo fija el resolver; created_by opcional.
     const orgId = await this.requireOrg();
     row.organization_id = orgId;
@@ -138,6 +160,7 @@ export class SupabaseExerciseLibraryRepository implements ExerciseLibraryReposit
     const orgId = str(existing as Row, "organization_id");
 
     const scalarPatch = keysToSnake(definedOnly(omit(patch as Row, ["image", "gif", "video"])));
+    if (scalarPatch.category_id === "") scalarPatch.category_id = null; // FK uuid: "" -> null
     if (Object.keys(scalarPatch).length > 0) {
       const { error } = await this.sb().from("library_exercises").update(scalarPatch).eq("id", id);
       if (error) throw new Error(error.message);

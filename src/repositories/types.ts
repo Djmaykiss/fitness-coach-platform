@@ -18,6 +18,7 @@ import type {
   CreateTrainingExercise,
   CreateTrainingProgramInput,
   Credentials,
+  ExerciseCategory,
   LibraryExercise,
   NutritionPlan,
   Plan,
@@ -348,6 +349,8 @@ export interface NutritionPlanRepository {
 export interface ExerciseLibraryRepository {
   getExercises(): Promise<LibraryExercise[]>;
   getExercise(id: string): Promise<LibraryExercise | null>;
+  /** Categorías de la org (taxonomía `exercise_categories`), por `position`. */
+  getCategories(): Promise<ExerciseCategory[]>;
   createExercise(input: CreateLibraryExerciseInput): Promise<LibraryExercise>;
   updateExercise(
     id: string,

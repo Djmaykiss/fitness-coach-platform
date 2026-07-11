@@ -8,6 +8,7 @@ import type { CreateLibraryExerciseInput } from "@/types";
 export const exerciseLibraryService = {
   getExercises: () => exerciseLibraryRepository.getExercises(),
   getExercise: (id: string) => exerciseLibraryRepository.getExercise(id),
+  getCategories: () => exerciseLibraryRepository.getCategories(),
   createExercise: (input: CreateLibraryExerciseInput) =>
     exerciseLibraryRepository.createExercise(input),
   updateExercise: (id: string, patch: Partial<CreateLibraryExerciseInput>) =>

@@ -5,7 +5,11 @@ import { Dumbbell, Eye, EyeOff, Pencil, Plus, Trash2 } from "lucide-react";
 import { exerciseLibraryService } from "@/services/exercise-library.service";
 import { useToast } from "@/context/toast-context";
 import { isBlank, isValidVideoOrEmpty } from "@/lib/validation";
-import type { CreateLibraryExerciseInput, LibraryExercise } from "@/types";
+import type {
+  CreateLibraryExerciseInput,
+  ExerciseCategory,
+  LibraryExercise,
+} from "@/types";
 
 const DIFFICULTIES = ["Principiante", "Intermedio", "Avanzado"];
 
@@ -31,13 +35,26 @@ type Panel =
 export function ExerciseLibraryManager() {
   const toast = useToast();
   const [exercises, setExercises] = useState<LibraryExercise[]>([]);
+  const [categories, setCategories] = useState<ExerciseCategory[]>([]);
+  const [filterCat, setFilterCat] = useState("");
   const [loaded, setLoaded] = useState(false);
   const [panel, setPanel] = useState<Panel>(null);
 
   async function load() {
-    setExercises(await exerciseLibraryService.getExercises());
+    const [ex, cats] = await Promise.all([
+      exerciseLibraryService.getExercises(),
+      exerciseLibraryService.getCategories(),
+    ]);
+    setExercises(ex);
+    setCategories(cats);
     setLoaded(true);
   }
+
+  const categoryName = (id: string) =>
+    categories.find((c) => c.id === id)?.name ?? "";
+  const visible = filterCat
+    ? exercises.filter((e) => e.categoryId === filterCat)
+    : exercises;
 
   async function toggleVisibility(ex: LibraryExercise) {
     const next = ex.visibility === "public" ? "private" : "public";
@@ -80,6 +97,7 @@ export function ExerciseLibraryManager() {
             {panel.kind === "create" ? (
               <ExerciseForm
                 title="Nuevo ejercicio"
+                categories={categories}
                 onCancel={() => setPanel(null)}
                 onSubmit={async (values) => {
                   try {
@@ -97,6 +115,7 @@ export function ExerciseLibraryManager() {
               <ExerciseForm
                 title={`Editar: ${panel.exercise.name}`}
                 initial={panel.exercise}
+                categories={categories}
                 onCancel={() => setPanel(null)}
                 onSubmit={async (values) => {
                   try {
@@ -128,15 +147,39 @@ export function ExerciseLibraryManager() {
           </div>
         ) : null}
 
+        {loaded && exercises.length > 0 ? (
+          <div className="mb-4 flex flex-wrap items-center gap-2">
+            <span className="text-xs font-bold uppercase tracking-wide text-zinc-500">
+              Filtrar por categoría
+            </span>
+            <select
+              value={filterCat}
+              onChange={(e) => setFilterCat(e.target.value)}
+              className="h-9 rounded-lg border border-white/10 bg-black/35 px-3 text-sm text-white outline-none focus:border-[#65ff4f]"
+            >
+              <option value="" className="bg-[#0a0d0b]">Todas</option>
+              {categories.map((c) => (
+                <option key={c.id} value={c.id} className="bg-[#0a0d0b]">
+                  {c.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        ) : null}
+
         {!loaded ? (
           <p className="text-sm text-zinc-400">Cargando biblioteca...</p>
         ) : exercises.length === 0 ? (
           <p className="text-sm text-zinc-400">
             Aún no hay ejercicios. Crea el primero.
           </p>
+        ) : visible.length === 0 ? (
+          <p className="text-sm text-zinc-400">
+            No hay ejercicios en esta categoría.
+          </p>
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {exercises.map((ex) => (
+            {visible.map((ex) => (
               <article
                 key={ex.id}
                 className="flex flex-col rounded-2xl border border-white/10 bg-white/[0.03] p-5"
@@ -146,6 +189,11 @@ export function ExerciseLibraryManager() {
                   {ex.name}
                 </p>
                 <div className="mt-3 flex flex-wrap gap-2 text-xs font-bold">
+                  {categoryName(ex.categoryId) ? (
+                    <span className="inline-flex items-center rounded-lg border border-[#65ff4f]/25 bg-[#65ff4f]/[0.08] px-3 py-1 text-[#65ff4f]">
+                      {categoryName(ex.categoryId)}
+                    </span>
+                  ) : null}
                   <Chip>{ex.muscleGroup || "—"}</Chip>
                   <Chip>{ex.difficulty || "—"}</Chip>
                   {ex.equipment ? <Chip>{ex.equipment}</Chip> : null}
@@ -205,11 +253,13 @@ function Chip({ children }: { children: React.ReactNode }) {
 function ExerciseForm({
   title,
   initial,
+  categories,
   onSubmit,
   onCancel,
 }: {
   title: string;
   initial?: LibraryExercise;
+  categories: ExerciseCategory[];
   onSubmit: (values: CreateLibraryExerciseInput) => Promise<void>;
   onCancel: () => void;
 }) {
@@ -230,6 +280,7 @@ function ExerciseForm({
     substitutions: initial?.substitutions ?? "",
     recommendedTime: initial?.recommendedTime ?? "",
     recommendedRest: initial?.recommendedRest ?? "",
+    categoryId: initial?.categoryId ?? "",
   });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -260,6 +311,21 @@ function ExerciseForm({
       <Legend>Datos básicos</Legend>
       <div className="grid gap-3 sm:grid-cols-2">
         <Text label="Nombre" value={v.name} onChange={(x) => set("name", x)} required />
+        <label className="block text-sm font-bold text-zinc-200">
+          Categoría
+          <select
+            value={v.categoryId}
+            onChange={(e) => set("categoryId", e.target.value)}
+            className="mt-2 h-11 w-full rounded-lg border border-white/10 bg-black/35 px-3 text-white outline-none focus:border-[#65ff4f]"
+          >
+            <option value="" className="bg-[#0a0d0b]">— Sin categoría —</option>
+            {categories.map((c) => (
+              <option key={c.id} value={c.id} className="bg-[#0a0d0b]">
+                {c.name}
+              </option>
+            ))}
+          </select>
+        </label>
         <Text label="Grupo muscular" value={v.muscleGroup} onChange={(x) => set("muscleGroup", x)} placeholder="Ej: Pecho" />
         <Text label="Músculos secundarios" value={v.secondaryMuscles} onChange={(x) => set("secondaryMuscles", x)} placeholder="Ej: Tríceps, hombro" />
         <Text label="Equipo" value={v.equipment} onChange={(x) => set("equipment", x)} placeholder="Ej: Barra y banco" />

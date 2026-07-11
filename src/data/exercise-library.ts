@@ -1,4 +1,5 @@
 import type { LibraryExercise } from "@/types";
+import { categoryIdForMuscleGroup } from "@/data/exercise-categories";
 
 /**
  * Biblioteca de ejercicios inicial (seed). El coach la gestiona en `/admin` y al
@@ -33,6 +34,7 @@ function ex(
     recommendedTime: "",
     recommendedRest: "",
     visibility: "public", // seed demo: visibles en Descubre (solo modo demo/local)
+    categoryId: categoryIdForMuscleGroup(muscleGroup),
     ...data,
   };
 }

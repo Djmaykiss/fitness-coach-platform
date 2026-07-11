@@ -1,4 +1,5 @@
 import { exerciseLibrarySeed } from "@/data/exercise-library";
+import { exerciseCategoriesSeed } from "@/data/exercise-categories";
 import { resolveMock } from "@/repositories/async";
 import type { ExerciseLibraryRepository } from "@/repositories/types";
 import {
@@ -6,7 +7,11 @@ import {
   readCollection,
   writeCollection,
 } from "@/lib/local-store";
-import type { CreateLibraryExerciseInput, LibraryExercise } from "@/types";
+import type {
+  CreateLibraryExerciseInput,
+  ExerciseCategory,
+  LibraryExercise,
+} from "@/types";
 
 /** Biblioteca de ejercicios del coach, persistida en localStorage. */
 export class LocalExerciseLibraryRepository
@@ -25,6 +30,14 @@ export class LocalExerciseLibraryRepository
 
   getExercises() {
     return resolveMock(this.read());
+  }
+
+  getCategories() {
+    const cats = readCollection<ExerciseCategory>(
+      STORAGE_KEYS.exerciseCategories,
+      exerciseCategoriesSeed,
+    );
+    return resolveMock([...cats].sort((a, b) => a.position - b.position));
   }
 
   getExercise(id: string) {
