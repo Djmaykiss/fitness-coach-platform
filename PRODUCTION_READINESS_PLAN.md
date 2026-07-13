@@ -1,8 +1,9 @@
 # Producción sin demo — Inventario y plan
 
-> Estado: **DISEÑO** (sin código, sin commit, sin push). Nueva filosofía: la app es
-> PRODUCCIÓN. Nada de demo visible para clientes; una instalación nueva empieza VACÍA; el
-> contenido lo crea el coach. Los seeds solo existen para desarrollo local/pruebas internas.
+> Estado: **IMPLEMENTADA ✅** (P1, P2, P2-B, P3, E6 hechos, verificados y commiteados;
+> pusheados a `origin/main`). Nueva filosofía: la app es PRODUCCIÓN. Nada de demo visible
+> para clientes; una instalación nueva empieza VACÍA; el contenido lo crea el coach. Los
+> seeds solo existen para desarrollo local/pruebas internas (gateados por `isDemoContent()`).
 
 ## Principio permanente (nuevo)
 ```

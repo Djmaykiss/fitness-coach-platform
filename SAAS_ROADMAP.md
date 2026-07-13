@@ -17,9 +17,15 @@ Coach crea → Coach administra → Coach publica → Coach asigna → Alumno co
 
 ## Orden definitivo (5 fases)
 
-### FASE 1 — Eliminar la filosofía demo (producción-ready)
+### FASE 1 — Eliminar la filosofía demo (producción-ready) — ✅ COMPLETA
 Nada de contenido ficticio ni seeds visibles; Empty-States profesionales; todo administrado
 por el coach; instalación/organización nueva empieza vacía.
+- HECHO: P1 (flag `isDemoContent` + `ContentPlaceholder`), P2 (landing + dashboard alumno
+  con placeholders), P2-B (ocultar secciones demo del PremiumDashboard), P3 (gatear la
+  siembra local: `readSeededCollection`/`readSeededRecord`), E6 (limpieza de datos demo en
+  Supabase, scripts revisables). Verificado end-to-end: local demo ON/OFF, Supabase demo
+  OFF, login coach/alumno, landing/biblioteca/Descubre/entrenamiento/dashboards sin
+  ficticios, clientes reales intactos. Detalle: `PRODUCTION_READINESS_PLAN.md`.
 - Detalle y checklist: **`PRODUCTION_READINESS_PLAN.md`** (P1–P5 + REGLA de empty-state).
 - Incluye: flag `NEXT_PUBLIC_DEMO_CONTENT` (default `false`); gatear landing (Mock),
   login (bloque demo) y dashboard (`coaching.service`) → placeholders; gatear la siembra
