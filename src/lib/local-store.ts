@@ -12,6 +12,7 @@
  * MIGRACION FUTURA: para pasar a una base de datos real solo se cambian las
  * implementaciones `Local*Repository` por unas nuevas; este archivo desaparece.
  */
+import { isDemoContent } from "@/lib/demo";
 
 export const STORAGE_KEYS = {
   users: "coach-fitness:users",
@@ -127,4 +128,23 @@ export function writeRecord<T>(key: string, value: Record<string, T>): void {
   } catch {
     /* idem */
   }
+}
+
+/**
+ * Siembra local GATEADA por contenido demo (Fase 1 · P3). Igual que
+ * `readCollection`/`readRecord`, pero SOLO usa el `seed` cuando el contenido demo está
+ * activo (`isDemoContent()`); si no (producción / demo off) siembra VACÍO -> el
+ * localStorage arranca vacío como una instalación de producción. No borra datos
+ * existentes: solo controla la SIEMBRA INICIAL (la primera vez que la clave no existe).
+ * Los datos ya guardados por el usuario se leen igual en ambos modos.
+ */
+export function readSeededCollection<T>(key: string, seed: T[]): T[] {
+  return readCollection<T>(key, isDemoContent() ? seed : []);
+}
+
+export function readSeededRecord<T>(
+  key: string,
+  seed: Record<string, T>,
+): Record<string, T> {
+  return readRecord<T>(key, isDemoContent() ? seed : {});
 }

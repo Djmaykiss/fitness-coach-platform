@@ -6,8 +6,9 @@ import { resolveMock } from "@/repositories/async";
 import type { TrainingProgramRepository } from "@/repositories/types";
 import {
   STORAGE_KEYS,
-  readCollection,
+  readSeededCollection,
   readRecord,
+  readSeededRecord,
   writeCollection,
   writeRecord,
 } from "@/lib/local-store";
@@ -30,7 +31,7 @@ export class LocalTrainingProgramRepository
   implements TrainingProgramRepository
 {
   private readPrograms(): TrainingProgram[] {
-    return readCollection<TrainingProgram>(
+    return readSeededCollection<TrainingProgram>(
       STORAGE_KEYS.trainingPrograms,
       trainingProgramsSeed,
     );
@@ -207,7 +208,7 @@ export class LocalTrainingProgramRepository
 
   /* ---- Asignaciones (clientId -> programId) ---- */
   private readAssignments(): Record<string, string> {
-    return readRecord<string>(
+    return readSeededRecord<string>(
       STORAGE_KEYS.programAssignments,
       programAssignmentsSeed,
     );

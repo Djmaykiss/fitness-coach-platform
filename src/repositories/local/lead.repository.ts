@@ -3,7 +3,7 @@ import { resolveMock } from "@/repositories/async";
 import type { LeadRepository } from "@/repositories/types";
 import {
   STORAGE_KEYS,
-  readCollection,
+  readSeededCollection,
   writeCollection,
 } from "@/lib/local-store";
 import type {
@@ -16,7 +16,7 @@ import type {
 /** Leads persistidos en localStorage (creados desde la landing, gestionados en /admin). */
 export class LocalLeadRepository implements LeadRepository {
   private read(): Lead[] {
-    return readCollection<Lead>(STORAGE_KEYS.leads, seedLeads);
+    return readSeededCollection<Lead>(STORAGE_KEYS.leads, seedLeads);
   }
 
   private write(leads: Lead[]): void {

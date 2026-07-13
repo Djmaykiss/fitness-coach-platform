@@ -6,8 +6,9 @@ import { resolveMock } from "@/repositories/async";
 import type { NutritionPlanRepository } from "@/repositories/types";
 import {
   STORAGE_KEYS,
-  readCollection,
+  readSeededCollection,
   readRecord,
+  readSeededRecord,
   writeCollection,
   writeRecord,
 } from "@/lib/local-store";
@@ -26,7 +27,7 @@ function id(prefix: string): string {
 /** Planes de nutricion, asignaciones y progreso de comidas, en localStorage. */
 export class LocalNutritionPlanRepository implements NutritionPlanRepository {
   private readPlans(): NutritionPlan[] {
-    return readCollection<NutritionPlan>(
+    return readSeededCollection<NutritionPlan>(
       STORAGE_KEYS.nutritionPlans,
       nutritionPlansSeed,
     );
@@ -137,7 +138,7 @@ export class LocalNutritionPlanRepository implements NutritionPlanRepository {
 
   /* ---- Asignaciones (clientId -> planId) ---- */
   private readAssignments(): Record<string, string> {
-    return readRecord<string>(
+    return readSeededRecord<string>(
       STORAGE_KEYS.nutritionAssignments,
       nutritionAssignmentsSeed,
     );

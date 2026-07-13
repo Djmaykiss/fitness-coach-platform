@@ -3,8 +3,8 @@ import { resolveMock } from "@/repositories/async";
 import type { PlansRepository } from "@/repositories/types";
 import {
   STORAGE_KEYS,
-  readCollection,
-  readRecord,
+  readSeededCollection,
+  readSeededRecord,
   writeCollection,
   writeRecord,
 } from "@/lib/local-store";
@@ -17,7 +17,7 @@ function id(): string {
 /** Planes comerciales + planes contratados, persistidos en localStorage. */
 export class LocalPlansRepository implements PlansRepository {
   private read(): Plan[] {
-    return readCollection<Plan>(STORAGE_KEYS.plans, plansSeed)
+    return readSeededCollection<Plan>(STORAGE_KEYS.plans, plansSeed)
       .slice()
       .sort((a, b) => a.position - b.position);
   }
@@ -86,12 +86,12 @@ export class LocalPlansRepository implements PlansRepository {
   }
 
   getClientPlan(clientId: string) {
-    const record = readRecord<ClientPlan>(STORAGE_KEYS.clientPlans, clientPlansSeed);
+    const record = readSeededRecord<ClientPlan>(STORAGE_KEYS.clientPlans, clientPlansSeed);
     return resolveMock<ClientPlan | null>(record[clientId] ?? null);
   }
 
   assignPlan(clientId: string, planId: string, planName: string) {
-    const record = readRecord<ClientPlan>(STORAGE_KEYS.clientPlans, clientPlansSeed);
+    const record = readSeededRecord<ClientPlan>(STORAGE_KEYS.clientPlans, clientPlansSeed);
     const now = new Date();
     const contract: ClientPlan = {
       planId,

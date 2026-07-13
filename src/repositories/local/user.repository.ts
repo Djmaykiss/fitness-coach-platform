@@ -3,7 +3,7 @@ import { resolveMock } from "@/repositories/async";
 import type { UserRepository } from "@/repositories/types";
 import {
   STORAGE_KEYS,
-  readCollection,
+  readSeededCollection,
   writeCollection,
 } from "@/lib/local-store";
 import type { Credentials, RegisterInput, User } from "@/types";
@@ -11,7 +11,7 @@ import type { Credentials, RegisterInput, User } from "@/types";
 /** Usuarios persistidos en localStorage (sembrados con los usuarios demo). */
 export class LocalUserRepository implements UserRepository {
   private read(): User[] {
-    return readCollection<User>(STORAGE_KEYS.users, seedUsers);
+    return readSeededCollection<User>(STORAGE_KEYS.users, seedUsers);
   }
 
   private write(users: User[]): void {

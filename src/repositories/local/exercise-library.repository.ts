@@ -4,7 +4,7 @@ import { resolveMock } from "@/repositories/async";
 import type { ExerciseLibraryRepository } from "@/repositories/types";
 import {
   STORAGE_KEYS,
-  readCollection,
+  readSeededCollection,
   writeCollection,
 } from "@/lib/local-store";
 import type {
@@ -18,7 +18,7 @@ export class LocalExerciseLibraryRepository
   implements ExerciseLibraryRepository
 {
   private read(): LibraryExercise[] {
-    return readCollection<LibraryExercise>(
+    return readSeededCollection<LibraryExercise>(
       STORAGE_KEYS.exerciseLibrary,
       exerciseLibrarySeed,
     );
@@ -33,7 +33,7 @@ export class LocalExerciseLibraryRepository
   }
 
   getCategories() {
-    const cats = readCollection<ExerciseCategory>(
+    const cats = readSeededCollection<ExerciseCategory>(
       STORAGE_KEYS.exerciseCategories,
       exerciseCategoriesSeed,
     );

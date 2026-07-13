@@ -4,6 +4,7 @@ import type { CoachingRepository } from "@/repositories/types";
 import {
   STORAGE_KEYS,
   readRecord,
+  readSeededRecord,
   writeRecord,
 } from "@/lib/local-store";
 import type {
@@ -21,7 +22,7 @@ export class LocalCoachingRepository implements CoachingRepository {
   /* ---- Fotos de progreso ---- */
   private readPhotos(): Record<string, ProgressPhoto[]> {
     // Se siembra el cliente demo con fotos de ejemplo.
-    return readRecord<ProgressPhoto[]>(STORAGE_KEYS.progressPhotos, {
+    return readSeededRecord<ProgressPhoto[]>(STORAGE_KEYS.progressPhotos, {
       "c-demo": progressPhotosSeed,
     });
   }
@@ -66,7 +67,7 @@ export class LocalCoachingRepository implements CoachingRepository {
   /* ---- Chat con el coach ---- */
   private readChat(): Record<string, ChatMessage[]> {
     // El cliente demo arranca con la conversacion de ejemplo.
-    return readRecord<ChatMessage[]>(STORAGE_KEYS.coachingChat, {
+    return readSeededRecord<ChatMessage[]>(STORAGE_KEYS.coachingChat, {
       "c-demo": chatDemo,
     });
   }

@@ -1,13 +1,13 @@
 import { seedProgress, starterClientProgress } from "@/data/dashboard";
 import { resolveMock } from "@/repositories/async";
 import type { ProgressRepository } from "@/repositories/types";
-import { STORAGE_KEYS, readRecord, writeRecord } from "@/lib/local-store";
+import { STORAGE_KEYS, readSeededRecord, writeRecord } from "@/lib/local-store";
 import type { ClientProgress } from "@/types";
 
 /** Progreso basico, persistido por id de cliente. */
 export class LocalProgressRepository implements ProgressRepository {
   private read(): Record<string, ClientProgress> {
-    return readRecord<ClientProgress>(STORAGE_KEYS.progress, seedProgress);
+    return readSeededRecord<ClientProgress>(STORAGE_KEYS.progress, seedProgress);
   }
 
   getForClient(clientId: string) {

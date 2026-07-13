@@ -3,7 +3,7 @@ import { resolveMock } from "@/repositories/async";
 import type { ProgramRepository } from "@/repositories/types";
 import {
   STORAGE_KEYS,
-  readCollection,
+  readSeededCollection,
   writeCollection,
 } from "@/lib/local-store";
 import type { CreateProgramInput, ProgramRow } from "@/types";
@@ -18,7 +18,7 @@ export class LocalProgramRepository implements ProgramRepository {
   }
 
   private readRows(): ProgramRow[] {
-    return readCollection<ProgramRow>(STORAGE_KEYS.programs, seedProgramRows);
+    return readSeededCollection<ProgramRow>(STORAGE_KEYS.programs, seedProgramRows);
   }
 
   getProgramRows() {

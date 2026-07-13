@@ -103,9 +103,23 @@ la **Categoría A (no gateada)** con un interruptor de demo explícito.
   muestran **placeholder profesional**. NUNCA rutina/nutrición/métricas/recordatorios/
   objetivos falsos. (Pendiente de implementar en la continuación de P2.)
 
-### P3 — Gatear también la siembra local (para poder probar "modo producción" en local)
-- `readCollection(key, isDemoContent() ? seed : [])` (y equivalente en `readRecord`) → en
-  local con demo=off, las colecciones arrancan **vacías** (útil para QA realista).
+### P3 — Gatear la siembra local — ✅ HECHO
+- `src/lib/local-store.ts`: nuevos helpers `readSeededCollection`/`readSeededRecord` =
+  `readCollection`/`readRecord` pero SOLO siembran el seed si `isDemoContent()`; si no,
+  siembran **vacío** (`[]`/`{}`). No borran datos existentes: solo controlan la SIEMBRA
+  INICIAL. Los `Local*Repository` con seed demo pasaron a usar estos helpers.
+- SEEDS GATEADOS (17 call-sites): usuarios, clientes, ejercicios (+categorías), programas
+  de entrenamiento (+asignación), nutrición (+asignación), leads, planes comerciales
+  (+client_plans), descubre (rutinas/categorías/artículos), onboarding (mensajes/
+  recompensas/predicciones), fotos de progreso demo, chat demo, `program-rows` de la
+  landing, `client-progress` demo. NO gateados (ya sembraban vacío o son datos del
+  usuario): checklists, workout/exercise/nutrition progress, workout-results, crm,
+  notifications-read, media-assets. Marketing `Mock*` (testimonios/transformaciones) ya
+  estaba gateado en P2 a nivel de sección de la landing.
+- Verificado: LOCAL demo ON (localStorage limpio) siembra 2 usuarios + 12 ejercicios y
+  login demo funciona; LOCAL demo OFF NO siembra nada (login demo FALLA, 0 seeds) y
+  **registrar** crea datos reales (1 user + 1 client); SUPABASE demo OFF intacto (no usa
+  `Local*`). Lint + build limpios.
 
 ### P4 — Higiene de datos en Supabase (Categoría A.4)
 - Script revisable `supabase/seed/0104_cleanup_demo.sql`: **lista** y luego **soft-delete**

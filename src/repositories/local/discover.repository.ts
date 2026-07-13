@@ -7,7 +7,7 @@ import { resolveMock } from "@/repositories/async";
 import type { DiscoverRepository } from "@/repositories/types";
 import {
   STORAGE_KEYS,
-  readCollection,
+  readSeededCollection,
   writeCollection,
 } from "@/lib/local-store";
 import type {
@@ -34,7 +34,7 @@ type Publishable = { id: string; published: boolean };
  */
 export class LocalDiscoverRepository implements DiscoverRepository {
   private read<T>(key: string, seed: T[]): T[] {
-    return readCollection<T>(key, seed);
+    return readSeededCollection<T>(key, seed);
   }
 
   private create<T extends Publishable, I>(

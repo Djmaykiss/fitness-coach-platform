@@ -3,7 +3,7 @@ import { resolveMock } from "@/repositories/async";
 import type { ClientRepository } from "@/repositories/types";
 import {
   STORAGE_KEYS,
-  readCollection,
+  readSeededCollection,
   writeCollection,
 } from "@/lib/local-store";
 import type { Client, CreateClientInput } from "@/types";
@@ -11,7 +11,7 @@ import type { Client, CreateClientInput } from "@/types";
 /** Clientes/alumnos persistidos (visibles y editables en el panel admin). */
 export class LocalClientRepository implements ClientRepository {
   private read(): Client[] {
-    return readCollection<Client>(STORAGE_KEYS.clients, seedClients);
+    return readSeededCollection<Client>(STORAGE_KEYS.clients, seedClients);
   }
 
   private write(clients: Client[]): void {
