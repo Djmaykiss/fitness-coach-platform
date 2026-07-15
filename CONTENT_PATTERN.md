@@ -70,8 +70,20 @@ Coach crea (draft)
 ## 5. Módulos que usarán este patrón
 Ejercicios · Programas · Nutrición · Planes · Recursos · Artículos · Transformaciones ·
 Testimonios · Biblioteca multimedia · Descubre.
-- **Referencia ya implementada**: **Ejercicios** (Privado/Público + categorías + Descubre +
-  entrenamiento independiente del estado). Es el patrón "módulo de catálogo" ejemplar.
+- **Referencia de "catálogo"**: **Ejercicios** (Privado/Público + categorías + Descubre +
+  entrenamiento independiente del estado).
+- **Referencia de "contenido público de landing" (implementada ✅)**: **Testimonios**
+  (`supabase/migrations/0022_testimonials.sql`). Es la PLANTILLA exacta a replicar en los
+  módulos de landing (Transformaciones, etc.): entidad org-scoped + `status`
+  draft/public/archived + `position` (reordenar) + `metadata` + soft-delete + imagen opcional
+  por Media Manager (`image_media_id` -> `media_assets`); repos Local/Supabase en paridad
+  (`pickRepository`), `service`, manager del coach (CRUD + publicar/despublicar/archivar/
+  restaurar + reordenar + `<ImageUploader>`), sección de landing **cliente** que muestra solo
+  `public` con **Empty-State**; RLS staff-CRUD + lectura pública anon/miembros de `public`, y
+  una policy ADITIVA `media_assets_public_<modulo>` que deja a anon leer SOLO los media
+  ligados a filas `public` (sin exponer privados/borradores/otros módulos), sin tocar la
+  policy base de `media_assets` (0008). Verificado end-to-end (local demo ON/OFF + Supabase +
+  anon + RLS de imagen).
 
 ## 6. Tablas: reutilizar vs. ajuste aditivo vs. nueva
 **Reutilizar tal cual (ya cumplen el patrón):**
@@ -106,9 +118,7 @@ Testimonios · Biblioteca multimedia · Descubre.
   tabla nueva. Solo crear tabla si necesita campos propios que no encajen en `metadata`.
 
 ## 7. Orden recomendado de Fase 2 (de MENOR a MAYOR riesgo)
-1. **Testimonios** (tabla nueva `testimonials`) — aislado, solo landing, sin asignaciones ni
-   estructura anidada. Sirve de plantilla del "módulo de catálogo" universal (CRUD + status
-   + Empty-State + RLS + Local/Supabase). **Menor blast radius.**
+1. **Testimonios** (tabla `testimonials`) — ✅ **HECHO** (módulo de referencia de landing).
 2. **Transformaciones (marketing)** (tabla nueva `transformations`) — igual de aislado;
    reutiliza el Media Manager para las imágenes Antes/Después.
 3. **Recursos** (sobre `media_assets` context='resource') + **Artículos** (`discover_articles`
