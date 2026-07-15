@@ -17,7 +17,8 @@ import { SupabaseNotificationsRepository } from "@/repositories/supabase/notific
 import { SupabaseUserRepository } from "@/repositories/supabase/user.repository";
 import { LocalCrmRepository } from "@/repositories/local/crm.repository";
 import { LocalNotificationsRepository } from "@/repositories/local/notifications.repository";
-import { MockTestimonialRepository } from "@/repositories/mock/testimonial.repository";
+import { LocalTestimonialRepository } from "@/repositories/local/testimonial.repository";
+import { SupabaseTestimonialRepository } from "@/repositories/supabase/testimonial.repository";
 import { MockTransformationRepository } from "@/repositories/mock/transformation.repository";
 import { LocalClientRepository } from "@/repositories/local/client.repository";
 import { LocalLeadRepository } from "@/repositories/local/lead.repository";
@@ -77,7 +78,11 @@ import { pickRepository } from "@/repositories/backend";
 /* --- No migran: marketing estatico (Mock*) + ProgramRow legacy + pending (localStorage) --- */
 export const programRepository: ProgramRepository = new LocalProgramRepository();
 export const testimonialRepository: TestimonialRepository =
-  new MockTestimonialRepository();
+  pickRepository<TestimonialRepository>(
+    "testimonials",
+    new LocalTestimonialRepository(),
+    () => new SupabaseTestimonialRepository(),
+  );
 export const transformationRepository: TransformationRepository =
   new MockTransformationRepository();
 export const contentRepository: ContentRepository = new MockContentRepository();

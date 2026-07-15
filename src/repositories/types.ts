@@ -1,6 +1,7 @@
 import type {
   Benefit,
   BusinessSettings,
+  ContentStatus,
   CrmRecord,
   CrmStage,
   ChatMessage,
@@ -8,6 +9,7 @@ import type {
   Client,
   ClientProgress,
   CreateClientInput,
+  CreateTestimonialInput,
   CreateEvaluationLeadInput,
   CreateLeadInput,
   CreateProgramInput,
@@ -72,7 +74,19 @@ export interface ProgramRepository {
 }
 
 export interface TestimonialRepository {
+  /** Coach: TODOS los testimonios de la org (cualquier estado), por `position`. */
   getTestimonials(): Promise<Testimonial[]>;
+  /** Landing: solo `status='public'`, por `position`. */
+  getPublishedTestimonials(): Promise<Testimonial[]>;
+  createTestimonial(input: CreateTestimonialInput): Promise<Testimonial>;
+  updateTestimonial(
+    id: string,
+    patch: Partial<CreateTestimonialInput>,
+  ): Promise<Testimonial | null>;
+  setStatus(id: string, status: ContentStatus): Promise<Testimonial | null>;
+  reorder(orderedIds: string[]): Promise<void>;
+  /** Soft-delete. */
+  deleteTestimonial(id: string): Promise<boolean>;
 }
 
 export interface TransformationRepository {

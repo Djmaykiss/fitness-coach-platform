@@ -9,6 +9,7 @@ import {
   CircleDollarSign,
   ClipboardList,
   CreditCard,
+  MessageSquareQuote,
   Dumbbell,
   FileText,
   LayoutDashboard,
@@ -44,6 +45,7 @@ import { BusinessSettingsManager } from "@/components/admin/business-settings";
 import { CrmPipeline } from "@/components/admin/crm-pipeline";
 import { NotificationsCenter } from "@/components/admin/notifications-center";
 import { PlansManager } from "@/components/admin/plans-manager";
+import { TestimonialsManager } from "@/components/admin/testimonials-manager";
 import { useToast } from "@/context/toast-context";
 import { adminDashboardService } from "@/services/dashboard.service";
 import { leadService } from "@/services/lead.service";
@@ -137,6 +139,7 @@ const CONTENT_TABS = [
   { key: "descubre", label: "Descubre", icon: BookOpen },
   { key: "onboarding", label: "Onboarding", icon: Sparkles },
   { key: "planes", label: "Planes", icon: CreditCard },
+  { key: "testimonios", label: "Testimonios", icon: MessageSquareQuote },
 ];
 
 export function AdminPanel({
@@ -498,6 +501,9 @@ export function AdminPanel({
 
           {/* Planes comerciales */}
           {contentTab === "planes" ? <PlansManager /> : null}
+
+          {/* Testimonios (módulo de referencia del patrón universal) */}
+          {contentTab === "testimonios" ? <TestimonialsManager /> : null}
         </div>
       ) : null}
 

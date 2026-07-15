@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, CheckCircle2, Dumbbell, Quote, ShieldCheck, Sparkles } from "lucide-react";
+import { ArrowRight, CheckCircle2, Dumbbell, ShieldCheck, Sparkles } from "lucide-react";
 import { landingService } from "@/services/landing.service";
 import { ButtonLink, Footer, SectionHeader } from "@/components/ui";
 import { TransformationImage } from "@/components/transformation-image";
@@ -196,44 +196,8 @@ export async function TransformationsSection() {
   );
 }
 
-export async function TestimonialsSection() {
-  // Producción sin demo: nunca testimonios inventados; placeholder hasta que el coach publique.
-  const testimonials = isDemoContent() ? await landingService.getTestimonials() : [];
-
-  return (
-    <section className="border-y border-white/10 bg-[#0a0d0b] px-5 py-24 sm:px-8">
-      <div className="mx-auto max-w-7xl">
-        <SectionHeader
-          eyebrow="Testimonios"
-          title="Historias de progreso"
-          description="Personas reales que entrenaron con dirección y lograron sostener sus resultados."
-        />
-        {testimonials.length === 0 ? (
-          <ContentPlaceholder
-            icon={Quote}
-            title="Aún no hay testimonios"
-            message="Publica testimonios para generar confianza."
-          />
-        ) : (
-        <div className="grid gap-5 md:grid-cols-3">
-          {testimonials.map((item) => (
-            <article key={item.name} className="premium-card card-hover rounded-2xl p-6">
-              <p className="text-4xl font-black text-[#65ff4f]">{item.result}</p>
-              <p className="mt-5 text-base leading-7 text-zinc-300">
-                &ldquo;{item.quote}&rdquo;
-              </p>
-              <div className="mt-6 border-t border-white/10 pt-5">
-                <p className="font-black text-white">{item.name}</p>
-                <p className="mt-1 text-sm text-zinc-500">{item.role}</p>
-              </div>
-            </article>
-          ))}
-        </div>
-        )}
-      </div>
-    </section>
-  );
-}
+// TestimonialsSection se movió a `src/components/testimonials-section.tsx` (cliente,
+// módulo real administrable por el coach; landing muestra solo `public`).
 
 export async function BenefitsSection() {
   const benefits = await landingService.getBenefits();

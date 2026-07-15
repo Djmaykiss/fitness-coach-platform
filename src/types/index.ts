@@ -59,12 +59,32 @@ export type Transformation = {
   details: string[];
 };
 
+/** Estado del contenido (patrón universal). */
+export type ContentStatus = "draft" | "public" | "archived";
+
+/**
+ * Testimonio (módulo de referencia del patrón universal de contenido). Org-scoped,
+ * administrado por el coach: `status` draft/public/archived, `position` (reordenar),
+ * imagen opcional por el Media Manager (`imageMediaId` -> `media_assets`; `imageUrl` se
+ * resuelve al leer, no se persiste). Soft-delete. La landing muestra solo `public`.
+ */
 export type Testimonial = {
+  id: string;
   name: string;
   role: string;
   result: string;
   quote: string;
+  imageMediaId: string;
+  imageUrl: string;
+  status: ContentStatus;
+  position: number;
 };
+
+/** Datos editables de un testimonio (sin id/estado/posición/url resuelta). */
+export type CreateTestimonialInput = Omit<
+  Testimonial,
+  "id" | "imageUrl" | "status" | "position"
+>;
 
 export type Benefit = {
   icon: IconComponent;

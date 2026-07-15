@@ -3,7 +3,9 @@
 import { useCallback, useId, useRef, useState } from "react";
 import { UploadCloud, X, RefreshCw, ImageIcon, AlertCircle, CheckCircle2 } from "lucide-react";
 import { storageService, type UploadedImage } from "@/services/storage.service";
+import { mediaService } from "@/services/media.service";
 import { isAcceptedImage, ACCEPTED_IMAGE_EXT } from "@/lib/image-compress";
+import type { MediaAsset } from "@/types";
 
 /**
  * <ImageUploader> — componente reutilizable de subida de imágenes. Drag & drop + selector,
@@ -29,8 +31,17 @@ export type ImageUploaderProps = {
   bucket: string;
   pathPrefix: string;
   multiple?: boolean;
-  /** Se llama por cada imagen subida con éxito. */
+  /** Se llama por cada imagen subida con éxito (subida SOLO a Storage). */
   onUploaded?: (image: UploadedImage) => void;
+  /**
+   * Media Manager: si se pasa `mediaContext` + `orgId`, la subida se registra en
+   * `media_assets` (via `mediaService.uploadAndSave`) y devuelve el `MediaAsset` por
+   * `onMediaSaved`. `pathPrefix` se ignora (lo arma el service `{org}/{context}/…`).
+   */
+  mediaContext?: string;
+  mediaOwnerKind?: string;
+  orgId?: string;
+  onMediaSaved?: (asset: MediaAsset) => void;
   /** Texto guía dentro de la zona de arrastre. */
   hint?: string;
   className?: string;
@@ -44,6 +55,10 @@ export function ImageUploader({
   pathPrefix,
   multiple = false,
   onUploaded,
+  mediaContext,
+  mediaOwnerKind,
+  orgId,
+  onMediaSaved,
   hint,
   className,
 }: ImageUploaderProps) {
@@ -61,14 +76,27 @@ export function ImageUploader({
       abortRef.current.set(item.id, controller);
       patch(item.id, { status: "uploading", progress: 0, error: undefined });
       try {
-        const result = await storageService.uploadImage(item.file, {
-          bucket,
-          pathPrefix,
-          signal: controller.signal,
-          onProgress: (pct) => patch(item.id, { progress: pct }),
-        });
-        patch(item.id, { status: "done", progress: 100, result });
-        onUploaded?.(result);
+        if (mediaContext && orgId) {
+          // Media Manager: sube + registra la fila en media_assets.
+          const asset = await mediaService.uploadAndSave(item.file, {
+            orgId,
+            bucket,
+            context: mediaContext,
+            ownerKind: mediaOwnerKind ?? "",
+            onProgress: (pct) => patch(item.id, { progress: pct }),
+          });
+          patch(item.id, { status: "done", progress: 100 });
+          onMediaSaved?.(asset);
+        } else {
+          const result = await storageService.uploadImage(item.file, {
+            bucket,
+            pathPrefix,
+            signal: controller.signal,
+            onProgress: (pct) => patch(item.id, { progress: pct }),
+          });
+          patch(item.id, { status: "done", progress: 100, result });
+          onUploaded?.(result);
+        }
       } catch (err) {
         const message = err instanceof Error ? err.message : "No se pudo subir la imagen.";
         patch(item.id, { status: "error", error: message });
@@ -76,7 +104,7 @@ export function ImageUploader({
         abortRef.current.delete(item.id);
       }
     },
-    [bucket, pathPrefix, onUploaded],
+    [bucket, pathPrefix, mediaContext, mediaOwnerKind, orgId, onUploaded, onMediaSaved],
   );
 
   const addFiles = useCallback(

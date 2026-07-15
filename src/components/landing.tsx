@@ -5,10 +5,10 @@ import {
   FinalCtaSection,
   Footer,
   HeroSection,
-  TestimonialsSection,
   TransformationsSection,
 } from "@/sections/landing-sections";
 import { PlansSection } from "@/components/plans-section";
+import { TestimonialsSection } from "@/components/testimonials-section";
 
 // NOTA: `ProgramsSection` ("Planes para distintos niveles": Base Fitness /
 // Transformación 12 Semanas / Coaching Performance) se retiro de la landing para no
