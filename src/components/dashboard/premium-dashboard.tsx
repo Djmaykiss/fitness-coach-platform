@@ -19,6 +19,7 @@ import {
   Moon,
   Play,
   Plus,
+  RefreshCw,
   Ruler,
   Salad,
   Send,
@@ -58,21 +59,58 @@ import type {
 
 export function PremiumDashboard({ userId }: { userId: string }) {
   const [data, setData] = useState<CoachingDashboard | null>(null);
+  const [error, setError] = useState(false);
 
   async function load() {
-    const result = await coachingService.getDashboard(userId);
-    setData(result);
+    try {
+      setError(false);
+      const result = await coachingService.getDashboard(userId);
+      setData(result);
+    } catch {
+      // Nunca dejar un loader infinito: se marca error y se ofrece reintentar.
+      setError(true);
+    }
   }
 
   useEffect(() => {
     let active = true;
-    coachingService.getDashboard(userId).then((result) => {
-      if (active) setData(result);
-    });
+    coachingService
+      .getDashboard(userId)
+      .then((result) => {
+        if (active) {
+          setError(false);
+          setData(result);
+        }
+      })
+      .catch(() => {
+        if (active) setError(true);
+      });
     return () => {
       active = false;
     };
   }, [userId]);
+
+  // Estado de error (solo si aún no hay datos): mensaje amigable + Reintentar.
+  if (error && !data) {
+    return (
+      <div className="mt-6 rounded-2xl border border-red-500/25 bg-red-500/[0.06] p-6">
+        <p className="text-sm font-bold text-red-200">
+          No pudimos cargar tu plataforma de coaching.
+        </p>
+        <p className="mt-1 text-sm text-zinc-400">
+          Revisa tu conexión e inténtalo de nuevo.
+        </p>
+        <button
+          type="button"
+          onClick={() => void load()}
+          className="mt-4 inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-gradient-to-b from-[#85ff73] to-[#65ff4f] px-5 text-sm font-black uppercase tracking-wide text-black transition hover:-translate-y-0.5 hover:brightness-110 active:translate-y-0"
+        >
+          <RefreshCw size={16} />
+          Reintentar
+        </button>
+      </div>
+    );
+  }
 
   if (!data) {
     return (
