@@ -62,7 +62,11 @@ Coach crea (draft)
 7. **Local/Supabase en paridad**: `Local*` y `Supabase*` cumplen la MISMA interfaz; se
    eligen por `pickRepository(key, local, supabase)`.
 8. **Media Manager reutilizable**: imágenes/videos por `media_assets` + `storageService` +
-   `<ImageUploader>`. Nunca un sistema de imágenes por módulo.
+   `<ImageUploader>`. Nunca un sistema de imágenes por módulo. **Render**: el contenido
+   dinámico (URLs de Storage / arbitrarias) SIEMPRE con `<img>` + `onError`, NUNCA
+   `next/image` (evita depender de `images.remotePatterns` y de romper con `src=""`); si la
+   URL falta o falla, mostrar solo el placeholder. `next/image` queda solo para assets fijos
+   de `/public`. Ver la REGLA PERMANENTE en `CLAUDE.md`.
 9. **No hardcodear contenido** en componentes; todo sale de datos administrables.
 10. **Todo administrable por el coach**: crear/editar/eliminar/publicar/despublicar/archivar/
     asignar desde `/admin`. El alumno solo consume.

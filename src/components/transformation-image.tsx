@@ -1,14 +1,16 @@
 "use client";
 
-import Image from "next/image";
 import { useState } from "react";
 
 /**
  * Tarjeta de imagen de una transformacion (Antes/Despues).
  *
- * Muestra la foto desde /public si existe; si el archivo aun no esta, el
- * `onError` la oculta y queda el placeholder elegante (patron del tile), sin
- * romper el diseno. La etiqueta (ANTES / DESPUES / SEMANA X) va superpuesta.
+ * Contenido DINAMICO (URLs de Supabase Storage o rutas arbitrarias): se usa `<img>` con
+ * `onError`, NO `next/image` — misma convencion que el resto del proyecto (Testimonios,
+ * Biblioteca, Descubre) para no depender de `images.remotePatterns` en `next.config`.
+ * Si la URL viene vacia / null / undefined o la imagen falla, se muestra SOLO el
+ * placeholder elegante (el fondo del tile + la etiqueta), sin romper el diseno ni
+ * renderizar nunca `src=""`.
  */
 export function TransformationImage({
   src,
@@ -21,7 +23,8 @@ export function TransformationImage({
   label: string;
   after?: boolean;
 }) {
-  const [showImage, setShowImage] = useState(true);
+  const [broken, setBroken] = useState(false);
+  const hasImage = typeof src === "string" && src.trim() !== "" && !broken;
 
   return (
     <div
@@ -31,14 +34,14 @@ export function TransformationImage({
           : "transformation-tile"
       }`}
     >
-      {showImage ? (
-        <Image
+      {hasImage ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
           src={src}
           alt={alt}
-          fill
-          sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 25vw"
-          className="object-cover"
-          onError={() => setShowImage(false)}
+          loading="lazy"
+          className="absolute inset-0 h-full w-full object-cover"
+          onError={() => setBroken(true)}
         />
       ) : null}
       <span className="absolute left-3 top-3 z-10 rounded-md bg-black/55 px-2 py-1 text-xs font-bold uppercase tracking-wide text-white backdrop-blur">
