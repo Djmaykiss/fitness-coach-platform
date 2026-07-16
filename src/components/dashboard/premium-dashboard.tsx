@@ -1,7 +1,6 @@
 "use client";
 
-import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import {
   Activity,
@@ -29,6 +28,7 @@ import {
   TrendingUp,
   Trophy,
   Utensils,
+  X,
 } from "lucide-react";
 import type { ComponentType } from "react";
 import type { LucideProps } from "lucide-react";
@@ -37,6 +37,7 @@ import { ContentPlaceholder } from "@/components/content-placeholder";
 import { isDemoContent } from "@/lib/demo";
 import { coachingService } from "@/services/coaching.service";
 import { formatDate } from "@/lib/format";
+import { compressImage, isAcceptedImage, ACCEPTED_IMAGE_EXT } from "@/lib/image-compress";
 import type {
   Achievement,
   BodyMeasurement,
@@ -278,12 +279,14 @@ function MediaImg({
       className={`relative aspect-[3/4] w-full overflow-hidden bg-white/[0.04] ${rounded}`}
     >
       {ok && src ? (
-        <Image
+        // Contenido dinámico (dataURL / URL de Storage): <img> + onError, NO next/image
+        // (evita depender de images.remotePatterns y de romper con src=""). Ver CLAUDE.md.
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
           src={src}
           alt={alt}
-          fill
-          sizes="200px"
-          className="object-cover"
+          loading="lazy"
+          className="absolute inset-0 h-full w-full object-cover"
           onError={() => setOk(false)}
         />
       ) : (
@@ -917,12 +920,14 @@ function DemoImg({
   return (
     <div className="relative h-full w-full">
       {ok && src ? (
-        <Image
+        // Contenido dinámico (dataURL / URL de Storage): <img> + onError, NO next/image
+        // (evita depender de images.remotePatterns y de romper con src=""). Ver CLAUDE.md.
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
           src={src}
           alt={label}
-          fill
-          sizes="384px"
-          className="object-cover"
+          loading="lazy"
+          className="absolute inset-0 h-full w-full object-cover"
           onError={() => setOk(false)}
         />
       ) : null}
@@ -952,16 +957,27 @@ function ProgressGallery({
   const [open, setOpen] = useState(false);
   const [date, setDate] = useState("");
   const [note, setNote] = useState("");
+  const [front, setFront] = useState("");
+  const [side, setSide] = useState("");
+  const [back, setBack] = useState("");
   const [saving, setSaving] = useState(false);
+
+  function reset() {
+    setDate("");
+    setNote("");
+    setFront("");
+    setSide("");
+    setBack("");
+  }
 
   async function submit() {
     if (!date) return;
     setSaving(true);
-    await onAdd({ date, front: "", side: "", back: "", note });
+    // Las imágenes son opcionales (0-3): se envía el dataURL o "" por posición.
+    await onAdd({ date, front, side, back, note });
     setSaving(false);
     setOpen(false);
-    setDate("");
-    setNote("");
+    reset();
   }
 
   return (
@@ -1003,10 +1019,14 @@ function ProgressGallery({
               />
             </label>
           </div>
-          <p className="mt-2 text-xs text-zinc-500">
-            Las fotos (frente, perfil, espalda) se podrán subir al conectar el
-            almacenamiento. Por ahora se guarda el registro con su fecha y nota.
+          <p className="mt-3 text-xs text-zinc-500">
+            Sube tus fotos (opcionales). Puedes guardar con una, dos o las tres.
           </p>
+          <div className="mt-3 grid grid-cols-3 gap-3">
+            <PhotoSlot label="Frente" value={front} onChange={setFront} />
+            <PhotoSlot label="Perfil" value={side} onChange={setSide} />
+            <PhotoSlot label="Espalda" value={back} onChange={setBack} />
+          </div>
           <div className="mt-4 flex gap-3">
             <button
               type="button"
@@ -1018,7 +1038,10 @@ function ProgressGallery({
             </button>
             <button
               type="button"
-              onClick={() => setOpen(false)}
+              onClick={() => {
+                setOpen(false);
+                reset();
+              }}
               className="inline-flex min-h-10 items-center justify-center rounded-lg border border-white/15 px-5 text-sm font-bold text-zinc-300"
             >
               Cancelar
@@ -1058,6 +1081,120 @@ function ProgressGallery({
         </div>
       )}
     </SectionCard>
+  );
+}
+
+/** Convierte un Blob comprimido en dataURL para persistir la foto como texto (privado). */
+function blobToDataUrl(blob: Blob): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = () => reject(new Error("No se pudo leer la imagen."));
+    reader.readAsDataURL(blob);
+  });
+}
+
+/**
+ * Slot de una foto de progreso (Frente / Perfil / Espalda). Selecciona JPG/PNG/WebP,
+ * comprime con las utilidades existentes y expone el dataURL al padre; permite
+ * previsualizar, reemplazar y quitar antes de guardar. Contenido privado del alumno.
+ */
+function PhotoSlot({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  onChange: (dataUrl: string) => void;
+}) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState(false);
+
+  async function pick(file: File) {
+    if (!isAcceptedImage(file)) {
+      setErr(true);
+      return;
+    }
+    setErr(false);
+    setBusy(true);
+    try {
+      // Tamaño modesto para no inflar el dataURL (localStorage/fila de la BD).
+      const compressed = await compressImage(file, { maxSize: 1200 });
+      onChange(await blobToDataUrl(compressed.blob));
+    } catch {
+      setErr(true);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div className="flex flex-col gap-1">
+      <div className="relative aspect-[3/4] w-full overflow-hidden rounded-lg border border-white/10 bg-white/[0.04]">
+        {value ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={value}
+            alt={label}
+            className="absolute inset-0 h-full w-full object-cover"
+          />
+        ) : (
+          <button
+            type="button"
+            onClick={() => inputRef.current?.click()}
+            className="flex h-full w-full flex-col items-center justify-center gap-1 text-zinc-500 transition hover:text-[#65ff4f]"
+            aria-label={`Subir foto de ${label}`}
+          >
+            {busy ? (
+              <span className="text-[11px] font-bold">Procesando…</span>
+            ) : (
+              <>
+                <Plus size={20} />
+                <span className="text-[11px] font-bold">{label}</span>
+              </>
+            )}
+          </button>
+        )}
+        {value ? (
+          <button
+            type="button"
+            aria-label={`Quitar foto de ${label}`}
+            onClick={() => onChange("")}
+            className="absolute right-1 top-1 rounded-full bg-black/60 p-1 text-zinc-200 transition hover:bg-black/80 hover:text-white"
+          >
+            <X size={12} />
+          </button>
+        ) : null}
+      </div>
+      <div className="flex min-h-[16px] items-center justify-between px-0.5">
+        <span className="text-[11px] font-bold text-zinc-400">{label}</span>
+        {value ? (
+          <button
+            type="button"
+            onClick={() => inputRef.current?.click()}
+            className="text-[11px] font-bold text-[#65ff4f] hover:underline"
+          >
+            Reemplazar
+          </button>
+        ) : null}
+      </div>
+      {err ? (
+        <span className="text-[10px] text-red-400">Usa JPG, PNG o WebP.</span>
+      ) : null}
+      <input
+        ref={inputRef}
+        type="file"
+        accept={ACCEPTED_IMAGE_EXT}
+        className="sr-only"
+        onChange={(e) => {
+          const f = e.target.files?.[0];
+          if (f) void pick(f);
+          e.target.value = "";
+        }}
+      />
+    </div>
   );
 }
 
