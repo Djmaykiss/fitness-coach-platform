@@ -5,9 +5,9 @@ import {
   FinalCtaSection,
   Footer,
   HeroSection,
-  TransformationsSection,
 } from "@/sections/landing-sections";
 import { PlansSection } from "@/components/plans-section";
+import { TransformationsSection } from "@/components/transformations-section";
 import { TestimonialsSection } from "@/components/testimonials-section";
 
 // NOTA: `ProgramsSection` ("Planes para distintos niveles": Base Fitness /

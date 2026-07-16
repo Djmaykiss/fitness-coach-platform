@@ -10,6 +10,7 @@ import type {
   ClientProgress,
   CreateClientInput,
   CreateTestimonialInput,
+  CreateTransformationInput,
   CreateEvaluationLeadInput,
   CreateLeadInput,
   CreateProgramInput,
@@ -89,8 +90,33 @@ export interface TestimonialRepository {
   deleteTestimonial(id: string): Promise<boolean>;
 }
 
+/**
+ * Transformaciones de marketing (Antes/Después) del coach (patrón universal). Espejo de
+ * `TestimonialRepository` + consentimiento obligatorio para publicar.
+ */
 export interface TransformationRepository {
+  /** Coach: TODAS las transformaciones de la org (cualquier estado), por `position`. */
   getTransformations(): Promise<Transformation[]>;
+  /** Landing: solo `status='public'` CON `consentConfirmed=true`, por `position`. */
+  getPublishedTransformations(): Promise<Transformation[]>;
+  createTransformation(input: CreateTransformationInput): Promise<Transformation>;
+  updateTransformation(
+    id: string,
+    patch: Partial<CreateTransformationInput>,
+  ): Promise<Transformation | null>;
+  /**
+   * Cambia el estado. Publicar (`public`) requiere `consentConfirmed=true`
+   * (si no, lanza; la BD lo refuerza con CHECK).
+   */
+  setStatus(id: string, status: ContentStatus): Promise<Transformation | null>;
+  /**
+   * Confirma/retira el consentimiento para publicar las imágenes. Al confirmar guarda
+   * fecha y autor; al retirarlo baja automáticamente a `draft` (deja de verse en la landing).
+   */
+  setConsent(id: string, confirmed: boolean): Promise<Transformation | null>;
+  reorder(orderedIds: string[]): Promise<void>;
+  /** Soft-delete. */
+  deleteTransformation(id: string): Promise<boolean>;
 }
 
 export interface ContentRepository {

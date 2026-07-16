@@ -19,7 +19,8 @@ import { LocalCrmRepository } from "@/repositories/local/crm.repository";
 import { LocalNotificationsRepository } from "@/repositories/local/notifications.repository";
 import { LocalTestimonialRepository } from "@/repositories/local/testimonial.repository";
 import { SupabaseTestimonialRepository } from "@/repositories/supabase/testimonial.repository";
-import { MockTransformationRepository } from "@/repositories/mock/transformation.repository";
+import { LocalTransformationRepository } from "@/repositories/local/transformation.repository";
+import { SupabaseTransformationRepository } from "@/repositories/supabase/transformation.repository";
 import { LocalClientRepository } from "@/repositories/local/client.repository";
 import { LocalLeadRepository } from "@/repositories/local/lead.repository";
 import { LocalProgramRepository } from "@/repositories/local/program.repository";
@@ -84,7 +85,11 @@ export const testimonialRepository: TestimonialRepository =
     () => new SupabaseTestimonialRepository(),
   );
 export const transformationRepository: TransformationRepository =
-  new MockTransformationRepository();
+  pickRepository<TransformationRepository>(
+    "transformations",
+    new LocalTransformationRepository(),
+    () => new SupabaseTransformationRepository(),
+  );
 export const contentRepository: ContentRepository = new MockContentRepository();
 export const pendingEvaluationRepository: PendingEvaluationRepository =
   new LocalPendingEvaluationRepository();

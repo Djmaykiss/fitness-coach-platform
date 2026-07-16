@@ -1,8 +1,7 @@
 import Link from "next/link";
-import { ArrowRight, CheckCircle2, Dumbbell, ShieldCheck, Sparkles } from "lucide-react";
+import { ArrowRight, CheckCircle2, Dumbbell, ShieldCheck } from "lucide-react";
 import { landingService } from "@/services/landing.service";
 import { ButtonLink, Footer, SectionHeader } from "@/components/ui";
-import { TransformationImage } from "@/components/transformation-image";
 import { ContentPlaceholder } from "@/components/content-placeholder";
 import { isDemoContent } from "@/lib/demo";
 import { OnboardingWizard } from "@/components/onboarding-wizard";
@@ -135,67 +134,8 @@ export async function ProgramsSection() {
   );
 }
 
-export async function TransformationsSection() {
-  // Producción sin demo: nunca transformaciones inventadas; placeholder hasta que el coach publique.
-  const transformations = isDemoContent() ? await landingService.getTransformations() : [];
-
-  return (
-    <section id="transformaciones" className="mx-auto max-w-7xl px-5 py-24 sm:px-8">
-      <SectionHeader
-        eyebrow="Antes y después"
-        title="Resultados que puedes lograr"
-        description="Ejemplos de progreso en fuerza, composición corporal y consistencia con un plan estructurado."
-      />
-      {transformations.length === 0 ? (
-        <ContentPlaceholder
-          icon={Sparkles}
-          title="Aún no hay transformaciones"
-          message="Aquí aparecerán las transformaciones de tus alumnos cuando las publiques."
-        />
-      ) : (
-      <div className="grid gap-5 md:grid-cols-3">
-        {transformations.map((item) => (
-          <article key={item.name} className="premium-card card-hover rounded-2xl p-5">
-            <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-1 xl:grid-cols-2">
-              <TransformationImage
-                src={item.beforeImage}
-                alt={`${item.name} - ${item.before}`}
-                label={item.before}
-              />
-              <TransformationImage
-                src={item.afterImage}
-                alt={`${item.name} - ${item.after}`}
-                label={item.after}
-                after
-              />
-            </div>
-            <h3 className="mt-5 text-2xl font-black">{item.name}</h3>
-            <p className="mt-1 text-sm font-semibold text-zinc-500">
-              {item.objective}
-            </p>
-            <p className="mt-3 text-lg font-black text-[#65ff4f]">{item.result}</p>
-            <ul className="mt-4 space-y-2">
-              {item.details.map((detail) => (
-                <li
-                  key={detail}
-                  className="flex items-start gap-2 text-sm leading-6 text-zinc-400"
-                >
-                  <CheckCircle2
-                    className="mt-0.5 shrink-0 text-[#65ff4f]"
-                    size={16}
-                  />
-                  <span>{detail}</span>
-                </li>
-              ))}
-            </ul>
-          </article>
-        ))}
-      </div>
-      )}
-    </section>
-  );
-}
-
+// TransformationsSection se movió a `src/components/transformations-section.tsx` (cliente,
+// módulo real administrable por el coach; landing muestra solo `public` con consentimiento).
 // TestimonialsSection se movió a `src/components/testimonials-section.tsx` (cliente,
 // módulo real administrable por el coach; landing muestra solo `public`).
 

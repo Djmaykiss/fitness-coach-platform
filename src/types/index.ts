@@ -47,20 +47,43 @@ export type Program = {
   points: string[];
 };
 
-export type Transformation = {
-  name: string;
-  objective: string;
-  result: string;
-  before: string;
-  after: string;
-  /** Rutas en /public. Si la imagen no existe aun, se muestra un placeholder. */
-  beforeImage: string;
-  afterImage: string;
-  details: string[];
-};
-
 /** Estado del contenido (patrón universal). */
 export type ContentStatus = "draft" | "public" | "archived";
+
+/**
+ * Transformación de marketing (Antes/Después) CURADA por el coach para la landing
+ * (patrón universal de contenido; espejo de `Testimonial`). Org-scoped, `status`
+ * draft/public/archived, `position` (reordenar), soft-delete. Imágenes Antes/Después
+ * por el Media Manager (`beforeMediaId`/`afterMediaId` -> `media_assets`;
+ * `beforeUrl`/`afterUrl` se resuelven al leer, no se persisten).
+ *
+ * CONSENTIMIENTO: `consentConfirmed` indica que el coach confirmó que tiene
+ * autorización del alumno para publicar las imágenes. La landing SOLO muestra
+ * `status='public'` CON `consentConfirmed=true` (regla reforzada por RLS + CHECK en BD).
+ *
+ * DISTINTO de `ProgressPhoto`/`transformation_photos` (fotos PRIVADAS del alumno).
+ */
+export type Transformation = {
+  id: string;
+  clientName: string;
+  title: string;
+  description: string;
+  result: string;
+  duration: string;
+  beforeMediaId: string;
+  afterMediaId: string;
+  beforeUrl: string;
+  afterUrl: string;
+  status: ContentStatus;
+  position: number;
+  consentConfirmed: boolean;
+};
+
+/** Datos editables de una transformación (sin id/urls/estado/posición/consentimiento). */
+export type CreateTransformationInput = Omit<
+  Transformation,
+  "id" | "beforeUrl" | "afterUrl" | "status" | "position" | "consentConfirmed"
+>;
 
 /**
  * Testimonio (módulo de referencia del patrón universal de contenido). Org-scoped,

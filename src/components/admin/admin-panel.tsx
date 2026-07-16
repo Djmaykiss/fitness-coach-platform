@@ -12,6 +12,7 @@ import {
   MessageSquareQuote,
   Dumbbell,
   FileText,
+  Images,
   LayoutDashboard,
   Library,
   ListChecks,
@@ -46,6 +47,7 @@ import { CrmPipeline } from "@/components/admin/crm-pipeline";
 import { NotificationsCenter } from "@/components/admin/notifications-center";
 import { PlansManager } from "@/components/admin/plans-manager";
 import { TestimonialsManager } from "@/components/admin/testimonials-manager";
+import { TransformationsManager } from "@/components/admin/transformations-manager";
 import { useToast } from "@/context/toast-context";
 import { adminDashboardService } from "@/services/dashboard.service";
 import { leadService } from "@/services/lead.service";
@@ -140,6 +142,7 @@ const CONTENT_TABS = [
   { key: "onboarding", label: "Onboarding", icon: Sparkles },
   { key: "planes", label: "Planes", icon: CreditCard },
   { key: "testimonios", label: "Testimonios", icon: MessageSquareQuote },
+  { key: "transformaciones", label: "Transformaciones", icon: Images },
 ];
 
 export function AdminPanel({
@@ -504,6 +507,9 @@ export function AdminPanel({
 
           {/* Testimonios (módulo de referencia del patrón universal) */}
           {contentTab === "testimonios" ? <TestimonialsManager /> : null}
+
+          {/* Transformaciones (Antes/Después de marketing, con consentimiento) */}
+          {contentTab === "transformaciones" ? <TransformationsManager /> : null}
         </div>
       ) : null}
 
